@@ -1,0 +1,44 @@
+# Ignore everything
+*
+
+# Exclude folders from above rule
+!**/
+
+# Block previously allowed folders
+**/.cache/
+**/.npm/
+**/build/
+**/coverage/
+**/db-dev-data/
+**/node_modules/
+
+# Exclude source files
+!*.cjs
+!*.ts
+!*.vue
+!*.html
+!*.css
+!loader.js
+
+# Assets
+!*.ico
+!*.png
+!*.jpg
+!*.svg
+!*.webp
+!*.gif
+!*.ttf
+
+# Etc
+!*.json
+!*.sh
+!*.md
+!*.yml
+!*.yaml
+!Dockerfile
+!.gitignore
+!.gitkeep
+!*.sql
+
+# Block previously allowed files
+**/settings.json

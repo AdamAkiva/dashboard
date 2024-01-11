@@ -1,0 +1,30 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Server",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "restart": true,
+      "address": "localhost",
+      "remoteRoot": "/home/node",
+      "localRoot": "${workspaceFolder}/be",
+      "sourceMaps": true,
+      "smartStep": true
+    },
+    {
+      "name": "Debug Tests",
+      "type": "node",
+      "request": "attach",
+      "port": 9230,
+      "restart": true,
+      "address": "localhost",
+      "remoteRoot": "/home/node",
+      "localRoot": "${workspaceFolder}/be",
+      "sourceMaps": true,
+      "smartStep": true,
+      "autoAttachChildProcesses": false
+    }
+  ]
+}
