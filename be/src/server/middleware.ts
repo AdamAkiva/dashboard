@@ -63,18 +63,18 @@ export const healthCheck = (db: DatabaseHandler) => {
 };
 
 export const attachContext = (db: DatabaseHandler) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      const { UNAUTHORIZED } = STATUS;
+  return (req: Request, _: Response, next: NextFunction) => {
+    // const authHeader = req.headers.authorization;
+    // if (!authHeader) {
+    //   const { UNAUTHORIZED } = STATUS;
 
-      Logger.nativeLog(
-        'error',
-        'Call to attachContext() before calling isUser()/isAdmin()'
-      );
+    //   Logger.nativeLog(
+    //     'error',
+    //     'Call to attachContext() before calling isUser()/isAdmin()'
+    //   );
 
-      return res.status(UNAUTHORIZED.CODE).send(UNAUTHORIZED.MSG);
-    }
+    //   return res.status(UNAUTHORIZED.CODE).send(UNAUTHORIZED.MSG);
+    // }
 
     req.dashboard = {
       startTime: performance.now(),

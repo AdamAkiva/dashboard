@@ -89,7 +89,7 @@ services:
       retries: 10
       start_period: 20s
     depends_on:
-      dashboard-postgres-dev:
+      dashboard-pg-dev:
         condition: service_healthy
     command: /bin/sh -c "npm install --ddd && npm run start:dev"
 
@@ -106,13 +106,12 @@ services:
       - SERVER_PORT=4301
       - TEST_SERVER_PORT=4302
       - SERVER_DEBUG_PORT=9229
-      - TESTS_DEBUG_PORT=9230
       - SERVER_URL=http://localhost
       - API_ROUTE=v0/api
       - HEALTH_CHECK_ROUTE=health
       - ALLOWED_ORIGINS=*
-      - DB_URI=postgres://admin:admin@dashboard-postgres-dev:6600/dashboard-dev
-      - DB_TEST_URI=postgres://admin:admin@dashboard-postgres-test:6600/dashboard-test
+      - DB_URI=postgres://admin:admin@dashboard-pg-dev:6600/dashboard-dev
+      - DB_TEST_URI=postgres://admin:admin@dashboard-pg-test:6600/dashboard-test
       - NODE_ENV=development
     volumes:
       - ../be:/home/node:rw
@@ -138,8 +137,8 @@ services:
       retries: 10
       start_period: 20s
     depends_on:
-      dashboard-postgres-dev:
+      dashboard-pg-dev:
         condition: service_healthy
-      dashboard-postgres-test:
+      dashboard-pg-test:
         condition: service_healthy
     command: /bin/sh -c "npm install --ddd && npm run start:dev"

@@ -1,22 +1,17 @@
-import { server } from './setup.js';
 import {
   STATUS,
-  beforeEach,
-  cleanupDatabase,
   describe,
   expect,
-  healthCheckURL,
+  inject,
   it,
   sendHttpRequest
-} from './utils.js';
+} from '../utils.js';
 
 /**********************************************************************************/
 
-beforeEach(async () => {
-  await cleanupDatabase(server);
-});
-
 describe('General tests', () => {
+  const { healthCheckURL } = inject('urls');
+
   describe('Ready check', () => {
     describe('Host', () => {
       it.concurrent('Valid host', async () => {

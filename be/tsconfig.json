@@ -29,7 +29,7 @@
     "skipLibCheck": true,
     "verbatimModuleSyntax": true
   },
-  "files": ["./src/types/index.d.ts"],
+  "files": ["./src/types/index.d.ts", "./__tests__/config/index.d.ts"],
   "include": ["./src/**/*.ts", "./__tests__/**/*.ts", "./loader.js"],
   "ts-node": {
     "swc": true

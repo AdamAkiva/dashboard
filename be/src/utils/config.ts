@@ -80,7 +80,6 @@ const checkMissingEnvVariables = (mode: Mode) => {
       'SERVER_DEBUG_PORT',
       `Missing 'SERVER_DEBUG_PORT', env variable`
     );
-    errMap.set('TESTS_DEBUG_PORT', `Missing 'TESTS_DEBUG_PORT', env variable`);
   }
 
   return errMap;
