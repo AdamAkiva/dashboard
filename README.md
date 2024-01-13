@@ -13,7 +13,6 @@ chmod +x ./scripts/start.sh ./scripts/remove.sh
 
 1. [NVM - Node Version Manager](https://github.com/nvm-sh/nvm#installing-and-updating)
 2. [Node LTS version](https://github.com/nvm-sh/nvm#long-term-support)
-3. Backend developers, [Debugger](https://dev.infinitylabs.co.il/dev-projs/guides/-/tree/main/web/nodejs/debugger)
 
 ### Notes:
 
