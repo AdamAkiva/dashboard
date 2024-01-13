@@ -15,6 +15,7 @@ describe('General tests', () => {
   describe('Ready check', () => {
     describe('Host', () => {
       it.concurrent('Valid host', async () => {
+        // TODO Consider mocking this as well?
         const res = await sendHttpRequest<never>(healthCheckURL);
 
         expect(res.statusCode).toBe(STATUS.NO_CONTENT.CODE);
