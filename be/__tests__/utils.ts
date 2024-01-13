@@ -20,8 +20,9 @@ import { HttpServer } from '../src/server/index.js';
 import { errorHandler } from '../src/server/middleware.js';
 import * as services from '../src/services/index.js';
 import {
-  got,
-  type OptionsOfTextResponseBody,
+  ky,
+  type KyOptions,
+  type RequiredFields,
   type UnknownObject
 } from '../src/types/index.js';
 import { logger, STATUS, VALIDATION } from '../src/utils/index.js';
@@ -43,30 +44,37 @@ export const omit = <T extends UnknownObject, K extends string & keyof T>(
 
 export const sendHttpRequest = async <ReturnType = unknown>(
   url: string,
-  options: OptionsOfTextResponseBody = {}
+  options: RequiredFields<KyOptions, 'method'> = { method: 'get' }
 ) => {
-  const res = await got(url, {
+  const res = await ky(url, {
     ...options,
-    // GOT has retry built in for GET requests, we don't want that for tests
-    // in order for the tests to be consistent
     retry: { limit: 0 }, // Force no retries
-    timeout: { request: 8_000 }, // millis
+    timeout: 4_000, // millis
     throwHttpErrors: false
   });
 
-  // Used to handle a case of a return value which is non JSON parsable, e.g
-  // a native string type
-  try {
+  const contentType = res.headers.get('content-type');
+  if (!contentType) {
     return {
-      data: JSON.parse(res.body) as ReturnType,
-      statusCode: res.statusCode
-    };
-  } catch (err) {
-    return {
-      data: res.body as ReturnType,
-      statusCode: res.statusCode
+      data: '' as ReturnType,
+      statusCode: res.status
     };
   }
+
+  if (contentType.includes('application/json')) {
+    return {
+      data: (await res.json()) as ReturnType,
+      statusCode: res.status
+    };
+  }
+  if (contentType.includes('text/html')) {
+    return {
+      data: (await res.text()) as ReturnType,
+      statusCode: res.status
+    };
+  }
+
+  throw new Error('Unsupported content type');
 };
 
 export const getExpressMocks = (withLogs = false) => {

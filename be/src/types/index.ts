@@ -27,7 +27,7 @@ import express, {
   type Request,
   type Response
 } from 'express';
-import got, { type OptionsOfTextResponseBody } from 'got';
+import ky, { type Options as KyOptions } from 'ky';
 import { pinoHttp, type HttpLogger } from 'pino-http';
 import postgres from 'postgres';
 import { z as Zod } from 'zod';
@@ -39,6 +39,7 @@ export type Mode = 'development' | 'production' | 'test';
 export type LogLevel = 'error' | 'info' | 'warn';
 
 export type UnknownObject = { [key: string]: unknown };
+export type RequiredFields<T, K extends keyof T> = Required<Pick<T, K>> & T;
 
 export type EnvironmentVariables = {
   mode: Mode;
@@ -81,12 +82,12 @@ export {
   drizzle,
   eq,
   express,
-  got,
   hostname,
   inArray,
   isNotNull,
   isNull,
   json,
+  ky,
   machine,
   ne,
   notInArray,
@@ -103,8 +104,8 @@ export {
   Zod,
   type Application,
   type HttpLogger,
+  type KyOptions,
   type NextFunction,
-  type OptionsOfTextResponseBody,
   type Request,
   type Response,
   type Server

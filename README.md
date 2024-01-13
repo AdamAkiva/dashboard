@@ -1,9 +1,8 @@
 ## Prerequisites
 
 1. Linux-based system with POSIX compliant shell (required for the scripts to work)
-2. [Docker engine](https://docs.docker.com/engine/install/) >= 24.0.6
-3. [Docker-compose plugin](https://docs.docker.com/compose/install/linux/) >= 2.20.3
-4. Make sure the scripts have execute permissions, e.g:
+2. [Docker engine & docker-compose plugin](../tutorials/tools/docker.md)
+3. Make sure the scripts have execute permissions, e.g:
 
 ```bash
 chmod +x ./scripts/start.sh ./scripts/remove.sh
@@ -13,6 +12,7 @@ chmod +x ./scripts/start.sh ./scripts/remove.sh
 
 1. [NVM - Node Version Manager](https://github.com/nvm-sh/nvm#installing-and-updating)
 2. [Node LTS version](https://github.com/nvm-sh/nvm#long-term-support)
+3. [Debugger](../tutorials/web/node/debugger/typescript/README.md)
 
 ### Notes:
 
