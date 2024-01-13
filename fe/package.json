@@ -2,7 +2,6 @@
   "name": "dashboard-fe",
   "version": "0.0.0",
   "type": "module",
-  "private": true,
   "scripts": {
     "start:dev": "npx vite",
     "test": "/bin/sh -c 'xhost +local: && MODE=mock docker compose -f ../scripts/docker-compose-fe-test.yml up --exit-code-from dashboard-cypress && xhost -local:'",
@@ -16,13 +15,13 @@
     "check-cir-deps": "npx dpdm --no-tree --exit-code circular:1 '{src,cypress}/**/*.{ts,vue}'"
   },
   "dependencies": {
-    "vue": "^3.4.5"
+    "vue": "^3.4.13"
   },
   "devDependencies": {
-    "@types/node": "^20.10.6",
-    "@typescript-eslint/eslint-plugin": "^6.17.0",
-    "@typescript-eslint/parser": "^6.17.0",
-    "@vitejs/plugin-vue": "^5.0.2",
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^6.18.1",
+    "@typescript-eslint/parser": "^6.18.1",
+    "@vitejs/plugin-vue": "^5.0.3",
     "@vue/eslint-config-typescript": "^12.0.0",
     "cypress": "^13.6.2",
     "cypress-vite": "^1.5.0",
@@ -31,11 +30,35 @@
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-security": "^2.1.0",
-    "eslint-plugin-vue": "^9.19.2",
+    "eslint-plugin-vue": "^9.20.1",
     "npm-check-updates": "^16.14.12",
-    "prettier": "^3.1.1",
+    "prettier": "^3.2.1",
     "typescript": "^5.3.3",
     "vite": "^5.0.11",
-    "vue-eslint-parser": "^9.3.2"
-  }
+    "vue-eslint-parser": "^9.4.0"
+  },
+  "author": "Adam AKiva",
+  "license": "MIT",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AdamAkiva/dashboard"
+  },
+  "bugs": {
+    "url": "https://github.com/AdamAkiva/dashboard/issues"
+  },
+  "maintainers": [
+    {
+      "name": "Adam Akiva",
+      "email": "adam.akiva14@gmail.com",
+      "url": "https://github.com/AdamAkiva"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Adam Akiva",
+      "email": "adam.akiva14@gmail.com",
+      "url": "https://github.com/AdamAkiva"
+    }
+  ]
 }
