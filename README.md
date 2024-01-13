@@ -1,7 +1,7 @@
 ## Prerequisites
 
 1. Linux-based system with POSIX compliant shell (required for the scripts to work)
-2. [Docker engine & docker-compose plugin](../tutorials/tools/docker.md)
+2. [Docker engine & docker-compose plugin](https://github.com/AdamAkiva/tutorials/blob/main/tools/docker.md)
 3. Make sure the scripts have execute permissions, e.g:
 
 ```bash
@@ -12,7 +12,7 @@ chmod +x ./scripts/start.sh ./scripts/remove.sh
 
 1. [NVM - Node Version Manager](https://github.com/nvm-sh/nvm#installing-and-updating)
 2. [Node LTS version](https://github.com/nvm-sh/nvm#long-term-support)
-3. [Debugger](../tutorials/web/node/debugger/typescript/README.md)
+3. [Debugger](https://github.com/AdamAkiva/tutorials/blob/main/web/node/debugger/typescript/README.md)
 
 ### Notes:
 
