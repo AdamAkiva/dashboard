@@ -1,6 +1,5 @@
 import type { EnvironmentVariables, Mode } from '../types/index.js';
-
-import Logger from './logger.js';
+import { logger } from './logger.js';
 
 /**********************************************************************************/
 
@@ -40,9 +39,8 @@ const checkRuntimeEnv = (mode?: string | undefined): mode is Mode => {
     return true;
   }
 
-  Logger.nativeLog(
-    'error',
-    `Missing or invalid 'NODE_ENV' environment variable, should never happen.` +
+  logger.fatal(
+    `Missing or invalid 'NODE_ENV' env value, should never happen.` +
       ' Unresolvable, exiting...'
   );
 
@@ -58,7 +56,7 @@ const checkEnvVariables = (mode: Mode) => {
     }
   });
   if (missingValues) {
-    Logger.nativeLog('error', `\n${missingValues}`);
+    logger.fatal(`\nMissing the following env vars: ${missingValues}`);
 
     process.kill(process.pid, 'SIGTERM');
     throw new Error('Graceful shutdown');

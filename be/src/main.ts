@@ -1,5 +1,5 @@
 import { HttpServer } from './server/index.js';
-import { Logger, getEnv, getStackTrace } from './utils/index.js';
+import { getEnv, logger } from './utils/index.js';
 
 /**********************************************************************************/
 
@@ -20,7 +20,7 @@ const startServer = async () => {
   process.once('uncaughtException', globalErrorHandler(server, 'exception'));
 
   process.on('warning', (err) => {
-    Logger.nativeLog('warn', `Warning: ${err.message + getStackTrace(err)}`);
+    logger.warn(err);
   });
 
   server.listen(serverEnv.port);
@@ -31,16 +31,7 @@ const globalErrorHandler = (
   reason: 'exception' | 'rejection'
 ) => {
   return (err: unknown) => {
-    const prefix =
-      reason === 'rejection' ? 'Unhandled rejection' : 'Uncaught exception';
-    if (err instanceof Error) {
-      Logger.nativeLog(
-        'error',
-        `${prefix}. This may help: ${err.message + getStackTrace(err)}`
-      );
-    } else {
-      Logger.nativeLog('error', prefix);
-    }
+    logger.fatal(err, `Unhandled ${reason}`);
 
     server.close();
 

@@ -1,7 +1,7 @@
 import { createServer, type Server } from 'node:http';
-import { relative } from 'node:path';
+import { hostname, machine, platform, release } from 'node:os';
+import { pid, version } from 'node:process';
 import { URL } from 'node:url';
-import utils from 'node:util';
 
 import compress from 'compression';
 import cors from 'cors';
@@ -20,6 +20,7 @@ import {
 } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import express, {
+  json,
   Router,
   type Application,
   type NextFunction,
@@ -27,6 +28,7 @@ import express, {
   type Response
 } from 'express';
 import got, { type OptionsOfTextResponseBody } from 'got';
+import { pinoHttp, type HttpLogger } from 'pino-http';
 import postgres from 'postgres';
 import { z as Zod } from 'zod';
 
@@ -35,6 +37,8 @@ import { z as Zod } from 'zod';
 export type Mode = 'development' | 'production' | 'test';
 
 export type LogLevel = 'error' | 'info' | 'warn';
+
+export type UnknownObject = { [key: string]: unknown };
 
 export type EnvironmentVariables = {
   mode: Mode;
@@ -55,6 +59,18 @@ export type ResolvedValue<T> = T extends (...args: any) => any
 
 /**********************************************************************************/
 
+export type User = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  dateOfBirth: string;
+  address: string;
+  phone: string;
+};
+
+/**********************************************************************************/
+
 export {
   and,
   asc,
@@ -66,20 +82,27 @@ export {
   eq,
   express,
   got,
+  hostname,
   inArray,
   isNotNull,
   isNull,
+  json,
+  machine,
   ne,
   notInArray,
+  pid,
+  pinoHttp,
+  platform,
   postgres,
-  relative,
+  release,
   Router,
   SQL,
   sql,
   URL,
-  utils,
+  version,
   Zod,
   type Application,
+  type HttpLogger,
   type NextFunction,
   type OptionsOfTextResponseBody,
   type Request,

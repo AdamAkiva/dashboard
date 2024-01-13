@@ -1,0 +1,29 @@
+[
+  {
+    "id": "5d67e813-035b-4a8c-9080-35e7b7dedeaf",
+    "firstName": "John",
+    "lastName": "Smith",
+    "email": "john.smith@gmail.com",
+    "dateOfBirth": "18.04.1987",
+    "address": "Fifth street",
+    "phone": "054-7231129"
+  },
+  {
+    "id": "7fed8a08-57a3-4fe3-aa50-74fa23853120",
+    "firstName": "Barbara",
+    "lastName": "Cohen",
+    "email": "barbara.cohen@gmail.com",
+    "dateOfBirth": "13.07.1990",
+    "address": "First street",
+    "phone": "054-6521190"
+  },
+  {
+    "id": "7cfa081a-ea7e-4f02-a80f-50b841538892",
+    "firstName": "Robert",
+    "lastName": "Devin",
+    "email": "robert.devin@gmail.com",
+    "dateOfBirth": "27.11.1985",
+    "address": "Twelve street",
+    "phone": "054-2891132"
+  }
+]

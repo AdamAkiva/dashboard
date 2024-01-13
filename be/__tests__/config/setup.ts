@@ -1,27 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { HttpServer } from '../../src/server/index.js';
-import { Logger } from '../../src/utils/index.js';
+import { logger } from '../../src/utils/index.js';
 
 /**********************************************************************************/
 
-export let server: HttpServer | undefined = undefined;
-
-type TestEnv = {
-  mode: 'test';
-  server: {
-    base: 'http://localhost';
-    port: string;
-    apiRoute: string;
-    healthCheckRoute: string;
-  };
-  db: string;
-};
-
-/**********************************************************************************/
-
-let teardownHappened = false;
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const setup = async ({ provide }: any) => {
   const { mode, server: serverEnv, db: dbUri } = getTestEnv();
 
@@ -30,7 +12,7 @@ export const setup = async ({ provide }: any) => {
     healthCheckURL: `${serverEnv.base}:${serverEnv.port}/${serverEnv.healthCheckRoute}`
   });
 
-  server = await HttpServer.create({
+  const server = await HttpServer.create({
     mode: mode,
     dbData: { name: 'dashboard-pg-test', uri: dbUri },
     routes: {
@@ -41,41 +23,28 @@ export const setup = async ({ provide }: any) => {
   });
 
   server.listen(serverEnv.port);
-};
 
-export const teardown = async () => {
-  if (!server) {
-    throw new Error('Server is not defined');
-  }
-  if (teardownHappened) {
-    throw new Error('Teardown already occurred');
-  }
-  teardownHappened = true;
+  return async () => {
+    const { getHandler, getModels } = server.getDatabase();
+    const handler = getHandler();
+    const models = getModels();
 
-  const { getHandler, getModels } = server.getDatabase();
-  const handler = getHandler();
-  const models = getModels();
+    /* eslint-disable drizzle/enforce-delete-with-where */
+    await handler.delete(models.userModel);
+    /* eslint-enable drizzle/enforce-delete-with-where */
 
-  /* eslint-disable drizzle/enforce-delete-with-where */
-  await handler.delete(models.userModel);
-  /* eslint-enable drizzle/enforce-delete-with-where */
-
-  server.close();
+    server.close();
+  };
 };
 
 /**********************************************************************************/
 
-let env: TestEnv | undefined = undefined;
 export const getTestEnv = () => {
-  if (env) {
-    return env;
-  }
-
   const mode = process.env.NODE_ENV;
   checkRuntimeEnv(mode);
   checkEnvVariables();
 
-  env = {
+  return {
     mode: process.env.NODE_ENV as 'test',
     server: {
       base: 'http://localhost',
@@ -85,8 +54,6 @@ export const getTestEnv = () => {
     },
     db: process.env.DB_TEST_URI!
   };
-
-  return env;
 };
 
 const checkRuntimeEnv = (mode?: string | undefined): mode is 'test' => {
@@ -94,9 +61,9 @@ const checkRuntimeEnv = (mode?: string | undefined): mode is 'test' => {
     return true;
   }
 
-  Logger.nativeLog(
-    'error',
-    `Missing/Invalid 'NODE_ENV' value, are you sure you run the correct script?`
+  logger.fatal(
+    `Missing or invalid 'NODE_ENV' env value, should never happen.` +
+      ' Unresolvable, exiting...'
   );
 
   process.kill(process.pid, 'SIGTERM');
@@ -112,7 +79,7 @@ const checkEnvVariables = () => {
   });
 
   if (missingValues) {
-    Logger.nativeLog('error', `\n${missingValues}`);
+    logger.fatal(`\nMissing the following env vars: ${missingValues}`);
 
     process.kill(process.pid, 'SIGTERM');
     throw new Error('Graceful shutdown');

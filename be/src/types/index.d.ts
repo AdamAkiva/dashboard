@@ -1,5 +1,5 @@
 import type { DatabaseHandler } from '../db/index.js';
-import type { Logger } from '../utils/index.ts';
+import type { HttpLogger } from './index.js';
 
 /**********************************************************************************/
 
@@ -9,9 +9,8 @@ declare global {
     // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
     export interface Request {
       dashboard: {
-        startTime: number;
-        logger: Logger;
         db: DatabaseHandler;
+        logger: HttpLogger['logger'];
       };
     }
   }

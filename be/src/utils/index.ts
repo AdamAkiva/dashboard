@@ -1,26 +1,25 @@
 import { getEnv } from './config.js';
 import { STATUS, VALIDATION } from './constants.js';
-import SMCError from './error.js';
+import DashboardError from './error.js';
 import {
   filterNullAndUndefined,
   findClientIp,
-  getStackTrace,
-  inspect,
+  sanitizeError,
   strcasecmp
 } from './functions.js';
-import Logger from './logger.js';
+import { logMiddleware, logger } from './logger.js';
 
 /**********************************************************************************/
 
 export {
-  Logger,
-  SMCError,
+  DashboardError,
   STATUS,
   VALIDATION,
   filterNullAndUndefined,
   findClientIp,
   getEnv,
-  getStackTrace,
-  inspect,
+  logMiddleware,
+  logger,
+  sanitizeError,
   strcasecmp
 };

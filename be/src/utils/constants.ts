@@ -49,6 +49,10 @@ export const STATUS = {
   SERVICE_UNAVAILABLE: {
     CODE: 503,
     MSG: 'Server error, please try again'
+  },
+  GATEWAY_TIMEOUT: {
+    CODE: 504,
+    MSG: 'Server error, please try again'
   }
 } as const;
 

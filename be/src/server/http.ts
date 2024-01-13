@@ -1,4 +1,5 @@
 import { DatabaseHandler } from '../db/index.js';
+import { userRouter } from '../routes/index.js';
 import {
   compress,
   cors,
@@ -8,7 +9,7 @@ import {
   type Mode,
   type Server
 } from '../types/index.js';
-import { Logger, getEnv, getStackTrace } from '../utils/index.js';
+import { getEnv, logMiddleware, logger } from '../utils/index.js';
 
 import * as Middlewares from './middleware.js';
 
@@ -75,10 +76,7 @@ export default class HttpServer {
       });
     } catch (err) {
       if (err instanceof Error) {
-        Logger.nativeLog(
-          'error',
-          `Error during server initialization: ${err.message}`
-        );
+        logger.error(err, 'Error during server initialization');
       }
       await Promise.all([db?.close(), server?.close()]);
       process.exitCode = 1;
@@ -113,6 +111,8 @@ export default class HttpServer {
   }) => {
     const { app, allowedMethods, allowedOrigins } = params;
 
+    // This is the result of a bug with helmet typescript support, if helmet
+    // version is updated, you may check if this is still needed
     const helmet = await import('helmet');
 
     app.use(
@@ -177,12 +177,15 @@ export default class HttpServer {
       await HttpServer._attachSwaggerDocs(app, apiRoute);
     }
 
-    // Health check route
     app.get(healthCheckRoute, Middlewares.healthCheck(db));
 
+    // Defined after the health check route to prevent health check logs every
+    // few seconds
+    app.use(logMiddleware);
     app.use(
       apiRoute,
       Middlewares.attachContext(db),
+      userRouter,
       Middlewares.handleMissedRoutes,
       Middlewares.errorHandler
     );
@@ -220,15 +223,11 @@ export default class HttpServer {
     db: DatabaseHandler
   ) => {
     server.on('error', (err) => {
-      Logger.nativeLog(
-        'error',
-        `Error while using the http server. This may help: ${
-          err.message + getStackTrace(err)
-        }`
-      );
+      logger.error(err, 'HTTP Server error');
     });
     server.once('close', async () => {
       await Promise.all([db.close()]);
+      // Graceful shutdown
       process.exitCode = 0;
     });
 
@@ -257,8 +256,7 @@ export default class HttpServer {
 
     if (mode !== 'test') {
       this._server.listen(port, () => {
-        Logger.nativeLog(
-          'info',
+        logger.info(
           `Server is running in '${mode}' mode on:` +
             ` ${serverEnv.url}:${serverEnv.port}/${serverEnv.apiRoute}`
         );

@@ -1,22 +1,30 @@
 import { randomUUID } from 'node:crypto';
 
+import { createRequest, createResponse } from 'node-mocks-http';
 import {
   afterAll,
+  afterEach,
   beforeAll,
   beforeEach,
   describe,
   expect,
   inject,
-  it
+  it,
+  vi
 } from 'vitest';
 
+import usersMockData from './__mocks__/users.json' with { type: 'json' };
+
+import * as controllers from '../src/controllers/index.js';
 import { HttpServer } from '../src/server/index.js';
-import { got, type OptionsOfTextResponseBody } from '../src/types/index.js';
-import { STATUS, VALIDATION } from '../src/utils/index.js';
-
-/**********************************************************************************/
-
-type UnknownObject = { [key: string]: unknown };
+import { errorHandler } from '../src/server/middleware.js';
+import * as services from '../src/services/index.js';
+import {
+  got,
+  type OptionsOfTextResponseBody,
+  type UnknownObject
+} from '../src/types/index.js';
+import { logger, STATUS, VALIDATION } from '../src/utils/index.js';
 
 /**********************************************************************************/
 
@@ -33,8 +41,6 @@ export const omit = <T extends UnknownObject, K extends string & keyof T>(
   return cpy as Omit<T, K>;
 };
 
-/**********************************************************************************/
-
 export const sendHttpRequest = async <ReturnType = unknown>(
   url: string,
   options: OptionsOfTextResponseBody = {}
@@ -44,7 +50,7 @@ export const sendHttpRequest = async <ReturnType = unknown>(
     // GOT has retry built in for GET requests, we don't want that for tests
     // in order for the tests to be consistent
     retry: { limit: 0 }, // Force no retries
-    timeout: { request: 16_000 }, // millis
+    timeout: { request: 8_000 }, // millis
     throwHttpErrors: false
   });
 
@@ -63,18 +69,50 @@ export const sendHttpRequest = async <ReturnType = unknown>(
   }
 };
 
+export const getExpressMocks = (withLogs = false) => {
+  if (!withLogs) {
+    const emptyFunction = () => {
+      // Disable logs in tests
+    };
+
+    vi.spyOn(logger, 'fatal').mockImplementation(emptyFunction);
+    vi.spyOn(logger, 'error').mockImplementation(emptyFunction);
+    vi.spyOn(logger, 'warn').mockImplementation(emptyFunction);
+    vi.spyOn(logger, 'info').mockImplementation(emptyFunction);
+    vi.spyOn(logger, 'debug').mockImplementation(emptyFunction);
+    vi.spyOn(logger, 'trace').mockImplementation(emptyFunction);
+  }
+
+  return {
+    req: createRequest({
+      dashboard: {
+        logger: logger
+      }
+    }),
+    res: createResponse()
+  };
+};
+
 /**********************************************************************************/
 
 export {
   afterAll,
+  afterEach,
   beforeAll,
   beforeEach,
+  controllers,
+  createRequest,
+  createResponse,
   describe,
+  errorHandler,
   expect,
   HttpServer,
   inject,
   it,
   randomUUID,
+  services,
   STATUS,
-  VALIDATION
+  usersMockData,
+  VALIDATION,
+  vi
 };
