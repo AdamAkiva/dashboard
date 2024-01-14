@@ -5,6 +5,7 @@ import {
   cors,
   createServer,
   express,
+  sql,
   type Application,
   type Mode,
   type Server
@@ -177,7 +178,19 @@ export default class HttpServer {
       await HttpServer._attachSwaggerDocs(app, apiRoute);
     }
 
-    app.get(healthCheckRoute, Middlewares.healthCheck(db));
+    app.get(
+      healthCheckRoute,
+      Middlewares.healthCheck(async () => {
+        let notReadyMsg = '';
+        try {
+          await db.getHandler().execute(sql`SELECT NOW()`);
+        } catch (err) {
+          notReadyMsg += '\nDatabase is unavailable';
+        }
+
+        return notReadyMsg;
+      })
+    );
 
     // Defined after the health check route to prevent health check logs every
     // few seconds

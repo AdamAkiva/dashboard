@@ -1,10 +1,5 @@
 import type { DatabaseHandler } from '../db/index.js';
-import {
-  sql,
-  type NextFunction,
-  type Request,
-  type Response
-} from '../types/index.js';
+import type { NextFunction, Request, Response } from '../types/index.js';
 import {
   DashboardError,
   STATUS,
@@ -24,7 +19,7 @@ export const checkMethod = (allowedMethods: Set<string>) => {
   };
 };
 
-export const healthCheck = (db: DatabaseHandler) => {
+export const healthCheck = (isReadyCallback: () => Promise<string>) => {
   return async (req: Request, res: Response) => {
     if (strcasecmp(req.method, 'GET')) {
       return res
@@ -39,17 +34,12 @@ export const healthCheck = (db: DatabaseHandler) => {
       return res.status(STATUS.FORBIDDEN.CODE).json(STATUS.FORBIDDEN.MSG);
     }
 
-    let notReadyMsg = '';
-    try {
-      await db.getHandler().execute(sql`SELECT NOW()`);
-    } catch (err) {
-      notReadyMsg += '\nDatabase is unavailable';
-    }
+    let notReadyMsg = await isReadyCallback();
     if (notReadyMsg) {
       notReadyMsg = `Application is not available: ${notReadyMsg}`;
     }
     if (notReadyMsg) {
-      return res.status(STATUS.SERVICE_UNAVAILABLE.CODE).send(notReadyMsg);
+      return res.status(STATUS.GATEWAY_TIMEOUT.CODE).json(notReadyMsg);
     }
 
     return res.status(STATUS.NO_CONTENT.CODE).end();
