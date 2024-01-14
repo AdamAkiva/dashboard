@@ -4,6 +4,9 @@
   "description": "",
   "type": "module",
   "main": "./src/main.ts",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "start:dev": "npx nodemon --config ./nodemon.json ./src/main.ts",
     "test": "NODE_ENV=test npx vitest run --config ./__tests__/config/vite.config.ts",
