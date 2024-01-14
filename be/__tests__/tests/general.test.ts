@@ -1,4 +1,5 @@
 import {
+  Middlewares,
   STATUS,
   describe,
   expect,
@@ -12,24 +13,23 @@ import {
 describe('General tests', () => {
   const { healthCheckURL } = inject('urls');
 
+  Middlewares;
+
   describe('Ready check', () => {
     describe('Host', () => {
-      it.concurrent('Valid host', async () => {
-        // TODO Consider mocking this as well?
-        const res = await sendHttpRequest<never>(healthCheckURL);
+      describe('Valid', () => {
+        it.concurrent('Mock', () => {});
+        it.concurrent('Real', async () => {
+          const res = await sendHttpRequest<never>(healthCheckURL);
 
-        expect(res.statusCode).toBe(STATUS.NO_CONTENT.CODE);
-        expect(res.data).toStrictEqual('');
-      });
-      it.skip.concurrent('Invalid host', async () => {
-        // TODO Mock this instead. Ky can't override the host header. Therefore
-        // call the method directly and mock req object with the host header
-        const res = await sendHttpRequest<never>(healthCheckURL, {
-          method: 'get',
-          headers: { host: '213.57.121.34' }
+          expect(res.statusCode).toBe(STATUS.NO_CONTENT.CODE);
+          expect(res.data).toStrictEqual('');
         });
-
-        expect(res.statusCode).toBe(STATUS.FORBIDDEN.CODE);
+      });
+      describe('Invalid', () => {
+        it.concurrent(`Not 'GET' request`, () => {});
+        it.concurrent('Invalid host', () => {});
+        it.concurrent('Database not ready', () => {});
       });
     });
   });

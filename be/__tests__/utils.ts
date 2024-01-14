@@ -17,7 +17,7 @@ import usersMockData from './__mocks__/users.json' with { type: 'json' };
 
 import * as controllers from '../src/controllers/index.js';
 import { HttpServer } from '../src/server/index.js';
-import { errorHandler } from '../src/server/middleware.js';
+import * as Middlewares from '../src/server/middleware.js';
 import * as services from '../src/services/index.js';
 import {
   ky,
@@ -112,11 +112,11 @@ export {
   createRequest,
   createResponse,
   describe,
-  errorHandler,
   expect,
   HttpServer,
   inject,
   it,
+  Middlewares,
   randomUUID,
   services,
   STATUS,
