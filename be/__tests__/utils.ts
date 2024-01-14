@@ -1,6 +1,10 @@
 import { randomUUID } from 'node:crypto';
 
-import { createRequest, createResponse } from 'node-mocks-http';
+import {
+  createRequest,
+  createResponse,
+  type RequestOptions
+} from 'node-mocks-http';
 import {
   afterAll,
   afterEach,
@@ -16,7 +20,6 @@ import {
 import usersMockData from './__mocks__/users.json' with { type: 'json' };
 
 import * as controllers from '../src/controllers/index.js';
-import { HttpServer } from '../src/server/index.js';
 import * as Middlewares from '../src/server/middleware.js';
 import * as services from '../src/services/index.js';
 import {
@@ -77,7 +80,10 @@ export const sendHttpRequest = async <ReturnType = unknown>(
   throw new Error('Unsupported content type');
 };
 
-export const getExpressMocks = (withLogs = false) => {
+export const getExpressMocks = (
+  reqOptions: RequestOptions = {},
+  withLogs = false
+) => {
   if (!withLogs) {
     const emptyFunction = () => {
       // Disable logs in tests
@@ -93,6 +99,7 @@ export const getExpressMocks = (withLogs = false) => {
 
   return {
     req: createRequest({
+      ...reqOptions,
       dashboard: {
         logger: logger
       }
@@ -113,7 +120,6 @@ export {
   createResponse,
   describe,
   expect,
-  HttpServer,
   inject,
   it,
   Middlewares,
