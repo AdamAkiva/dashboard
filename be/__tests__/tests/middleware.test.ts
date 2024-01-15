@@ -1,4 +1,5 @@
 import {
+  DashboardError,
   Middlewares,
   STATUS,
   describe,
@@ -16,8 +17,28 @@ describe('Middleware tests', () => {
   const { healthCheckURL } = inject('urls');
 
   describe('Check method', () => {
-    it.concurrent.skip('Valid', () => {});
-    it.concurrent.skip('Invalid', () => {});
+    it.concurrent('Valid', () => {
+      const nextMock = vi.fn(() => {
+        // Empty on purpose
+      });
+
+      const { req, res } = getExpressMocks({ method: 'GET' });
+      Middlewares.checkMethod(new Set(['GET', 'POST']))(req, res, nextMock);
+
+      expect(nextMock).toHaveBeenCalledTimes(1);
+    });
+    it.concurrent('Invalid', () => {
+      const nextMock = vi.fn(() => {
+        // Empty on purpose
+      });
+
+      const { req, res } = getExpressMocks({ method: 'PATCH' });
+      Middlewares.checkMethod(new Set(['GET', 'POST']))(req, res, nextMock);
+
+      expect(nextMock).toHaveBeenCalledTimes(0);
+      expect(res.statusCode).toBe(STATUS.NOT_ALLOWED.CODE);
+      expect(res._getJSONData()).toStrictEqual(STATUS.NOT_ALLOWED.MSG);
+    });
   });
   describe('Health check', () => {
     describe('Valid', () => {
@@ -96,15 +117,82 @@ describe('Middleware tests', () => {
       });
     });
   });
-  describe('Attach context', () => {
-    it.concurrent.skip('Valid', () => {});
-    it.concurrent.skip('Invalid', () => {});
+  it.concurrent('Attach context', () => {
+    const nextMock = vi.fn(() => {
+      // Empty on purpose
+    });
+
+    const { req, res } = getExpressMocks();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Middlewares.attachContext({} as any)(req, res, nextMock);
+
+    expect(nextMock).toHaveBeenCalledTimes(1);
+    expect(req).toHaveProperty('dashboard');
+    expect(req.dashboard).toHaveProperty('logger');
+    expect(req.dashboard).toHaveProperty('db');
   });
-  it.concurrent.skip('Handle missed routes', () => {});
+  it.concurrent('Handle missed routes', () => {
+    const { req, res } = getExpressMocks();
+    Middlewares.handleMissedRoutes(req, res);
+
+    expect(res.statusCode).toBe(STATUS.NOT_FOUND.CODE);
+    expect(res._getJSONData()).toStrictEqual(STATUS.NOT_FOUND.MSG);
+  });
   describe('Error handler', () => {
-    it.concurrent.skip('Headers sent', () => {});
-    it.concurrent.skip('Request too big', () => {});
-    it.concurrent.skip('Dashboard error', () => {});
-    it.concurrent.skip('Unexpected error', () => {});
+    it.concurrent('Headers sent', () => {
+      const nextMock = vi.fn(() => {
+        // Empty on purpose
+      });
+
+      const { req, res } = getExpressMocks();
+      const err = new Error();
+      res.headersSent = true;
+      Middlewares.errorHandler(err, req, res, nextMock);
+
+      expect(nextMock).toHaveBeenCalledTimes(1);
+      expect(nextMock).toHaveBeenCalledWith(err);
+    });
+    it.concurrent('Request too big', () => {
+      const nextMock = vi.fn(() => {
+        // Empty on purpose
+      });
+
+      const { req, res } = getExpressMocks();
+      const err = new Error();
+      err.name = 'PayloadTooLargeError';
+      Middlewares.errorHandler(err, req, res, nextMock);
+
+      expect(nextMock).toHaveBeenCalledTimes(0);
+      expect(res.statusCode).toBe(STATUS.PAYLOAD_TOO_LARGE.CODE);
+      expect(res._getJSONData()).toStrictEqual(STATUS.PAYLOAD_TOO_LARGE.MSG);
+    });
+    it.concurrent('Dashboard error', () => {
+      const nextMock = vi.fn(() => {
+        // Empty on purpose
+      });
+
+      const { req, res } = getExpressMocks();
+      const err = new DashboardError('PH', 99);
+      Middlewares.errorHandler(err, req, res, nextMock);
+
+      expect(nextMock).toHaveBeenCalledTimes(0);
+      expect(res.statusCode).toBe(err.getCode());
+      expect(res._getJSONData()).toStrictEqual(err.getMessage());
+    });
+    it.concurrent('Unexpected error', () => {
+      const nextMock = vi.fn(() => {
+        // Empty on purpose
+      });
+
+      const { req, res } = getExpressMocks();
+      const err = new Error();
+      Middlewares.errorHandler(err, req, res, nextMock);
+
+      expect(nextMock).toHaveBeenCalledTimes(0);
+      expect(res.statusCode).toBe(STATUS.SERVER_ERROR.CODE);
+      expect(res._getJSONData()).toStrictEqual(
+        'Unexpected error, please try again'
+      );
+    });
   });
 });

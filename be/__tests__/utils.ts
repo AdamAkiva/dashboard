@@ -28,7 +28,12 @@ import {
   type RequiredFields,
   type UnknownObject
 } from '../src/types/index.js';
-import { logger, STATUS, VALIDATION } from '../src/utils/index.js';
+import {
+  DashboardError,
+  logger,
+  STATUS,
+  VALIDATION
+} from '../src/utils/index.js';
 
 /**********************************************************************************/
 
@@ -118,6 +123,7 @@ export {
   controllers,
   createRequest,
   createResponse,
+  DashboardError,
   describe,
   expect,
   inject,

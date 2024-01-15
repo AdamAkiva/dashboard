@@ -11,8 +11,10 @@ import {
 
 export const checkMethod = (allowedMethods: Set<string>) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    if (!allowedMethods.has(req.method)) {
-      return res.status(STATUS.NOT_ALLOWED.CODE).send(STATUS.NOT_ALLOWED.MSG);
+    const reqMethod = req.method.toUpperCase();
+
+    if (!allowedMethods.has(reqMethod)) {
+      return res.status(STATUS.NOT_ALLOWED.CODE).json(STATUS.NOT_ALLOWED.MSG);
     }
 
     return next();
@@ -58,7 +60,7 @@ export const attachContext = (db: DatabaseHandler) => {
 };
 
 export const handleMissedRoutes = (_: Request, res: Response) => {
-  return res.status(STATUS.NOT_FOUND.CODE).send(STATUS.NOT_FOUND.MSG);
+  return res.status(STATUS.NOT_FOUND.CODE).json(STATUS.NOT_FOUND.MSG);
 };
 
 export const errorHandler = (
