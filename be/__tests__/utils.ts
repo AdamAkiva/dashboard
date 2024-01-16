@@ -26,7 +26,8 @@ import {
   ky,
   type KyOptions,
   type RequiredFields,
-  type UnknownObject
+  type UnknownObject,
+  type User
 } from '../src/types/index.js';
 import {
   DashboardError,
@@ -85,21 +86,33 @@ export const sendHttpRequest = async <ReturnType = unknown>(
   throw new Error('Unsupported content type');
 };
 
+/**********************************************************************************/
+
+export const emptyMockFn = () => {
+  // The tests run concurrently, therefore, the mock functions must be a different
+  // instance to count their call times/parameters correctly
+  return vi.fn(() => {
+    // Empty on purpose
+  });
+};
+
+export const asyncMockFn = <T>(data: T) => {
+  return vi.fn(async () => {
+    return await Promise.resolve(data);
+  });
+};
+
 export const getExpressMocks = (
   reqOptions: RequestOptions = {},
   withLogs = false
 ) => {
   if (!withLogs) {
-    const emptyFunction = () => {
-      // Disable logs in tests
-    };
-
-    vi.spyOn(logger, 'fatal').mockImplementation(emptyFunction);
-    vi.spyOn(logger, 'error').mockImplementation(emptyFunction);
-    vi.spyOn(logger, 'warn').mockImplementation(emptyFunction);
-    vi.spyOn(logger, 'info').mockImplementation(emptyFunction);
-    vi.spyOn(logger, 'debug').mockImplementation(emptyFunction);
-    vi.spyOn(logger, 'trace').mockImplementation(emptyFunction);
+    vi.spyOn(logger, 'fatal').mockImplementation(emptyMockFn);
+    vi.spyOn(logger, 'error').mockImplementation(emptyMockFn);
+    vi.spyOn(logger, 'warn').mockImplementation(emptyMockFn);
+    vi.spyOn(logger, 'info').mockImplementation(emptyMockFn);
+    vi.spyOn(logger, 'debug').mockImplementation(emptyMockFn);
+    vi.spyOn(logger, 'trace').mockImplementation(emptyMockFn);
   }
 
   return {
@@ -134,5 +147,6 @@ export {
   STATUS,
   usersMockData,
   VALIDATION,
-  vi
+  vi,
+  type User
 };
