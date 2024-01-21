@@ -1,6 +1,7 @@
-import { userService } from '../services/index.js';
-import type { NextFunction, Request, Response } from '../types/index.js';
-import { STATUS } from '../utils/index.js';
+import type { NextFunction, Request, Response } from '../../types/index.js';
+import { STATUS } from '../../utils/index.js';
+
+import * as userService from './service.js';
 
 /**********************************************************************************/
 

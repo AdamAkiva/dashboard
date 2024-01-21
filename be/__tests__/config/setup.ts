@@ -3,8 +3,13 @@ import { logger } from '../../src/utils/index.js';
 
 /**********************************************************************************/
 
+// This is not exported by vite package, therefore we defined it
+type Provide = { provide: (key: string, value: unknown) => void };
+
+/**********************************************************************************/
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const setup = async ({ provide }: any) => {
+export const setup = async ({ provide }: Provide) => {
   const { mode, server: serverEnv, db: dbUri } = getTestEnv();
 
   provide('urls', {
@@ -44,6 +49,8 @@ export const getTestEnv = () => {
   checkRuntimeEnv(mode);
   checkEnvVariables();
 
+  /* eslint-disable @typescript-eslint/no-non-null-assertion */
+
   return {
     mode: process.env.NODE_ENV as 'test',
     server: {
@@ -54,6 +61,8 @@ export const getTestEnv = () => {
     },
     db: process.env.DB_TEST_URI!
   };
+
+  /* eslint-enable @typescript-eslint/no-non-null-assertion */
 };
 
 const checkRuntimeEnv = (mode?: string | undefined): mode is 'test' => {

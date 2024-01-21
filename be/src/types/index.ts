@@ -23,13 +23,16 @@ import express, {
   json,
   Router,
   type Application,
+  type Request as ExpressRequest,
   type NextFunction,
-  type Request,
   type Response
 } from 'express';
+import type core from 'express-serve-static-core';
 import ky, { type Options as KyOptions } from 'ky';
 import { pinoHttp, type HttpLogger } from 'pino-http';
 import postgres from 'postgres';
+import type qs from 'qs';
+import type { JsonObject } from 'swagger-ui-express';
 import { z as Zod } from 'zod';
 
 /**********************************************************************************/
@@ -40,6 +43,14 @@ export type LogLevel = 'error' | 'info' | 'warn';
 
 export type UnknownObject = { [key: string]: unknown };
 export type RequiredFields<T, K extends keyof T> = Required<Pick<T, K>> & T;
+
+export type Request = ExpressRequest<
+  core.ParamsDictionary,
+  UnknownObject,
+  UnknownObject,
+  qs.ParsedQs,
+  UnknownObject
+>;
 
 export type EnvironmentVariables = {
   mode: Mode;
@@ -104,9 +115,9 @@ export {
   Zod,
   type Application,
   type HttpLogger,
+  type JsonObject,
   type KyOptions,
   type NextFunction,
-  type Request,
   type Response,
   type Server
 };

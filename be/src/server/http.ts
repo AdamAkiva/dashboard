@@ -1,5 +1,5 @@
 import { DatabaseHandler } from '../db/index.js';
-import { userRouter } from '../routes/index.js';
+import { userRouter } from '../entities/index.js';
 import {
   compress,
   cors,
@@ -7,10 +7,11 @@ import {
   express,
   sql,
   type Application,
+  type JsonObject,
   type Mode,
   type Server
 } from '../types/index.js';
-import { getEnv, logMiddleware, logger } from '../utils/index.js';
+import { getEnv, logger } from '../utils/index.js';
 
 import * as Middlewares from './middleware.js';
 
@@ -194,7 +195,7 @@ export default class HttpServer {
 
     // Defined after the health check route to prevent health check logs every
     // few seconds
-    app.use(logMiddleware);
+    app.use(Middlewares.attachLogging(mode));
     app.use(
       apiRoute,
       Middlewares.attachContext(db),
@@ -226,7 +227,7 @@ export default class HttpServer {
         ),
         'utf-8'
       )
-    );
+    ) as JsonObject;
 
     app.use(`${apiRoute}/api-docs`, serve, setup(swaggerDoc));
   };

@@ -8,12 +8,13 @@ module.exports = {
       extends: [
         'eslint:recommended',
         'plugin:security/recommended-legacy',
+        'plugin:@typescript-eslint/strict-type-checked',
+        'plugin:@typescript-eslint/stylistic-type-checked',
         'plugin:drizzle/all',
-        'plugin:@typescript-eslint/eslint-recommended',
-        'plugin:@typescript-eslint/recommended',
         'prettier'
       ],
       parserOptions: {
+        ecmaVersion: 'latest',
         tsconfigRootDir: __dirname,
         sourceType: 'module',
         project: './tsconfig.json'
@@ -54,6 +55,8 @@ module.exports = {
         '@typescript-eslint/method-signature-style': [2, 'property'],
         '@typescript-eslint/no-base-to-string': 2,
         '@typescript-eslint/no-confusing-non-null-assertion': 2,
+        // I prefer this style over the other option
+        '@typescript-eslint/no-confusing-void-expression': 0,
         '@typescript-eslint/no-duplicate-enum-values': 2,
         '@typescript-eslint/no-duplicate-type-constituents': 2,
         '@typescript-eslint/no-dynamic-delete': 2,

@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import {
   createRequest,
   createResponse,
+  type MockResponse,
   type RequestOptions
 } from 'node-mocks-http';
 import {
@@ -19,13 +20,12 @@ import {
 
 import usersMockData from './__mocks__/users.json' with { type: 'json' };
 
-import * as controllers from '../src/controllers/index.js';
-import * as Middlewares from '../src/server/middleware.js';
-import * as services from '../src/services/index.js';
+import type { DatabaseHandler } from '../src/db/index.js';
 import {
   ky,
   type KyOptions,
   type RequiredFields,
+  type Response,
   type UnknownObject,
   type User
 } from '../src/types/index.js';
@@ -126,6 +126,13 @@ export const getExpressMocks = (
   };
 };
 
+export const checkResponse = (res: MockResponse<Response>) => {
+  expect(res._isDataLengthValid()).toBe(true);
+  expect(res._isEndCalled()).toBe(true);
+  expect(res._isJSON()).toBe(true);
+  expect(res._isUTF8()).toBe(true);
+};
+
 /**********************************************************************************/
 
 export {
@@ -133,7 +140,6 @@ export {
   afterEach,
   beforeAll,
   beforeEach,
-  controllers,
   createRequest,
   createResponse,
   DashboardError,
@@ -141,12 +147,11 @@ export {
   expect,
   inject,
   it,
-  Middlewares,
   randomUUID,
-  services,
   STATUS,
   usersMockData,
   VALIDATION,
   vi,
+  type DatabaseHandler,
   type User
 };

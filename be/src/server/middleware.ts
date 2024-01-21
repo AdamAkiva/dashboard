@@ -1,5 +1,5 @@
 import type { DatabaseHandler } from '../db/index.js';
-import type { NextFunction, Request, Response } from '../types/index.js';
+import type { Mode, NextFunction, Request, Response } from '../types/index.js';
 import {
   DashboardError,
   STATUS,
@@ -54,6 +54,16 @@ export const attachContext = (db: DatabaseHandler) => {
       logger: logMiddleware.logger,
       db: db
     };
+
+    return next();
+  };
+};
+
+export const attachLogging = (mode: Mode) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (mode !== 'test') {
+      return logMiddleware(req, res, next);
+    }
 
     return next();
   };

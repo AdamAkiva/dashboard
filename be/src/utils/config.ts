@@ -13,6 +13,7 @@ export const getEnv = () => {
   checkRuntimeEnv(mode);
   checkEnvVariables(mode);
 
+  /* eslint-disable @typescript-eslint/no-non-null-assertion */
   env = {
     mode: mode,
     server: {
@@ -27,6 +28,7 @@ export const getEnv = () => {
     },
     db: process.env.DB_URI!
   };
+  /* eslint-enable @typescript-eslint/no-non-null-assertion */
 
   return env;
 };

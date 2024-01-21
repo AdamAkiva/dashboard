@@ -1,9 +1,10 @@
+import * as Middlewares from '../../src/server/middleware.js';
 import {
   DashboardError,
-  Middlewares,
   STATUS,
   afterEach,
   asyncMockFn,
+  checkResponse,
   describe,
   emptyMockFn,
   expect,
@@ -11,7 +12,8 @@ import {
   inject,
   it,
   sendHttpRequest,
-  vi
+  vi,
+  type DatabaseHandler
 } from '../utils.js';
 
 /**********************************************************************************/
@@ -41,6 +43,7 @@ describe('Middleware tests', () => {
       expect(next).toHaveBeenCalledTimes(0);
       expect(res.statusCode).toBe(STATUS.NOT_ALLOWED.CODE);
       expect(res._getJSONData()).toStrictEqual(STATUS.NOT_ALLOWED.MSG);
+      checkResponse(res);
     });
   });
   describe('Health check', () => {
@@ -91,6 +94,7 @@ describe('Middleware tests', () => {
         expect(readyCallbackMock).toHaveBeenCalledTimes(0);
         expect(res.statusCode).toBe(STATUS.FORBIDDEN.CODE);
         expect(res._getJSONData()).toStrictEqual(STATUS.FORBIDDEN.MSG);
+        checkResponse(res);
       });
       it.concurrent('One or more services are not yet ready', async () => {
         const errMsg = 'Database is not ready';
@@ -105,7 +109,10 @@ describe('Middleware tests', () => {
         expect(readyCallbackMock).toHaveBeenCalledTimes(1);
         expect(readyCallbackMock).toHaveBeenCalledWith();
         expect(res.statusCode).toBe(STATUS.GATEWAY_TIMEOUT.CODE);
-        expect(res._getJSONData().includes(errMsg)).toBe(true);
+        // res._getJSONData() is not generic for some reason, therefore there
+        // is no point in the typing of res generics
+        expect((res._getJSONData() as string[]).includes(errMsg)).toBe(true);
+        checkResponse(res);
       });
     });
   });
@@ -114,7 +121,7 @@ describe('Middleware tests', () => {
     const { req, res } = getExpressMocks();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Middlewares.attachContext({} as any)(req, res, next);
+    Middlewares.attachContext({} as unknown as DatabaseHandler)(req, res, next);
 
     expect(next).toHaveBeenCalledTimes(1);
     expect(req).toHaveProperty('dashboard');
@@ -128,6 +135,7 @@ describe('Middleware tests', () => {
 
     expect(res.statusCode).toBe(STATUS.NOT_FOUND.CODE);
     expect(res._getJSONData()).toStrictEqual(STATUS.NOT_FOUND.MSG);
+    checkResponse(res);
   });
   describe('Error handler', () => {
     it.concurrent('Headers sent', () => {
@@ -152,6 +160,7 @@ describe('Middleware tests', () => {
       expect(next).toHaveBeenCalledTimes(0);
       expect(res.statusCode).toBe(STATUS.PAYLOAD_TOO_LARGE.CODE);
       expect(res._getJSONData()).toStrictEqual(STATUS.PAYLOAD_TOO_LARGE.MSG);
+      checkResponse(res);
     });
     it.concurrent('Dashboard error', () => {
       const next = emptyMockFn();
@@ -163,6 +172,7 @@ describe('Middleware tests', () => {
       expect(next).toHaveBeenCalledTimes(0);
       expect(res.statusCode).toBe(err.getCode());
       expect(res._getJSONData()).toStrictEqual(err.getMessage());
+      checkResponse(res);
     });
     it.concurrent('Unexpected error', () => {
       const next = emptyMockFn();
@@ -174,6 +184,7 @@ describe('Middleware tests', () => {
       expect(next).toHaveBeenCalledTimes(0);
       expect(res.statusCode).toBe(STATUS.SERVER_ERROR.CODE);
       expect(res._getJSONData()).toStrictEqual(err.message);
+      checkResponse(res);
     });
   });
 });

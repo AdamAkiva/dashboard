@@ -42,14 +42,6 @@ export const STATUS = {
     CODE: 500,
     MSG: 'Server error, please try again'
   },
-  BAD_GATEWAY: {
-    CODE: 502,
-    MSG: 'Server error, please try again'
-  },
-  SERVICE_UNAVAILABLE: {
-    CODE: 503,
-    MSG: 'Server error, please try again'
-  },
   GATEWAY_TIMEOUT: {
     CODE: 504,
     MSG: 'Server error, please try again'

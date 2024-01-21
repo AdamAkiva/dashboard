@@ -1,13 +1,13 @@
-import type { Request, User } from '../types/index.js';
-import { sanitizeError } from '../utils/index.js';
+import type { Request, User } from '../../types/index.js';
+import { sanitizeError } from '../../utils/index.js';
 
 /**********************************************************************************/
 
 export const readMany = async (req: Request): Promise<User[]> => {
   try {
-    const { db } = req.dashboard;
-    const handler = db.getHandler();
-    const { userModel } = db.getModels();
+    const { getHandler, getModels } = req.dashboard.db;
+    const handler = getHandler();
+    const { userModel } = getModels();
 
     return await handler
       .select({

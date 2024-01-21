@@ -1,17 +1,18 @@
+import * as UserController from '../../src/entities/user/controller.js';
+import * as UserService from '../../src/entities/user/service.js';
+import * as Middlewares from '../../src/server/middleware.js';
 import {
   DashboardError,
-  Middlewares,
   STATUS,
   afterEach,
   asyncMockFn,
-  controllers,
+  checkResponse,
   describe,
   expect,
   getExpressMocks,
   inject,
   it,
   sendHttpRequest,
-  services,
   usersMockData,
   vi,
   type User
@@ -23,9 +24,6 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-const { userController } = controllers;
-const { userService } = services;
-
 describe('User Tests', () => {
   const { baseURL } = inject('urls');
   const userRouteURL = `${baseURL}/users`;
@@ -34,16 +32,17 @@ describe('User Tests', () => {
     describe('Valid', () => {
       it.concurrent('Mock', async () => {
         const mockReadMany = vi
-          .spyOn(userService, 'readMany')
+          .spyOn(UserService, 'readMany')
           .mockImplementation(asyncMockFn(usersMockData));
 
         const { req, res } = getExpressMocks();
-        await userController.readMany(req, res, vi.fn);
+        await UserController.readMany(req, res, vi.fn);
 
         expect(mockReadMany).toHaveBeenCalledTimes(1);
         expect(mockReadMany).toHaveBeenCalledWith(req);
         expect(res.statusCode).toBe(STATUS.SUCCESS.CODE);
         expect(res._getJSONData()).toStrictEqual(usersMockData);
+        checkResponse(res);
       });
       it.concurrent('Real', async () => {
         const res = await sendHttpRequest<User[]>(userRouteURL);
@@ -59,19 +58,20 @@ describe('User Tests', () => {
           STATUS.SERVER_ERROR.CODE
         );
         const mockReadMany = vi
-          .spyOn(userService, 'readMany')
+          .spyOn(UserService, 'readMany')
           .mockRejectedValue(err);
         const { req, res } = getExpressMocks();
-        const next = vi.fn((err) => {
+        const next = vi.fn(() => {
           Middlewares.errorHandler(err, req, res, vi.fn);
         });
 
-        await userController.readMany(req, res, next);
+        await UserController.readMany(req, res, next);
 
         expect(mockReadMany).toHaveBeenCalledTimes(1);
         expect(mockReadMany).toHaveBeenCalledWith(req);
         expect(res.statusCode).toBe(err.getCode());
         expect(res._getJSONData()).toStrictEqual(err.getMessage());
+        checkResponse(res);
       });
       it.concurrent('Failure with 504 status code', async () => {
         const err = new DashboardError(
@@ -79,19 +79,20 @@ describe('User Tests', () => {
           STATUS.GATEWAY_TIMEOUT.CODE
         );
         const mockReadMany = vi
-          .spyOn(userService, 'readMany')
+          .spyOn(UserService, 'readMany')
           .mockRejectedValue(err);
         const { req, res } = getExpressMocks();
-        const next = vi.fn((err) => {
+        const next = vi.fn(() => {
           Middlewares.errorHandler(err, req, res, vi.fn);
         });
 
-        await userController.readMany(req, res, next);
+        await UserController.readMany(req, res, next);
 
         expect(mockReadMany).toHaveBeenCalledTimes(1);
         expect(mockReadMany).toHaveBeenCalledWith(req);
         expect(res.statusCode).toBe(err.getCode());
         expect(res._getJSONData()).toStrictEqual(err.getMessage());
+        checkResponse(res);
       });
     });
   });
