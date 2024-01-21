@@ -65,7 +65,7 @@ services:
     environment:
       - CLIENT_PORT=4300
       - CLIENT_URL=http://localhost
-      - DASHBOARD_SERVER_URL=http://localhost:4301/v0/api
+      - DASHBOARD_SERVER_URL=http://localhost:4301/api/v0
       - ENV=development
     volumes:
       - ../fe:/home/node:rw
@@ -107,7 +107,7 @@ services:
       - TEST_SERVER_PORT=4302
       - SERVER_DEBUG_PORT=9229
       - SERVER_URL=http://localhost
-      - API_ROUTE=v0/api
+      - API_ROUTE=api/v0
       - HEALTH_CHECK_ROUTE=health
       - ALLOWED_ORIGINS=*
       - DB_URI=postgres://admin:admin@dashboard-pg-dev:6600/dashboard-dev
