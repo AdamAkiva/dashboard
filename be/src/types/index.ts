@@ -39,8 +39,6 @@ import { z as Zod } from 'zod';
 
 export type Mode = 'development' | 'production' | 'test';
 
-export type LogLevel = 'error' | 'info' | 'warn';
-
 export type UnknownObject = { [key: string]: unknown };
 export type RequiredFields<T, K extends keyof T> = Required<Pick<T, K>> & T;
 
