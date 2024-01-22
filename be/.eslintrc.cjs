@@ -172,6 +172,7 @@ module.exports = {
         'security/detect-pseudoRandomBytes': 2,
         'security/detect-unsafe-regex': 2,
 
+        // Drizzle related
         'drizzle/enforce-delete-with-where': [
           2,
           { drizzleObjectName: ['handler', 'transaction'] }
