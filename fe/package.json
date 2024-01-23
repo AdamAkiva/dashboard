@@ -1,51 +1,52 @@
 {
   "name": "dashboard-fe",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "main": "./src/main.tsx",
   "scripts": {
-    "start:dev": "npx vite",
-    "test": "/bin/sh -c 'xhost +local: && MODE=mock docker compose -f ../scripts/docker-compose-fe-test.yml up --exit-code-from dashboard-cypress && xhost -local:'",
-    "test:e2e": "/bin/sh -c 'xhost +local: && MODE=e2e docker compose -f ../scripts/docker-compose-fe-test.yml up --exit-code-from dashboard-cypress && xhost -local:'",
-    "build": "npx tsc --noEmit --project ./tsconfig.json && npx vite build",
-    "lint": "npx tsc --project ./tsconfig.json --noEmit && npx eslint '{src,cypress}/**/*.{ts,vue}'",
+    "start:dev": "vite",
+    "test": "printf 'No tests exist, yet' && exit 1",
+    "lint": "npx tsc --project ./tsconfig.json --noEmit && npx eslint \"src/**/*.{ts,tsx}\"",
+    "build": "npx eslint './src/**/*.tsx' && vite build",
     "check-global-updates": "npx ncu -g",
     "check-local-updates": "npx ncu",
     "commit-local-updates": "npx ncu -u",
     "check-code-deps": "npx depcheck --ignores=prettier",
-    "check-cir-deps": "npx dpdm --no-tree --exit-code circular:1 '{src,cypress}/**/*.{ts,vue}'"
+    "check-cir-deps": "npx dpdm --no-tree --transform --exit-code circular:1 \"src/**/*.{ts,tsx}\""
   },
   "dependencies": {
-    "vue": "^3.4.13"
+    "react": "~18.2.0",
+    "react-dom": "~18.2.0"
   },
   "devDependencies": {
-    "@types/node": "^20.11.0",
-    "@typescript-eslint/eslint-plugin": "^6.18.1",
-    "@typescript-eslint/parser": "^6.18.1",
-    "@vitejs/plugin-vue": "^5.0.3",
-    "@vue/eslint-config-typescript": "^12.0.0",
-    "cypress": "^13.6.2",
-    "cypress-vite": "^1.5.0",
-    "depcheck": "^1.4.7",
-    "dpdm": "^3.14.0",
-    "eslint": "^8.56.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-security": "^2.1.0",
-    "eslint-plugin-vue": "^9.20.1",
-    "npm-check-updates": "^16.14.12",
-    "prettier": "^3.2.1",
-    "typescript": "^5.3.3",
-    "vite": "^5.0.11",
-    "vue-eslint-parser": "^9.4.0"
+    "@types/node": "~20.11.5",
+    "@types/react": "~18.2.48",
+    "@types/react-dom": "~18.2.18",
+    "@typescript-eslint/eslint-plugin": "~6.19.0",
+    "@typescript-eslint/parser": "~6.19.0",
+    "@vitejs/plugin-react-swc": "~3.5.0",
+    "depcheck": "~1.4.7",
+    "dpdm": "~3.14.0",
+    "eslint": "~8.56.0",
+    "eslint-config-prettier": "~9.1.0",
+    "eslint-plugin-react": "~7.33.2",
+    "eslint-plugin-react-hooks": "~4.6.0",
+    "eslint-plugin-react-refresh": "~0.4.5",
+    "eslint-plugin-security": "~2.1.0",
+    "npm-check-updates": "~16.14.12",
+    "prettier": "~3.2.4",
+    "typescript": "~5.3.3",
+    "vite": "~5.0.12"
   },
-  "author": "Adam AKiva",
-  "license": "MIT",
+  "author": "Adam Akiva",
+  "license": "UNLICENSED",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/AdamAkiva/dashboard"
+    "url": "https://github.com/AdamAkiva/monitoring-app"
   },
   "bugs": {
-    "url": "https://github.com/AdamAkiva/dashboard/issues"
+    "url": "https://github.com/AdamAkiva/monitoring-app/issues"
   },
   "maintainers": [
     {

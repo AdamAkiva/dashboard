@@ -1,47 +1,49 @@
-import { fileURLToPath } from "node:url";
+import { fileURLToPath } from 'node:url';
 
-import vue from "@vitejs/plugin-vue";
-import { defineConfig, type UserConfig } from "vite";
+import react from '@vitejs/plugin-react-swc';
+import { defineConfig, type UserConfig } from 'vite';
 
-/**********************************************************************************/
+/******************************************************************************/
+
+// https://vitejs.dev/config/
 
 export default defineConfig(({ command }): UserConfig => {
   const sharedConfig = {
-    root: "./",
-    envPrefix: "SMC",
-    publicDir: "./public",
-    plugins: [vue()],
+    root: './',
+    envPrefix: 'DASHBOARD_',
+    publicDir: './public',
+    plugins: [react()],
     resolve: {
       alias: [
         {
-          find: "@",
-          replacement: fileURLToPath(new URL("./src", import.meta.url)),
-        },
-      ],
-    },
+          find: '@',
+          replacement: fileURLToPath(new URL('./src', import.meta.url))
+        }
+      ]
+    }
   };
 
-  if (command === "build") {
+  if (command === 'build') {
     return {
       ...sharedConfig,
       build: {
-        outDir: "./build",
+        outDir: './build'
       },
       esbuild: {
-        drop: ["console", "debugger"],
-      },
+        drop: ['console', 'debugger']
+      }
     };
   }
 
   return {
     ...sharedConfig,
     css: {
-      devSourcemap: true,
+      devSourcemap: true
     },
     server: {
-      host: "0.0.0.0",
+      host: '0.0.0.0',
       port: Number(process.env.CLIENT_PORT),
-      strictPort: true,
-    },
+      strictPort: true
+    }
   };
 });

@@ -15,7 +15,7 @@
 # Exclude source files
 !*.cjs
 !*.ts
-!*.vue
+!*.tsx
 !*.html
 !*.css
 !loader.js
@@ -34,7 +34,6 @@
 !*.sh
 !*.md
 !*.yml
-!*.yaml
 !Dockerfile
 !.gitignore
 !.gitkeep

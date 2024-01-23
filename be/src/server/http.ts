@@ -223,7 +223,7 @@ export default class HttpServer {
       readFileSync(
         resolve(
           new URL('', import.meta.url).pathname,
-          `../../api-docs/openapi.yaml`
+          `../../api-docs/openapi.yml`
         ),
         'utf-8'
       )
