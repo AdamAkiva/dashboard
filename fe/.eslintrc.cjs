@@ -29,7 +29,6 @@ module.exports = {
         // Javascript
         'array-callback-return': [2, { checkForEach: false, allowVoid: true }],
         'constructor-super': 2,
-        // 'default-param-last': 2, // Uncomment if not working with typescript
         'for-direction': 2,
         'getter-return': 2,
         'no-async-promise-executor': 2,
@@ -56,8 +55,6 @@ module.exports = {
         'no-inner-declarations': 2,
         'no-invalid-regexp': 2,
         'no-irregular-whitespace': 2,
-        // 'no-loop-func': 2, // Uncomment if not working with typescript
-        // 'no-loss-of-precision': 2, // Uncomment if not working with typescript
         'no-misleading-character-class': 2,
         'no-new-native-nonconstructor': 2,
         'no-promise-executor-return': [2, { allowVoid: true }],
@@ -70,14 +67,12 @@ module.exports = {
         'no-undef': 2,
         'no-unexpected-multiline': 2,
         'no-unmodified-loop-condition': 2,
-        // 'no-useless-constructor': 2, // Uncomment if not working with typescript
         'no-unreachable-loop': 2,
         'no-unsafe-finally': 2,
         'no-unsafe-optional-chaining': 2,
         'no-unused-private-class-members': 2,
         // const functions are considered variables by this rule, hence the need
         // variables false option
-        // 'no-use-before-define': [2, { functions: false, variables: false }], // Uncomment if not working with typescript
         'no-useless-backreference': 2,
         'require-atomic-updates': 2,
         'use-isnan': 2,
@@ -95,7 +90,6 @@ module.exports = {
         'max-depth': [1, 4],
         'no-delete-var': 2,
         'no-empty': 2,
-        // 'no-empty-function': 2, // Uncomment if not working with typescript
         'no-empty-static-block': 2,
         'no-eval': 2,
         'no-extra-boolean-cast': 2,
@@ -105,12 +99,10 @@ module.exports = {
         'no-nonoctal-decimal-escape': 2,
         'no-octal': 2,
         'no-proto': 2,
-        // 'no-redeclare': 2, // Uncomment if not working with typescript
         'no-regex-spaces': 2,
         'no-return-assign': [2, 'always'],
         'no-script-url': 2,
         'no-shadow-restricted-names': 2,
-        // 'no-throw-literal': 2, // Uncomment if not working with typescript
         'no-unneeded-ternary': 2,
         'no-unused-labels': 2,
         'no-useless-catch': 2,
@@ -119,7 +111,6 @@ module.exports = {
         'no-with': 2,
         'prefer-const': 2,
         'prefer-promise-reject-errors': 2,
-        // 'require-await': 2, // Uncomment if not working with typescript
         'require-yield': 2,
 
         // Typescript related

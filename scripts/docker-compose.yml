@@ -20,11 +20,11 @@ services:
         compress: "true"
     stop_grace_period: 2s
     healthcheck:
-      test: pg_isready -p 6600 -U admin -d dashboard-dev
+      test: pg_isready -p 5432 -U admin -d dashboard-dev
       interval: 3s
       timeout: 2s
       retries: 5
-    command: postgres -p 6600
+    command: postgres -p 5432
 
   dashboard-pg-test:
     hostname: dashboard-pg-test
@@ -45,53 +45,13 @@ services:
         compress: "true"
     stop_grace_period: 2s
     healthcheck:
-      test: pg_isready -p 6600 -U admin -d dashboard-test
+      test: pg_isready -p 5432 -U admin -d dashboard-test
       interval: 3s
       timeout: 2s
       retries: 5
-    command: postgres -p 6600
+    command: postgres -p 5432
 
   ##################################################################################
-
-  dashboard-fe-dev:
-    hostname: dashboard-fe-dev
-    container_name: dashboard-fe-dev
-    restart: unless-stopped
-    build:
-      context: ../fe
-      dockerfile: Dockerfile
-      target: fe-dev
-    user: ${HOST_UID}:${HOST_GID}
-    environment:
-      - CLIENT_PORT=4300
-      - CLIENT_URL=http://localhost
-      - DASHBOARD_SERVER_URL=http://localhost:4301/api/v0
-      - ENV=development
-    volumes:
-      - ../fe:/home/node:rw
-    logging:
-      driver: "json-file"
-      options:
-        max-size: 20m
-        max-file: 5
-        compress: "true"
-    stop_grace_period: 2s
-    ports:
-      - "4300:4300"
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -s -o /dev/null -w '%{http_code}' http://localhost:4300 | grep -q '200'",
-        ]
-      interval: 15s
-      timeout: 3s
-      retries: 10
-      start_period: 45s
-    depends_on:
-      dashboard-pg-dev:
-        condition: service_healthy
-    command: /bin/sh -c "npm install --ddd && npm run start:dev"
 
   dashboard-be-dev:
     hostname: dashboard-be-dev
@@ -103,18 +63,18 @@ services:
       target: be-dev
     user: ${HOST_UID}:${HOST_GID}
     environment:
-      - SERVER_PORT=4301
-      - TEST_SERVER_PORT=4302
+      - SERVER_PORT=4300
+      - TEST_SERVER_PORT=4301
       - SERVER_DEBUG_PORT=9229
       - SERVER_URL=http://localhost
       - API_ROUTE=api/v0
       - HEALTH_CHECK_ROUTE=health
       - ALLOWED_ORIGINS=*
-      - DB_URI=postgres://admin:admin@dashboard-pg-dev:6600/dashboard-dev
-      - DB_TEST_URI=postgres://admin:admin@dashboard-pg-test:6600/dashboard-test
+      - DB_URI=postgres://admin:admin@dashboard-pg-dev:5432/dashboard-dev
+      - DB_TEST_URI=postgres://admin:admin@dashboard-pg-test:5432/dashboard-test
       - NODE_ENV=development
     volumes:
-      - ../be:/home/node:rw
+      - ../be:/home/node/dashboard:rw
     logging:
       driver: "json-file"
       options:
@@ -123,14 +83,55 @@ services:
         compress: "true"
     stop_grace_period: 2s
     ports:
-      - "4301:4301"
+      - "4300:4300"
       - "9229:9229"
-      - "9230:9230"
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "curl -s -o /dev/null -w '%{http_code}' http://localhost:4301/health | grep -q '204'"
+          "curl -s -o /dev/null -w '%{http_code}' http://localhost:4300/health | grep -q '204'"
+        ]
+      interval: 15s
+      timeout: 3s
+      retries: 10
+      start_period: 45s
+    depends_on:
+      dashboard-pg-dev:
+        condition: service_healthy
+      dashboard-pg-test:
+        condition: service_healthy
+    command: /bin/sh -c "npm install --ddd && npm run start:dev"
+
+  dashboard-fe-dev:
+    hostname: dashboard-fe-dev
+    container_name: dashboard-fe-dev
+    restart: unless-stopped
+    build:
+      context: ../fe
+      dockerfile: Dockerfile
+      target: fe-dev
+    user: ${HOST_UID}:${HOST_GID}
+    environment:
+      - CLIENT_PORT=4302
+      - CLIENT_URL=http://localhost
+      - DASHBOARD_SERVER_URL=http://localhost:4300/api/v0
+      - ENV=development
+    volumes:
+      - ../fe:/home/node/dashboard:rw
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 20m
+        max-file: 5
+        compress: "true"
+    stop_grace_period: 2s
+    ports:
+      - "4302:4302"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -o /dev/null -w '%{http_code}' http://localhost:4302 | grep -q '200'",
         ]
       interval: 15s
       timeout: 3s

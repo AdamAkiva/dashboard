@@ -8,6 +8,6 @@ RUN apk update && apk add curl
 FROM fe-base as fe-dev
 
 # Set the workdir
-WORKDIR /home/node
+WORKDIR /home/node/dashboard
 
 # TODO Add more services in the same format for CI/CD Tests and production

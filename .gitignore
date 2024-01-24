@@ -5,8 +5,6 @@
 !**/
 
 # Block previously allowed folders
-**/.cache/
-**/.npm/
 **/build/
 **/coverage/
 **/db-dev-data/
