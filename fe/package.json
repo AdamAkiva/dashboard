@@ -7,24 +7,24 @@
     "start:dev": "vite",
     "test": "printf 'No tests exist, yet' && exit 1",
     "lint": "npx tsc --project ./tsconfig.json --noEmit && npx eslint \"src/**/*.{ts,tsx}\"",
-    "build": "npx eslint './src/**/*.tsx' && vite build",
     "check-global-updates": "npx ncu -g",
     "check-local-updates": "npx ncu",
     "commit-local-updates": "npx ncu -u",
     "check-code-deps": "npx depcheck --ignores=prettier",
-    "check-cir-deps": "npx dpdm --no-tree --transform --exit-code circular:1 \"src/**/*.{ts,tsx}\""
+    "check-cir-deps": "npx dpdm --no-tree --transform --exit-code circular:1 \"src/**/*.{ts,tsx}\"",
+    "_build": "npx eslint './src/**/*.tsx' && vite build"
   },
   "dependencies": {
     "react": "~18.2.0",
     "react-dom": "~18.2.0"
   },
   "devDependencies": {
-    "@types/node": "~20.11.5",
-    "@types/react": "~18.2.48",
-    "@types/react-dom": "~18.2.18",
-    "@typescript-eslint/eslint-plugin": "~6.19.0",
-    "@typescript-eslint/parser": "~6.19.0",
-    "@vitejs/plugin-react-swc": "~3.5.0",
+    "@types/node": "~20.11.19",
+    "@types/react": "~18.2.56",
+    "@types/react-dom": "~18.2.19",
+    "@typescript-eslint/eslint-plugin": "~7.0.1",
+    "@typescript-eslint/parser": "~7.0.1",
+    "@vitejs/plugin-react-swc": "~3.6.0",
     "depcheck": "~1.4.7",
     "dpdm": "~3.14.0",
     "eslint": "~8.56.0",
@@ -32,21 +32,21 @@
     "eslint-plugin-react": "~7.33.2",
     "eslint-plugin-react-hooks": "~4.6.0",
     "eslint-plugin-react-refresh": "~0.4.5",
-    "eslint-plugin-security": "~2.1.0",
-    "npm-check-updates": "~16.14.12",
-    "prettier": "~3.2.4",
+    "eslint-plugin-security": "~2.1.1",
+    "npm-check-updates": "~16.14.15",
+    "prettier": "~3.2.5",
     "typescript": "~5.3.3",
-    "vite": "~5.0.12"
+    "vite": "~5.1.3"
   },
   "author": "Adam Akiva",
   "license": "UNLICENSED",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/AdamAkiva/monitoring-app"
+    "url": "https://github.com/AdamAkiva/dashboard"
   },
   "bugs": {
-    "url": "https://github.com/AdamAkiva/monitoring-app/issues"
+    "url": "https://github.com/AdamAkiva/dashboard/issues"
   },
   "maintainers": [
     {

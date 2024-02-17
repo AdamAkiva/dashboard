@@ -7,15 +7,14 @@
 # Block previously allowed folders
 **/build/
 **/coverage/
-**/db-dev-data/
 **/node_modules/
 
 # Exclude source files
-!*.cjs
 !*.ts
 !*.tsx
 !*.html
 !*.css
+!.eslintrc.cjs
 !loader.js
 
 # Assets
@@ -35,7 +34,6 @@
 !Dockerfile
 !.gitignore
 !.gitkeep
-!*.sql
 
 # Block previously allowed files
 **/settings.json

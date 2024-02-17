@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-
 /*
   These rules should **not** conflict with prettier, such as spaces and new lines
   rules. Please refrain from doing rules for it, or you will encounter issues.
