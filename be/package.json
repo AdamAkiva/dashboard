@@ -1,0 +1,63 @@
+{
+  "name": "dashboard-be",
+  "version": "0.0.0",
+  "description": "Dashboard backend implementation",
+  "type": "module",
+  "main": "./src/main.ts",
+  "scripts": {
+    "start:dev": "npx nodemon --config ./nodemon.json ./src/main.ts",
+    "test": "printf 'Application has no tests\n' && exit 1",
+    "lint": "npx tsc --project ./tsconfig.json --noEmit && npx eslint \"src/**/*.ts\"",
+    "check-global-updates": "npx ncu -g",
+    "check-local-updates": "npx ncu",
+    "commit-local-updates": "npx ncu -u",
+    "check-code-deps": "npx depcheck --ignores=@swc/core,prettier,ts-node",
+    "check-cir-deps": "npx dpdm --no-tree --transform --exit-code circular:1 \"src/**/*.ts\"",
+    "_install-start": "npm install && npm run start:dev",
+    "_test:ci": "printf 'Pipeline does not exist yes' && exit 1",
+    "_build": "npx eslint './src/**/*.ts' && npx tsc --build --verbose ./tsconfig.prod.json"
+  },
+  "dependencies": {
+    "fastify": "~4.26.1"
+  },
+  "devDependencies": {
+    "@swc/core": "~1.4.1",
+    "@types/node": "~20.11.19",
+    "@typescript-eslint/eslint-plugin": "~7.0.1",
+    "@typescript-eslint/parser": "~7.0.1",
+    "depcheck": "~1.4.7",
+    "dpdm": "~3.14.0",
+    "eslint": "~8.56.0",
+    "eslint-config-prettier": "~9.1.0",
+    "eslint-plugin-security": "~2.1.1",
+    "nodemon": "~3.0.3",
+    "npm-check-updates": "~16.14.15",
+    "prettier": "~3.2.5",
+    "ts-node": "~10.9.2",
+    "typescript": "~5.3.3"
+  },
+  "author": "Adam AKiva",
+  "license": "UNLICENSED",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AdamAkiva/dashboard"
+  },
+  "bugs": {
+    "url": "https://github.com/AdamAkiva/dashboard/issues"
+  },
+  "maintainers": [
+    {
+      "name": "Adam Akiva",
+      "email": "adam.akiva14@gmail.com",
+      "url": "https://github.com/AdamAkiva"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Adam Akiva",
+      "email": "adam.akiva14@gmail.com",
+      "url": "https://github.com/AdamAkiva"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "module": "nodenext",
+    "target": "ES2022",
+    "moduleResolution": "nodenext",
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "alwaysStrict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "noFallthroughCasesInSwitch": false,
+    "noImplicitAny": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitThis": true,
+    "noEmitOnError": true,
+    "strict": true,
+    "useUnknownInCatchVariables": true,
+    "importsNotUsedAsValues": "remove",
+    "removeComments": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "inlineSourceMap": true,
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": true
+  },
+  "include": ["./src/**/*.ts", "./loader.js"],
+  "ts-node": {
+    "swc": true
+  }
+}
