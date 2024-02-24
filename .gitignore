@@ -27,6 +27,7 @@
 !*.ttf
 
 # Etc
+!*.sql
 !*.json
 !*.sh
 !*.md
@@ -34,6 +35,7 @@
 !Dockerfile
 !.gitignore
 !.gitkeep
+!LICENSE
 
 # Block previously allowed files
 **/settings.json
