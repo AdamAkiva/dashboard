@@ -9,7 +9,11 @@ module.exports = {
   env: { node: true },
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint'],
-  extends: ['plugin:security/recommended-legacy', 'prettier'],
+  extends: [
+    'plugin:security/recommended-legacy',
+    'plugin:drizzle/all',
+    'prettier'
+  ],
   overrides: [
     {
       files: ['./src/**/*.ts', './__tests__/**/*.ts'],

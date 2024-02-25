@@ -1,10 +1,12 @@
 import type { EnvironmentVariables, Mode } from '../types/index.js';
 
+import { ERR_CODES } from './constants.js';
 import {
   isDevelopmentMode,
   isProductionMode,
   isTestMode
 } from './functions.js';
+import { logger } from './logger.js';
 
 /**********************************************************************************/
 
@@ -35,13 +37,12 @@ const checkRuntimeEnv = (mode?: string): mode is Mode => {
     return true;
   }
 
-  console.error(
+  logger.fatal(
     `Missing or invalid 'NODE_ENV' env value, should never happen.` +
       ' Unresolvable, exiting...'
   );
 
-  process.kill(process.pid, 'SIGTERM');
-  throw new Error('Graceful shutdown');
+  process.exit(ERR_CODES.EXIT_NO_RESTART);
 };
 
 const checkEnvVariables = (mode: Mode) => {
@@ -52,10 +53,9 @@ const checkEnvVariables = (mode: Mode) => {
     }
   });
   if (missingValues) {
-    console.error(`\nMissing the following env vars:\n${missingValues}`);
+    logger.fatal(`\nMissing the following env vars:\n${missingValues}`);
 
-    process.kill(process.pid, 'SIGTERM');
-    throw new Error('Graceful shutdown');
+    process.exit(ERR_CODES.EXIT_NO_RESTART);
   }
 };
 

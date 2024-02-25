@@ -46,7 +46,7 @@ export type ResolvedValue<T> = T extends (...args: any) => any
 /**************************** Package related *************************************/
 /**********************************************************************************/
 
-export const debug = Debug('Dashboard');
+export const userDebug = Debug('dashboard:user');
 
 export type Logger = HttpLogger['logger'];
 export type Response = ExpressResponse<unknown, { ctx: RequestContext }>;
@@ -70,10 +70,6 @@ export type RequestContext = {
   db: DatabaseHandler;
   logger: Logger;
 };
-
-/**********************************************************************************/
-
-export type OrderBy = 'asc' | 'desc';
 
 /**********************************************************************************/
 

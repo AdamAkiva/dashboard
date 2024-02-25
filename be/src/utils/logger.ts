@@ -1,5 +1,6 @@
 import { pid, pinoHttp } from '../types/index.js';
 
+import { StatusCodes } from './constants.js';
 import { isProductionMode } from './functions.js';
 
 /**********************************************************************************/
@@ -19,7 +20,7 @@ export const logMiddleware = pinoHttp({
       }
     : undefined,
   customLogLevel: (_, res) => {
-    if (res.statusCode === 304) {
+    if (res.statusCode === StatusCodes.REDIRECT) {
       return 'silent';
     } else if (res.statusCode >= 400 && res.statusCode < 500) {
       return 'warn';
@@ -31,29 +32,29 @@ export const logMiddleware = pinoHttp({
   },
   customSuccessMessage: (_, res) => {
     switch (res.statusCode) {
-      case 301:
+      case StatusCodes.MOVED_PERMANENTLY:
         return 'Moved permanently';
-      case 307:
+      case StatusCodes.TEMPORARY_REDIRECT:
         return 'Temporary redirect';
-      case 308:
+      case StatusCodes.PERMANENT_REDIRECT:
         return 'Permanent redirect';
-      case 400:
+      case StatusCodes.BAD_REQUEST:
         return 'Bad request';
-      case 401:
+      case StatusCodes.UNAUTHORIZED:
         return 'Unauthorized';
-      case 403:
+      case StatusCodes.FORBIDDEN:
         return 'Forbidden';
-      case 404:
+      case StatusCodes.NOT_FOUND:
         return 'Not found';
-      case 405:
+      case StatusCodes.NOT_ALLOWED:
         return 'Method not allowed';
-      case 408:
+      case StatusCodes.REQUEST_TIMEOUT:
         return 'Request timeout';
-      case 409:
+      case StatusCodes.CONFLICT:
         return 'Conflict';
-      case 413:
+      case StatusCodes.CONTENT_TOO_LARGE:
         return 'Request too large';
-      case 429:
+      case StatusCodes.TOO_MANY_REQUESTS:
         return 'Too many requests';
     }
 

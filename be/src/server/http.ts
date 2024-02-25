@@ -19,10 +19,10 @@ import * as Middlewares from './middleware.js';
 /**********************************************************************************/
 
 export default class HttpServer {
-  private static readonly OPENAPI_FILE = `${resolve(
+  private static readonly OPENAPI_FILE = resolve(
     new URL('', import.meta.url).pathname,
-    '../../../assets'
-  )}/openapi.html`;
+    '../../../assets/openapi.html'
+  );
 
   private readonly _mode;
   private readonly _db;
@@ -157,7 +157,7 @@ export default class HttpServer {
   }
 
   private _attachAPIDocs(apiRoute: string) {
-    this._app.use(`${apiRoute}/api-docs/openapi`, (_, res) => {
+    this._app.use(`${apiRoute}/api-docs`, (_, res) => {
       res.sendFile(HttpServer.OPENAPI_FILE);
     });
   }

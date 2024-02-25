@@ -52,7 +52,7 @@ const timestamps = {
 
 // TODO
 // When a user is deleted archive them instead.
-// If an already deleted user is deleted again, remove them permanently.
+// If an already deleted user is deleted for a second time, remove them permanently
 
 export const userModel = pgTable(
   'users',
