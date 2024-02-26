@@ -9,7 +9,11 @@ module.exports = {
   env: { node: true },
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint'],
-  extends: ['plugin:security/recommended-legacy', 'prettier'],
+  extends: [
+    'plugin:security/recommended-legacy',
+    'plugin:drizzle/all',
+    'prettier'
+  ],
   overrides: [
     {
       files: ['./src/**/*.ts', './__tests__/**/*.ts'],
@@ -272,7 +276,17 @@ module.exports = {
         'security/detect-object-injection': 0,
         'security/detect-possible-timing-attacks': 2,
         'security/detect-pseudoRandomBytes': 2,
-        'security/detect-unsafe-regex': 2
+        'security/detect-unsafe-regex': 2,
+
+        // Drizzle related
+        'drizzle/enforce-delete-with-where': [
+          2,
+          { drizzleObjectName: ['handler', 'transaction'] }
+        ],
+        'drizzle/enforce-update-with-where': [
+          2,
+          { drizzleObjectName: ['handler', 'transaction'] }
+        ]
       }
     }
   ]
