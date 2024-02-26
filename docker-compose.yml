@@ -56,6 +56,7 @@ services:
   db-fe-dev:
     container_name: db-fe-dev
     restart: unless-stopped
+    user: ${UID}:${GID}
     build:
       context: ./fe
       dockerfile: Dockerfile
