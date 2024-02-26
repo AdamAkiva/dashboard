@@ -1,0 +1,15 @@
+version: "3.0"
+
+services:
+  dashboard-fe:
+    container_name: dashboard-fe
+    restart: unless-stopped
+    build:
+      context: ./fe
+      dockerfile: Dockerfile
+    volumes:
+      - ./fe:/home/node/dashboard:rw
+    stop_grace_period: 2s
+    ports:
+      - 5173:5173
+    command: /bin/sh -c "npm install && npm run start:dev"
