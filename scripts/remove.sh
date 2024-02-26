@@ -14,13 +14,15 @@ DB_DATA_FOLDER=../db-dev-data;
 ################################################################################
 
 remove() {
-  is_removed=$(UID="$UID" GID="$GID" docker compose down);
+    # Stop docker services
+    is_removed=$(UID="$UID" GID="$GID" docker compose down);
 
     if ! $is_removed; then
         printf "\nDocker removal failed. solve the errors and try again.\n";
         exit 1;
     fi
-    
+
+    # Optional removes
     remove_node_modules;
     remove_db_data;
 
@@ -48,6 +50,7 @@ remove_db_data() {
 
 ################################################################################
 
+# Move to scripts directory
 cd "$SCRIPT_DIR" || exit 1;
 
 remove;

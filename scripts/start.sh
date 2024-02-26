@@ -42,6 +42,7 @@ start() {
 
 ################################################################################
 
+# Move to scripts directory
 cd "$SCRIPT_DIR" || exit 1;
 
 start;
