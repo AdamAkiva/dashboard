@@ -12,7 +12,7 @@ services:
       - POSTGRES_PASSWORD=admin
       - POSTGRES_DB=db-dev
     volumes:
-      - ./db-dev-data:/var/lib/postgresql/data:rw
+      - ../db-dev-data:/var/lib/postgresql/data:rw
       # See: https://github.com/docker-library/docs/blob/master/postgres/README.md#arbitrary---user-notes
       - /etc/passwd:/etc/passwd:ro
     stop_grace_period: 2s
@@ -32,10 +32,10 @@ services:
     restart: unless-stopped
     user: ${UID}:${GID}
     build:
-      context: ./be
+      context: ../be
       dockerfile: Dockerfile
     volumes:
-      - ./be:/home/node/db:rw
+      - ../be:/home/node/db:rw
     environment:
       - SERVER_PORT=2828
       - SERVER_DEBUG_PORT=2829
@@ -72,10 +72,10 @@ services:
     restart: unless-stopped
     user: ${UID}:${GID}
     build:
-      context: ./fe
+      context: ../fe
       dockerfile: Dockerfile
     volumes:
-      - ./fe:/home/node/db:rw
+      - ../fe:/home/node/db:rw
     stop_grace_period: 2s
     ports:
       - 5173:5173

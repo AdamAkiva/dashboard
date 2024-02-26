@@ -5,9 +5,11 @@
 UID=$(id -u);
 GID=$(id -g);
 
-BE_MODULES_FOLDER=be/node_modules;
-FE_MODULES_FOLDER=fe/node_modules;
-DB_DATA_FOLDER=./db-dev-data;
+SCRIPT_DIR=$(dirname "$(realpath "$0")");
+
+BE_MODULES_FOLDER=../be/node_modules;
+FE_MODULES_FOLDER=../fe/node_modules;
+DB_DATA_FOLDER=../db-dev-data;
 
 ################################################################################
 
@@ -45,6 +47,8 @@ remove_db_data() {
 }
 
 ################################################################################
+
+cd "$SCRIPT_DIR" || exit 1;
 
 remove;
 
