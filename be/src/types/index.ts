@@ -7,7 +7,7 @@ import { URL } from 'node:url';
 import compress from 'compression';
 import cors from 'cors';
 import Debug from 'debug';
-import { sql, type Logger as DrizzleLogger } from 'drizzle-orm';
+import { eq, sql, type Logger as DrizzleLogger } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import express, {
   json,
@@ -80,6 +80,7 @@ export {
   cors,
   createServer,
   drizzle,
+  eq,
   EventEmitter,
   express,
   helmet,

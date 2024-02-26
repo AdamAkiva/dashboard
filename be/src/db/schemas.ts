@@ -5,6 +5,7 @@
 
 import {
   boolean,
+  pgEnum,
   pgTable,
   timestamp,
   uniqueIndex,
@@ -50,6 +51,8 @@ const timestamps = {
 
 /**********************************************************************************/
 
+export const genderEnum = pgEnum('gender', ['male', 'female', 'other']);
+
 // TODO
 // When a user is deleted archive them instead.
 // If an already deleted user is deleted for a second time, remove them permanently
@@ -62,7 +65,7 @@ export const userModel = pgTable(
     firstName: varchar('first_name', { length: 256 }).notNull(),
     lastName: varchar('last_name', { length: 256 }).notNull(),
     phone: varchar('phone', { length: 64 }).notNull(),
-    gender: boolean('gender').notNull(),
+    gender: genderEnum('gender').notNull(),
     address: varchar('address', { length: 256 }).notNull(),
     ...timestamps
   },

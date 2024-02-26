@@ -144,7 +144,6 @@ components:
         - gender
         - address
         - createdAt
-        - settings
       properties:
         id:
           type: string
@@ -166,17 +165,11 @@ components:
         createdAt:
           type: string
           format: date-time
-        settings:
-          type: object
-          required:
-            - darkMode
-          properties:
-            darkMode:
-              type: boolean
     CreateUser:
       type: object
       required:
         - email
+        - password
         - firstName
         - lastName
         - phone
@@ -186,6 +179,9 @@ components:
         email:
           type: string
           format: email
+        password:
+          type: string
+          format: password
         firstName:
           type: string
         lastName:
@@ -197,17 +193,15 @@ components:
           type: string
         address:
           type: string
-        settings:
-          type: object
-          properties:
-            darkMode:
-              type: boolean
     UpdateUser:
       type: object
       properties:
         email:
           type: string
           format: email
+        password:
+          type: string
+          format: password
         firstName:
           type: string
         lastName:
@@ -219,11 +213,6 @@ components:
           type: string
         address:
           type: string
-        settings:
-          type: object
-          properties:
-            darkMode:
-              type: boolean
   requestBodies:
     CreateUsers:
       description: An array describing Users creation data

@@ -22,6 +22,10 @@ import {
 type AllowedGenderValues = ExtractSetType<typeof ALLOWED_GENDER_VALUES>;
 
 const {
+  USER_EMAIL_MIN_LENGTH,
+  USER_EMAIL_MAX_LENGTH,
+  USER_PASSWORD_MIN_LENGTH,
+  USER_PASSWORD_MAX_LENGTH,
   USER_FIRST_NAME_MIN_LENGTH,
   USER_FIRST_NAME_MAX_LENGTH,
   USER_LAST_NAME_MIN_LENGTH,
@@ -31,6 +35,12 @@ const {
 } = VALIDATION;
 
 const ALLOWED_GENDER_VALUES = new Set(['male', 'female', 'other'] as const);
+
+// The non literal values are constants defined by the server
+// eslint-disable-next-line security/detect-non-literal-regexp
+const passwordRegex = new RegExp(
+  `^(?=.*[A-Z])(?=.*[!@#$%^&*()_+-=[]{};':"\\|,.<>/?]).{${USER_PASSWORD_MIN_LENGTH},${USER_PASSWORD_MAX_LENGTH}}$/`
+);
 
 /**********************************************************************************/
 
@@ -67,9 +77,24 @@ export function createOne(req: Request) {
 
   const bodySchema = Zod.object(
     {
+      email: Zod.string({
+        invalid_type_error: invalidStringErr('email'),
+        required_error: requiredErr('email')
+      })
+        .min(USER_EMAIL_MIN_LENGTH, minErr('email', USER_EMAIL_MIN_LENGTH))
+        .max(USER_EMAIL_MAX_LENGTH, maxErr('email', USER_EMAIL_MAX_LENGTH))
+        .email('Invalid email address'),
+      password: Zod.string({
+        invalid_type_error: invalidStringErr('password'),
+        required_error: requiredErr('password')
+      }).regex(
+        passwordRegex,
+        `Password should be between ${USER_PASSWORD_MIN_LENGTH} and ${USER_PASSWORD_MAX_LENGTH}.\n` +
+          ' The password should contain at least 1 upper case and special letters'
+      ),
       firstName: Zod.string({
         invalid_type_error: invalidStringErr('first name'),
-        required_error: invalidStringErr('first name')
+        required_error: requiredErr('first name')
       })
         .min(
           USER_FIRST_NAME_MIN_LENGTH,
@@ -81,7 +106,7 @@ export function createOne(req: Request) {
         ),
       lastName: Zod.string({
         invalid_type_error: invalidStringErr('last name'),
-        required_error: invalidStringErr('last name')
+        required_error: requiredErr('last name')
       })
         .min(
           USER_LAST_NAME_MIN_LENGTH,
@@ -124,7 +149,7 @@ export function createOne(req: Request) {
       }),
       address: Zod.string({
         invalid_type_error: invalidStringErr('address'),
-        required_error: invalidStringErr('address')
+        required_error: requiredErr('address')
       })
         .min(
           USER_ADDRESS_MIN_LENGTH,
@@ -171,9 +196,26 @@ export function updateOne(req: Request) {
 
   const bodySchema = Zod.object(
     {
+      email: Zod.string({
+        invalid_type_error: invalidStringErr('email'),
+        required_error: requiredErr('email')
+      })
+        .min(USER_EMAIL_MIN_LENGTH, minErr('email', USER_EMAIL_MIN_LENGTH))
+        .max(USER_EMAIL_MAX_LENGTH, maxErr('email', USER_EMAIL_MAX_LENGTH))
+        .email('Invalid email address')
+        .optional(),
+      password: Zod.string({
+        invalid_type_error: invalidStringErr('password'),
+        required_error: requiredErr('password')
+      })
+        .regex(
+          passwordRegex,
+          `Password should be between ${USER_PASSWORD_MIN_LENGTH} and ${USER_PASSWORD_MAX_LENGTH}.\n` +
+            ' The password should contain at least 1 upper case and special letters'
+        )
+        .optional(),
       firstName: Zod.string({
-        invalid_type_error: invalidStringErr('first name'),
-        required_error: invalidStringErr('first name')
+        invalid_type_error: invalidStringErr('first name')
       })
         .min(
           USER_FIRST_NAME_MIN_LENGTH,
@@ -185,8 +227,7 @@ export function updateOne(req: Request) {
         )
         .optional(),
       lastName: Zod.string({
-        invalid_type_error: invalidStringErr('last name'),
-        required_error: invalidStringErr('last name')
+        invalid_type_error: invalidStringErr('last name')
       })
         .min(
           USER_LAST_NAME_MIN_LENGTH,
@@ -198,14 +239,13 @@ export function updateOne(req: Request) {
         )
         .optional(),
       phone: Zod.string({
-        invalid_type_error: invalidStringErr('phone'),
-        required_error: requiredErr('phone')
+        invalid_type_error: invalidStringErr('phone')
       })
         .transform((phone, ctx) => {
           if (!isValidPhoneNumber(phone, 'IL')) {
             ctx.addIssue({
               code: Zod.ZodIssueCode.custom,
-              message: 'Invalid phone number'
+              message: 'Invalid phone'
             });
 
             return Zod.NEVER;
@@ -215,15 +255,14 @@ export function updateOne(req: Request) {
         })
         .optional(),
       gender: Zod.string({
-        invalid_type_error: invalidStringErr('gender'),
-        required_error: requiredErr('gender')
+        invalid_type_error: invalidStringErr('gender')
       })
         .transform((gender, ctx) => {
           const loweredCase = gender.toLowerCase() as AllowedGenderValues;
           if (!ALLOWED_GENDER_VALUES.has(loweredCase)) {
             ctx.addIssue({
               code: Zod.ZodIssueCode.custom,
-              message: 'Invalid gender value'
+              message: 'Invalid gender'
             });
 
             return Zod.NEVER;
@@ -233,8 +272,7 @@ export function updateOne(req: Request) {
         })
         .optional(),
       address: Zod.string({
-        invalid_type_error: invalidStringErr('address'),
-        required_error: invalidStringErr('address')
+        invalid_type_error: invalidStringErr('address')
       })
         .min(
           USER_ADDRESS_MIN_LENGTH,
