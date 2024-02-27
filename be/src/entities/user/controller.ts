@@ -13,13 +13,13 @@ import * as Validator from './validator.js';
 
 export async function readOne(req: Request, res: Response, next: NextFunction) {
   try {
-    userDebug('ReadOne validation');
+    userDebug('readOne validation');
     const args = Validator.readOne(req);
-    userDebug('ReadOne validation done');
+    userDebug('readOne validation done');
 
-    userDebug('ReadOne service');
+    userDebug('readOne service');
     const user = await Service.readOne(res.locals.ctx, args);
-    userDebug('ReadOne service done');
+    userDebug('readOne service done');
 
     return res.status(StatusCodes.SUCCESS).json(user);
   } catch (err) {
@@ -33,13 +33,13 @@ export async function createOne(
   next: NextFunction
 ) {
   try {
-    userDebug('CreateOne validation');
+    userDebug('createOne validation');
     const args = Validator.createOne(req);
-    userDebug('CreateOne validation done');
+    userDebug('createOne validation done');
 
-    userDebug('CreateOne service');
+    userDebug('createOne service');
     const user = await Service.createOne(res.locals.ctx, args);
-    userDebug('CreateOne service done');
+    userDebug('createOne service done');
 
     return res.status(StatusCodes.SUCCESS).json(user);
   } catch (err) {
@@ -73,13 +73,13 @@ export async function deleteOne(
   next: NextFunction
 ) {
   try {
-    userDebug('DeleteOne validation');
+    userDebug('deleteOne validation');
     const args = Validator.deleteOne(req);
-    userDebug('DeleteOne validation done');
+    userDebug('deleteOne validation done');
 
-    userDebug('DeleteOne service');
+    userDebug('deleteOne service');
     const user = await Service.deleteOne(res.locals.ctx, args);
-    userDebug('DeleteOne service done');
+    userDebug('deleteOne service done');
 
     return res.status(StatusCodes.SUCCESS).json(user);
   } catch (err) {

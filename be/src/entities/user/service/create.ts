@@ -1,9 +1,10 @@
-import type { DBHandler, DBModels } from '../../../db/index.js';
+import type { DBModels, Transaction } from '../../../db/index.js';
 import {
   userDebug,
   type RequestContext,
   type User
 } from '../../../types/index.js';
+import { getPreparedStatements } from '../../utils/index.js';
 import type { createOne as createOneValidation } from '../validator.js';
 
 /**********************************************************************************/
@@ -23,109 +24,132 @@ export async function createOne(
   const { password, ...userInfo } = args;
   const createdAt = new Date().toISOString();
 
-  const userId = await createUser({
-    handler: handler,
-    models: models,
-    userInfo: userInfo,
-    createdAt: createdAt
-  });
-  await Promise.allSettled([
-    createCredentials({
-      handler: handler,
+  return await handler.transaction(async (transaction) => {
+    const user = await activateUser({
+      transaction: transaction,
       models: models,
-      credentials: {
-        userId: userId,
-        email: userInfo.email,
-        password: password
-      },
-      createdAt: createdAt
-    }),
-    createDefaultSettings({
-      handler: handler,
-      models: models,
-      userId: userId,
-      createdAt: createdAt
-    })
-  ]);
+      email: userInfo.email
+    });
+    if (user) {
+      return user;
+    }
 
-  return {
-    ...userInfo,
-    id: userId,
-    createdAt: createdAt
-  };
+    const userId = await createUserInfo({
+      transaction: transaction,
+      models: models,
+      userInfo: userInfo,
+      createdAt: createdAt
+    });
+    const results = await Promise.allSettled([
+      createUserCredentials({
+        transaction: transaction,
+        models: models,
+        credentials: {
+          email: userInfo.email,
+          password: password
+        },
+        userId: userId,
+        createdAt: createdAt
+      }),
+      createUserDefaultSettings({
+        transaction: transaction,
+        models: models,
+        userId: userId,
+        createdAt: createdAt
+      })
+    ]);
+    for (const result of results) {
+      if (result.status === 'rejected') {
+        throw result.reason;
+      }
+    }
+
+    return {
+      ...userInfo,
+      id: userId,
+      createdAt: createdAt,
+      isActive: true
+    };
+  });
 }
 
-async function createUser(params: {
-  handler: DBHandler;
+/**********************************************************************************/
+
+async function activateUser(params: {
+  transaction: Transaction;
+  models: DBModels;
+  email: string;
+}) {
+  const { transaction, models, email } = params;
+  const { activateUser, readUserQuery } = getPreparedStatements(
+    transaction,
+    models
+  );
+
+  const users = await activateUser.execute({ email: email });
+  if (!users.length) {
+    return undefined;
+  }
+
+  return (await readUserQuery.execute({ userId: users[0].userId }))[0];
+}
+
+async function createUserInfo(params: {
+  transaction: Transaction;
   models: DBModels;
   userInfo: Omit<UserCreateOneValidationData, 'password'>;
   createdAt: string;
 }) {
-  const {
-    handler,
-    models: {
-      user: { userModel }
-    },
-    userInfo,
-    createdAt
-  } = params;
+  const { transaction, models, userInfo, createdAt } = params;
+  const { createUserInfoQuery } = getPreparedStatements(transaction, models);
 
-  userDebug('Creating user entry');
+  userDebug('Creating user info entry');
   const userId = (
-    await handler
-      .insert(userModel)
-      .values({
-        ...userInfo,
-        createdAt: createdAt
-      })
-      .returning({ userId: userModel.id })
+    await createUserInfoQuery.execute({
+      ...userInfo,
+      createdAt: createdAt
+    })
   )[0].userId;
-  userDebug('Done creating user entry');
+  userDebug('Done creating user info entry');
 
   return userId;
 }
 
-async function createCredentials(params: {
-  handler: DBHandler;
+async function createUserCredentials(params: {
+  transaction: Transaction;
   models: DBModels;
-  credentials: { userId: string; email: string; password: string };
+  credentials: Pick<UserCreateOneValidationData, 'email' | 'password'>;
+  userId: string;
   createdAt: string;
 }) {
-  const {
-    handler,
-    models: {
-      user: { userCredentialsModel }
-    },
-    credentials,
-    createdAt
-  } = params;
+  const { transaction, models, credentials, userId, createdAt } = params;
+  const { createCredentialsQuery } = getPreparedStatements(transaction, models);
 
   userDebug('Creating user credentials entry');
-  await handler.insert(userCredentialsModel).values({
+  await createCredentialsQuery.execute({
     ...credentials,
+    userId: userId,
     createdAt: createdAt
   });
   userDebug('Done creating user credentials entry');
 }
 
-async function createDefaultSettings(params: {
-  handler: DBHandler;
+async function createUserDefaultSettings(params: {
+  transaction: Transaction;
   models: DBModels;
   userId: string;
   createdAt: string;
 }) {
-  const {
-    handler,
-    models: {
-      user: { userSettingsModel }
-    },
-    userId,
-    createdAt
-  } = params;
+  const { transaction, models, userId, createdAt } = params;
+  const { createDefaultSettingsQuery } = getPreparedStatements(
+    transaction,
+    models
+  );
 
   userDebug('Creating default user settings entry');
-  await handler
-    .insert(userSettingsModel)
-    .values({ userId: userId, createdAt: createdAt });
+  await createDefaultSettingsQuery.execute({
+    userId: userId,
+    createdAt: createdAt
+  });
   userDebug('Done creating user default settings entry');
 }

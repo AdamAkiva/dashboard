@@ -96,7 +96,7 @@ export async function setup({ provide }: Provide) {
     const models = db.getModels();
 
     /* eslint-disable drizzle/enforce-delete-with-where */
-    await handler.delete(models.user.userModel);
+    await handler.delete(models.user.userInfoModel);
     await handler.delete(models.user.userCredentialsModel);
     await handler.delete(models.user.userSettingsModel);
     /* eslint-enable drizzle/enforce-delete-with-where */

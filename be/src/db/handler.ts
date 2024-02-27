@@ -65,6 +65,7 @@ export default class DatabaseHandler {
       idle_timeout: 180, // in secs
       max: 20,
       max_lifetime: 3_600, // in secs
+      prepare: true,
       connection: {
         application_name: name
       },
@@ -80,7 +81,7 @@ export default class DatabaseHandler {
 
     this._models = {
       user: {
-        userModel: schema.userModel,
+        userInfoModel: schema.userInfoModel,
         userCredentialsModel: schema.userCredentialsModel,
         userSettingsModel: schema.userSettingsModel
       }

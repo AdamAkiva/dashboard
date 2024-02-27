@@ -57,7 +57,7 @@ export const genderEnum = pgEnum('gender', ['male', 'female', 'other']);
 // When a user is deleted archive them instead.
 // If an already deleted user is deleted for a second time, remove them permanently
 
-export const userModel = pgTable(
+export const userInfoModel = pgTable(
   'users',
   {
     id: uuid('id').primaryKey().notNull().unique().defaultRandom(),
@@ -83,16 +83,17 @@ export const userCredentialsModel = pgTable(
       .primaryKey()
       .references(
         () => {
-          return userModel.id;
+          return userInfoModel.id;
         },
-        { onDelete: 'no action', onUpdate: 'no action' }
+        { onDelete: 'cascade', onUpdate: 'no action' }
       ),
     email: varchar('email', { length: 512 }).unique().notNull(),
     password: varchar('password', { length: 256 }).notNull(),
-    // Fist delete of a user will be a soft-delete. Second delete will be a hard
+    // First delete of a user will be a soft-delete. Second delete will be a hard
     // delete of that user.
-    // A creation of a soft-deleted user will reactivate it, update will be
-    // forbidden.
+    // A read of soft-deleted user will work.
+    // A creation of a soft-deleted user will reactivate it.
+    // An update will be of a soft-deleted user will be forbidden.
     isActive: boolean('is_active').default(true).notNull(),
     ...timestamps
   },
@@ -114,9 +115,9 @@ export const userSettingsModel = pgTable('users_settings', {
     .primaryKey()
     .references(
       () => {
-        return userModel.id;
+        return userInfoModel.id;
       },
-      { onDelete: 'no action', onUpdate: 'no action' }
+      { onDelete: 'cascade', onUpdate: 'no action' }
     ),
   darkMode: boolean('dark_mode').default(false).notNull(),
   ...timestamps

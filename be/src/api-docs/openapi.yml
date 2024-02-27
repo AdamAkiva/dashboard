@@ -144,6 +144,7 @@ components:
         - gender
         - address
         - createdAt
+        - isActive
       properties:
         id:
           type: string
@@ -165,6 +166,8 @@ components:
         createdAt:
           type: string
           format: date-time
+        isActive:
+          type: boolean
     CreateUser:
       type: object
       required:

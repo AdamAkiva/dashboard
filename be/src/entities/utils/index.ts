@@ -1,4 +1,10 @@
 import {
+  getPreparedStatements,
+  userNotAllowedToBeUpdated,
+  userNotFoundError,
+  userUpdatedButReadFailed
+} from './service.js';
+import {
   VALIDATION,
   emptyErr,
   invalidArrayErr,
@@ -19,6 +25,7 @@ import {
 export {
   VALIDATION,
   emptyErr,
+  getPreparedStatements,
   invalidArrayErr,
   invalidBoolean,
   invalidObjectErr,
@@ -28,6 +35,9 @@ export {
   maxErr,
   minErr,
   requiredErr,
+  userNotAllowedToBeUpdated,
+  userNotFoundError,
+  userUpdatedButReadFailed,
   validateEmptyObject,
   type ValidatedType
 };

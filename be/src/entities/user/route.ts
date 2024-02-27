@@ -9,7 +9,7 @@ const { createOne, readOne, updateOne, deleteOne } = Controller;
 /**********************************************************************************/
 
 export default Router()
-  .post('/users', json({ limit: '32kb' }), createOne)
+  .post('/users', json({ limit: '16kb' }), createOne)
   .get('/users/:userId', json({ limit: '2kb' }), readOne)
-  .patch('/users/:userId', json({ limit: '32kb' }), updateOne)
+  .patch('/users/:userId', json({ limit: '16kb' }), updateOne)
   .delete('/users/:userId', json({ limit: '2kb' }), deleteOne);

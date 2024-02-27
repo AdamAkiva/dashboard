@@ -1,4 +1,5 @@
-import type { RequestContext } from '../../../types/index.js';
+import { userDebug, type RequestContext } from '../../../types/index.js';
+import { getPreparedStatements } from '../../utils/index.js';
 import type { deleteOne as deleteOneValidation } from '../validator.js';
 
 /**********************************************************************************/
@@ -9,5 +10,29 @@ type UserDeleteOneValidationData = ReturnType<typeof deleteOneValidation>;
 
 export async function deleteOne(
   ctx: RequestContext,
-  args: UserDeleteOneValidationData
-) {}
+  userId: UserDeleteOneValidationData
+) {
+  const handler = ctx.db.getHandler();
+  const models = ctx.db.getModels();
+  const { deactivateUserQuery, deleteUserQuery, isUserActiveQuery } =
+    getPreparedStatements(handler, models);
+
+  userDebug('Checking whether the user is active');
+  const users = await isUserActiveQuery.execute({ userId: userId });
+  userDebug('Done Checking whether the user is active');
+  if (!users.length) {
+    return '';
+  }
+
+  if (users[0].isActive) {
+    userDebug('Deactivating user');
+    await deactivateUserQuery.execute({ userId: userId });
+    userDebug('Done deactivating user');
+  } else {
+    userDebug('Deleting user');
+    await deleteUserQuery.execute({ userId: userId });
+    userDebug('Done deleting user');
+  }
+
+  return userId;
+}
