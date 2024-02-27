@@ -22,11 +22,14 @@ export interface User {
   address: string;
   /** @format date-time */
   createdAt: string;
+  isActive: boolean;
 }
 
 export interface CreateUser {
   /** @format email */
   email: string;
+  /** @format password */
+  password: string;
   firstName: string;
   lastName: string;
   /** @format phone */
@@ -38,6 +41,8 @@ export interface CreateUser {
 export interface UpdateUser {
   /** @format email */
   email?: string;
+  /** @format password */
+  password?: string;
   firstName?: string;
   lastName?: string;
   /** @format phone */
