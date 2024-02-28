@@ -18,7 +18,9 @@ export function checkMethod(allowedMethods: Set<string>) {
     const reqMethod = req.method.toUpperCase();
 
     if (!allowedMethods.has(reqMethod)) {
-      return res.status(StatusCodes.NOT_ALLOWED).json('Method not allowed');
+      return res
+        .status(StatusCodes.NOT_ALLOWED)
+        .json(`${reqMethod} is not a support method`);
     }
 
     return next();
