@@ -3,7 +3,6 @@
   rules. Please refrain from doing rules for it, or you will encounter issues.
   (Unless you sure about what you're doing)
 */
-
 module.exports = {
   root: true,
   env: { node: true },
