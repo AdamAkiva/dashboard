@@ -17,7 +17,6 @@ start() {
     # To change permission for db-dev-data folder
     mkdir -p "$DB_DATA_FOLDER";
 
-    
     printf "Do you want to rebuild the images? (y/n) ";
     read -r is_rebuild;
 
@@ -36,7 +35,6 @@ start() {
         printf "\nDocker run failed. Solve the errors and try again.\n";
         exit 1;
     fi
-    
     return 0;
 }
 

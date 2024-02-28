@@ -34,6 +34,7 @@ services:
     build:
       context: ../be
       dockerfile: Dockerfile
+      target: be-dev
     volumes:
       - ../be:/home/node/db:rw
     environment:
@@ -74,6 +75,7 @@ services:
     build:
       context: ../fe
       dockerfile: Dockerfile
+      target: fe-dev
     volumes:
       - ../fe:/home/node/db:rw
     stop_grace_period: 2s
