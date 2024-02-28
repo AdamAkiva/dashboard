@@ -6,18 +6,20 @@ UID=$(id -u);
 GID=$(id -g);
 
 SCRIPT_DIR=$(dirname "$(realpath "$0")");
+ROOT_DIR=$(dirname "$SCRIPT_DIR");
 
-BE_MODULES_FOLDER=../be/node_modules;
-FE_MODULES_FOLDER=../fe/node_modules;
-DB_DATA_FOLDER=../db-dev-data;
+BE_MODULES_FOLDER="$ROOT_DIR"/be/node_modules;
+FE_MODULES_FOLDER="$ROOT_DIR"/fe/node_modules;
+DB_DATA_FOLDER="$ROOT_DIR"/db-dev-data;
 
 ################################################################################
 
 remove() {
     # Stop docker services
-    is_removed=$(UID="$UID" GID="$GID" docker compose down);
+    UID="$UID" GID="$GID" docker compose down;
+    status=$?;
 
-    if ! $is_removed; then
+    if [ $status -ne 0 ]; then
         printf "\nDocker removal failed. solve the errors and try again.\n";
         exit 1;
     fi
