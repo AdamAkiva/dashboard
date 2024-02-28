@@ -1,15 +1,15 @@
 import '@/assets/styles/App.css';
 
+import Welcome from '@/components/Welcome.tsx';
+import Login from '@/components/Login.tsx';
+
 /******************************************************************************/
 
 const App = () => {
   return (
     <div className="grid-design">
-      <div className="left-half">
-        <div className="greeting">Welcome to Dashboard</div>
-        <div> Here will be a description of the website.</div>
-      </div>
-      <div className="right-half"> USER LOGIN</div>
+      <Welcome />
+      <Login />
     </div>
   );
 };
