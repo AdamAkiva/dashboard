@@ -12,6 +12,7 @@
     "commit-local-updates": "npx ncu -u",
     "check-code-deps": "npx depcheck --ignores=prettier",
     "check-cir-deps": "npx dpdm --no-tree --transform --exit-code circular:1 \"src/**/*.{ts,tsx}\"",
+    "_start": "npm i && npm run start:dev",
     "_build": "npx eslint './src/**/*.tsx' && vite build"
   },
   "dependencies": {
