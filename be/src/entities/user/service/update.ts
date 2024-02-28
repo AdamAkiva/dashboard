@@ -1,7 +1,6 @@
-import type { DBModels, Transaction } from '../../../db/index.js';
+import type { DBPreparedQueries } from '../../../db/index.js';
 import { userDebug, type RequestContext } from '../../../types/index.js';
 import {
-  getPreparedStatements,
   userNotAllowedToBeUpdated,
   userNotFoundError,
   userUpdatedButReadFailed
@@ -18,31 +17,27 @@ export async function updateOne(
   ctx: RequestContext,
   updates: UserUpdateOneValidationData
 ) {
-  const { db } = ctx;
+  const { db, preparedQueries } = ctx;
   const handler = db.getHandler();
-  const models = db.getModels();
-  const { readUserQuery } = getPreparedStatements(handler, models);
+  const { readUserQuery } = preparedQueries;
 
   const { password, userId, ...userInfo } = updates;
   const updatedAt = new Date().toISOString();
 
-  await handler.transaction(async (transaction) => {
+  // According to: https://www.answeroverflow.com/m/1164318289674125392
+  // handler and transaction can be used interchangeably, hopefully that is the
+  // case. Should check it at some point
+  await handler.transaction(async () => {
     const results = await Promise.allSettled([
-      isAllowedToUpdate({
-        transaction: transaction,
-        models: models,
-        userId: userId
-      }),
+      isAllowedToUpdate(preparedQueries, userId),
       updateUserInfo({
-        transaction: transaction,
-        models: models,
+        preparedQueries: preparedQueries,
         userInfo: userInfo,
         userId: userId,
         updatedAt: updatedAt
       }),
       updateUserCredentials({
-        transaction: transaction,
-        models: models,
+        preparedQueries: preparedQueries,
         credentials: {
           email: userInfo.email,
           password: password
@@ -71,13 +66,11 @@ export async function updateOne(
 
 /**********************************************************************************/
 
-async function isAllowedToUpdate(params: {
-  transaction: Transaction;
-  models: DBModels;
-  userId: string;
-}) {
-  const { transaction, models, userId } = params;
-  const { isUserActiveQuery } = getPreparedStatements(transaction, models);
+async function isAllowedToUpdate(
+  preparedQueries: DBPreparedQueries,
+  userId: string
+) {
+  const { isUserActiveQuery } = preparedQueries;
 
   userDebug('Checking whether user is active');
   const users = await isUserActiveQuery.execute({
@@ -93,14 +86,13 @@ async function isAllowedToUpdate(params: {
 }
 
 async function updateUserInfo(params: {
-  transaction: Transaction;
-  models: DBModels;
+  preparedQueries: DBPreparedQueries;
   userInfo: Omit<UserUpdateOneValidationData, 'password' | 'userId'>;
   userId: string;
   updatedAt: string;
 }) {
-  const { transaction, models, userInfo, userId, updatedAt } = params;
-  const { updateUserInfoQuery } = getPreparedStatements(transaction, models);
+  const { preparedQueries, userInfo, userId, updatedAt } = params;
+  const { updateUserInfoQuery } = preparedQueries;
 
   if (!Object.keys(userInfo).length) {
     return;
@@ -119,17 +111,13 @@ async function updateUserInfo(params: {
 }
 
 async function updateUserCredentials(params: {
-  transaction: Transaction;
-  models: DBModels;
+  preparedQueries: DBPreparedQueries;
   credentials: Pick<UserUpdateOneValidationData, 'email' | 'password'>;
   userId: string;
   updatedAt: string;
 }) {
-  const { transaction, models, credentials, userId, updatedAt } = params;
-  const { updateUserCredentialsQuery } = getPreparedStatements(
-    transaction,
-    models
-  );
+  const { preparedQueries, credentials, userId, updatedAt } = params;
+  const { updateUserCredentialsQuery } = preparedQueries;
 
   if (!Object.keys(credentials).length) {
     return;

@@ -3,7 +3,7 @@ import {
   type RequestContext,
   type User
 } from '../../../types/index.js';
-import { getPreparedStatements, userNotFoundError } from '../../utils/index.js';
+import { userNotFoundError } from '../../utils/index.js';
 import type { readOne as readOneValidation } from '../validator.js';
 
 /**********************************************************************************/
@@ -16,10 +16,8 @@ export async function readOne(
   ctx: RequestContext,
   userId: UserReadOneValidationData
 ): Promise<User> {
-  const { db } = ctx;
-  const handler = db.getHandler();
-  const models = db.getModels();
-  const { readUserQuery } = getPreparedStatements(handler, models);
+  const { preparedQueries } = ctx;
+  const { readUserQuery } = preparedQueries;
 
   userDebug('Fetching user');
   const users = await readUserQuery.execute({ userId: userId });

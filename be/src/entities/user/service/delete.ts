@@ -1,5 +1,4 @@
 import { userDebug, type RequestContext } from '../../../types/index.js';
-import { getPreparedStatements } from '../../utils/index.js';
 import type { deleteOne as deleteOneValidation } from '../validator.js';
 
 /**********************************************************************************/
@@ -12,10 +11,9 @@ export async function deleteOne(
   ctx: RequestContext,
   userId: UserDeleteOneValidationData
 ) {
-  const handler = ctx.db.getHandler();
-  const models = ctx.db.getModels();
+  const { preparedQueries } = ctx;
   const { deactivateUserQuery, deleteUserQuery, isUserActiveQuery } =
-    getPreparedStatements(handler, models);
+    preparedQueries;
 
   userDebug('Checking whether the user is active');
   const users = await isUserActiveQuery.execute({ userId: userId });

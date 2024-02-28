@@ -1,5 +1,4 @@
 import {
-  getPreparedStatements,
   userNotAllowedToBeUpdated,
   userNotFoundError,
   userUpdatedButReadFailed
@@ -25,7 +24,6 @@ import {
 export {
   VALIDATION,
   emptyErr,
-  getPreparedStatements,
   invalidArrayErr,
   invalidBoolean,
   invalidObjectErr,

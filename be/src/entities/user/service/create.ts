@@ -1,10 +1,9 @@
-import type { DBModels, Transaction } from '../../../db/index.js';
+import type { DBPreparedQueries } from '../../../db/index.js';
 import {
   userDebug,
   type RequestContext,
   type User
 } from '../../../types/index.js';
-import { getPreparedStatements } from '../../utils/index.js';
 import type { createOne as createOneValidation } from '../validator.js';
 
 /**********************************************************************************/
@@ -17,33 +16,29 @@ export async function createOne(
   ctx: RequestContext,
   userData: UserCreateOneValidationData
 ): Promise<User> {
-  const { db } = ctx;
+  const { db, preparedQueries } = ctx;
   const handler = db.getHandler();
-  const models = db.getModels();
 
   const { password, ...userInfo } = userData;
   const createdAt = new Date().toISOString();
 
-  return await handler.transaction(async (transaction) => {
-    const user = await activateUser({
-      transaction: transaction,
-      models: models,
-      email: userInfo.email
-    });
+  // According to: https://www.answeroverflow.com/m/1164318289674125392
+  // handler and transaction can be used interchangeably, hopefully that is the
+  // case. Should check it at some point
+  return await handler.transaction(async () => {
+    const user = await activateUser(preparedQueries, userInfo.email);
     if (user) {
       return user;
     }
 
     const userId = await createUserInfo({
-      transaction: transaction,
-      models: models,
+      preparedQueries: preparedQueries,
       userInfo: userInfo,
       createdAt: createdAt
     });
     const results = await Promise.allSettled([
       createUserCredentials({
-        transaction: transaction,
-        models: models,
+        preparedQueries: preparedQueries,
         credentials: {
           email: userInfo.email,
           password: password
@@ -52,8 +47,7 @@ export async function createOne(
         createdAt: createdAt
       }),
       createUserDefaultSettings({
-        transaction: transaction,
-        models: models,
+        preparedQueries: preparedQueries,
         userId: userId,
         createdAt: createdAt
       })
@@ -75,16 +69,8 @@ export async function createOne(
 
 /**********************************************************************************/
 
-async function activateUser(params: {
-  transaction: Transaction;
-  models: DBModels;
-  email: string;
-}) {
-  const { transaction, models, email } = params;
-  const { activateUser, readUserQuery } = getPreparedStatements(
-    transaction,
-    models
-  );
+async function activateUser(preparedQueries: DBPreparedQueries, email: string) {
+  const { activateUser, readUserQuery } = preparedQueries;
 
   const users = await activateUser.execute({ email: email });
   if (!users.length) {
@@ -95,13 +81,12 @@ async function activateUser(params: {
 }
 
 async function createUserInfo(params: {
-  transaction: Transaction;
-  models: DBModels;
+  preparedQueries: DBPreparedQueries;
   userInfo: Omit<UserCreateOneValidationData, 'password'>;
   createdAt: string;
 }) {
-  const { transaction, models, userInfo, createdAt } = params;
-  const { createUserInfoQuery } = getPreparedStatements(transaction, models);
+  const { preparedQueries, userInfo, createdAt } = params;
+  const { createUserInfoQuery } = preparedQueries;
 
   userDebug('Creating user info entry');
   const userId = (
@@ -116,14 +101,13 @@ async function createUserInfo(params: {
 }
 
 async function createUserCredentials(params: {
-  transaction: Transaction;
-  models: DBModels;
+  preparedQueries: DBPreparedQueries;
   credentials: Pick<UserCreateOneValidationData, 'email' | 'password'>;
   userId: string;
   createdAt: string;
 }) {
-  const { transaction, models, credentials, userId, createdAt } = params;
-  const { createCredentialsQuery } = getPreparedStatements(transaction, models);
+  const { preparedQueries, credentials, userId, createdAt } = params;
+  const { createCredentialsQuery } = preparedQueries;
 
   userDebug('Creating user credentials entry');
   await createCredentialsQuery.execute({
@@ -135,16 +119,12 @@ async function createUserCredentials(params: {
 }
 
 async function createUserDefaultSettings(params: {
-  transaction: Transaction;
-  models: DBModels;
+  preparedQueries: DBPreparedQueries;
   userId: string;
   createdAt: string;
 }) {
-  const { transaction, models, userId, createdAt } = params;
-  const { createDefaultSettingsQuery } = getPreparedStatements(
-    transaction,
-    models
-  );
+  const { userId, preparedQueries, createdAt } = params;
+  const { createDefaultSettingsQuery } = preparedQueries;
 
   userDebug('Creating default user settings entry');
   await createDefaultSettingsQuery.execute({

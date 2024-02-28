@@ -23,7 +23,7 @@ import { pinoHttp, type HttpLogger } from 'pino-http';
 import pg from 'postgres';
 import { z as Zod } from 'zod';
 
-import type { DatabaseHandler } from '../db/index.js';
+import type { DatabaseHandler, DBPreparedQueries } from '../db/index.js';
 
 import type { CreateUser, UpdateUser, User } from './api.js';
 
@@ -71,6 +71,7 @@ export type EnvironmentVariables = {
 };
 export type RequestContext = {
   db: DatabaseHandler;
+  preparedQueries: DBPreparedQueries;
   logger: Logger;
 };
 

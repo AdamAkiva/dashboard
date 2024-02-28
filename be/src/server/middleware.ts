@@ -63,6 +63,7 @@ export function attachContext(db: DatabaseHandler, logger: Logger) {
   ) {
     res.locals.ctx = {
       db: db,
+      preparedQueries: db.getPreparedQueries(),
       logger: logger
     };
 
