@@ -12,7 +12,9 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-image: url('@/assets/img/bg.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -42,6 +44,14 @@ h1 {
 }
 
 button {
+  height: 2.5rem;
+  width: 9rem;
+  border-radius: 30px;
+  border: transparent;
+  outline: none;
+  color: white;
+  font-weight: bolder;
+  font-size: 1rem;
   cursor: pointer;
 }
 
