@@ -31,7 +31,7 @@ export default class HttpServer {
     'PATCH',
     'DELETE',
     'OPTIONS'
-  ]);
+  ] as const);
 
   private readonly _mode;
   private readonly _db;

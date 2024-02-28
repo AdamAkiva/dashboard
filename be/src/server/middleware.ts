@@ -48,10 +48,10 @@ export function healthCheck(
       notReadyMsg = `Application is not available: ${notReadyMsg}`;
     }
     if (notReadyMsg) {
-      return res.status(504).json(notReadyMsg);
+      return res.status(StatusCodes.GATEWAY_TIMEOUT).json(notReadyMsg);
     }
 
-    return res.status(204).end();
+    return res.status(StatusCodes.NO_CONTENT).end();
   };
 }
 
@@ -72,7 +72,7 @@ export function attachContext(db: DatabaseHandler, logger: Logger) {
 }
 
 export function handleMissedRoutes(req: Request, res: Response) {
-  return res.status(404).json(`'${req.url}' does not exist`);
+  return res.status(StatusCodes.NOT_FOUND).json(`'${req.url}' does not exist`);
 }
 
 // eslint-disable-next-line @typescript-eslint/max-params
