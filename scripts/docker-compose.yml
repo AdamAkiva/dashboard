@@ -1,16 +1,16 @@
 version: "3.9"
 
 services:
-  bd-pg-dev:
-    hostname: bd-pg-dev
-    container_name: bd-pg-dev
+  dashboard-pg-dev:
+    hostname: dashboard-pg-dev
+    container_name: dashboard-pg-dev
     restart: unless-stopped
     image: postgres:16.1-alpine
     user: ${UID}:${GID}
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
-      - POSTGRES_DB=bd-dev
+      - POSTGRES_DB=dashboard-dev
     volumes:
       - ${DB_INIT_SCRIPT}:/docker-entrypoint-initdb.d/init.sql:ro
       - ../db-dev-data:/var/lib/postgresql/data:rw
@@ -18,7 +18,7 @@ services:
       - /etc/passwd:/etc/passwd:ro
     stop_grace_period: 2s
     healthcheck:
-      test: pg_isready -p 5432 -U admin -d bd-dev
+      test: pg_isready -p 5432 -U admin -d dashboard-dev
       interval: 3s
       timeout: 2s
       retries: 5
@@ -26,20 +26,20 @@ services:
 
 ################################################################################
 
-  bd-pg-test:
-    hostname: bd-pg-test
-    container_name: bd-pg-test
+  dashboard-pg-test:
+    hostname: dashboard-pg-test
+    container_name: dashboard-pg-test
     restart: unless-stopped
     image: postgres:16.1-alpine
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
-      - POSTGRES_DB=bd-test
+      - POSTGRES_DB=dashboard-test
     volumes:
       - ${DB_INIT_SCRIPT}:/docker-entrypoint-initdb.d/init.sql:ro
     stop_grace_period: 2s
     healthcheck:
-      test: pg_isready -p 5432 -U admin -d bd-test
+      test: pg_isready -p 5432 -U admin -d dashboard-test
       interval: 3s
       timeout: 2s
       retries: 5
@@ -47,8 +47,8 @@ services:
 
 ################################################################################
 
-  bd-be-dev:
-    container_name: bd-be-dev
+  dashboard-be-dev:
+    container_name: dashboard-be-dev
     restart: unless-stopped
     user: ${UID}:${GID}
     build:
@@ -67,10 +67,10 @@ services:
       - ALLOWED_HOSTS=localhost
       - ALLOWED_ORIGINS=*
       - NODE_ENV=development
-      - DB_URI=postgres://admin:admin@bd-pg-dev:5432/bd-dev
-      - DB_TEST_URI=postgres://admin:admin@bd-pg-test:5432/bd-test
+      - DB_URI=postgres://admin:admin@dashboard-pg-dev:5432/dashboard-dev
+      - DB_TEST_URI=postgres://admin:admin@dashboard-pg-test:5432/dashboard-test
     volumes:
-      - ../be:/home/node/bd:rw
+      - ../be:/home/node/dashboard:rw
       # Volume npm cache to speed up the npm install. This should allow cache reuse
       # whenever node_modules are removed.
       # See: https://docs.npmjs.com/cli/v6/using-npm/config#cache for reference
@@ -94,16 +94,16 @@ services:
       retries: 5
       start_period: 30s
     depends_on:
-      bd-pg-dev:
+      dashboard-pg-dev:
         condition: service_healthy
-      bd-pg-test:
+      dashboard-pg-test:
         condition: service_healthy
     command: npm run _start
 
 ################################################################################
 
-  bd-fe-dev:
-    container_name: bd-fe-dev
+  dashboard-fe-dev:
+    container_name: dashboard-fe-dev
     restart: unless-stopped
     user: ${UID}:${GID}
     build:
@@ -113,7 +113,7 @@ services:
       args:
         DOCKER_BUILDKIT: 1
     volumes:
-      - ../fe:/home/node/bd:rw
+      - ../fe:/home/node/dashboard:rw
       # Volume npm cache to speed up the npm install. This should allow cache reuse
       # whenever node_modules are removed.
       # See: https://docs.npmjs.com/cli/v6/using-npm/config#cache for reference

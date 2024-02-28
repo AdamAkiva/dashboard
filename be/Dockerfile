@@ -8,4 +8,4 @@ RUN apk update && apk add curl
 FROM be-base as be-dev
 
 # Set the workdir
-WORKDIR /home/node/bd
+WORKDIR /home/node/dashboard
