@@ -18,7 +18,7 @@
     "commit-local-updates": "npx ncu -u",
     "check-code-deps": "npx depcheck --ignores=@swc/core,pino-pretty,prettier,support-color,ts-node",
     "check-cir-deps": "npx dpdm --no-tree --transform --exit-code circular:1 \"src/**/*.ts\"",
-    "_install-start": "npm install && npm run start:dev",
+    "_start": "npm i && npm run start:dev",
     "_test:ci": "npm run lint && npm run test",
     "_build": "npx eslint './src/**/*.ts' && npx tsc --build --verbose ./tsconfig.prod.json"
   },

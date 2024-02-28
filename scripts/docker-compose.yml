@@ -62,7 +62,7 @@ services:
     depends_on:
       db-pg-dev:
         condition: service_healthy
-    command: /bin/sh -c "npm install && npm run start:dev"
+    command: npm run _start
 
 ################################################################################
 
@@ -89,4 +89,4 @@ services:
       timeout: 30s
       retries: 5
       start_period: 45s
-    command: /bin/sh -c "npm install && npm run start:dev"
+    command: npm run _start
