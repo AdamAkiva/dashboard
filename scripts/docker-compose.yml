@@ -25,6 +25,26 @@ services:
 
 ################################################################################
 
+  db-pg-test:
+    hostname: db-pg-test
+    container_name: db-pg-test
+    restart: unless-stopped
+    image: postgres:16.1-alpine
+    user: ${UID}:${GID}
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=db-test
+    stop_grace_period: 2s
+    healthcheck:
+      test: pg_isready -p 5432 -U admin -d db-test
+      interval: 3s
+      timeout: 2s
+      retries: 5
+    command: postgres -p 5432
+
+################################################################################
+
   db-be-dev:
     container_name: db-be-dev
     restart: unless-stopped
@@ -33,6 +53,8 @@ services:
       context: ../be
       dockerfile: Dockerfile
       target: be-dev
+      args:
+        DOCKER_BUILDKIT: 1
     volumes:
       - ../be:/home/node/db:rw
     environment:
@@ -45,6 +67,7 @@ services:
       - ALLOWED_ORIGINS=*
       - NODE_ENV=development
       - DB_URI=postgres://admin:admin@db-pg-dev:5432/db-dev
+      - DB_TEST_URI=postgres://admin:admin@db-pg-test:5432/db-test
     stop_grace_period: 2s
     ports:
       - 2828:2828
@@ -74,6 +97,8 @@ services:
       context: ../fe
       dockerfile: Dockerfile
       target: fe-dev
+      args:
+        DOCKER_BUILDKIT: 1
     volumes:
       - ../fe:/home/node/db:rw
     stop_grace_period: 2s
