@@ -5,7 +5,7 @@ import { defineConfig } from 'vitest/config';
 
 const defaultConfig: UserConfig = {
   root: './',
-  include: ['**/*{usr,general}.test.ts'],
+  include: ['**/*{general,middleware}.test.ts'],
   testTimeout: 8_000,
   teardownTimeout: 4_000,
   globalSetup: './__tests__/config/globalSetup.ts',
