@@ -30,7 +30,6 @@ services:
     container_name: db-pg-test
     restart: unless-stopped
     image: postgres:16.1-alpine
-    user: ${UID}:${GID}
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
@@ -84,6 +83,8 @@ services:
       start_period: 30s
     depends_on:
       db-pg-dev:
+        condition: service_healthy
+      db-pg-test:
         condition: service_healthy
     command: npm run _start
 
