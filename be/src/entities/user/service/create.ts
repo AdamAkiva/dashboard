@@ -15,13 +15,13 @@ type UserCreateOneValidationData = ReturnType<typeof createOneValidation>;
 
 export async function createOne(
   ctx: RequestContext,
-  args: UserCreateOneValidationData
+  userData: UserCreateOneValidationData
 ): Promise<User> {
   const { db } = ctx;
   const handler = db.getHandler();
   const models = db.getModels();
 
-  const { password, ...userInfo } = args;
+  const { password, ...userInfo } = userData;
   const createdAt = new Date().toISOString();
 
   return await handler.transaction(async (transaction) => {

@@ -55,15 +55,15 @@ export function readOne(req: Request) {
       }).uuid({ message: invalidUuid('user id') })
     },
     {
-      invalid_type_error: invalidObjectErr('user'),
-      required_error: requiredErr('user')
+      invalid_type_error: invalidObjectErr('request params'),
+      required_error: requiredErr('request params')
     }
-  ).strict(invalidObjectErr('params'));
+  ).strict(invalidObjectErr('request params'));
 
   const paramsRes = paramsSchema.safeParse(params);
   const err = checkAndParseErrors(
     paramsRes,
-    validateEmptyObject('user', { ...body, ...query })
+    validateEmptyObject('request body & query', { ...body, ...query })
   );
   if (err) {
     throw err;
@@ -90,7 +90,7 @@ export function createOne(req: Request) {
       }).regex(
         passwordRegex,
         `Password should be between ${USER_PASSWORD_MIN_LENGTH} and ${USER_PASSWORD_MAX_LENGTH}.\n` +
-          ' The password should contain at least 1 upper case and special letters'
+          ' The password should contain at least one upper case letter and one special letter'
       ),
       firstName: Zod.string({
         invalid_type_error: invalidStringErr('first name'),
@@ -119,33 +119,32 @@ export function createOne(req: Request) {
       phone: Zod.string({
         invalid_type_error: invalidStringErr('phone'),
         required_error: requiredErr('phone')
-      }).transform((phone, ctx) => {
+      }).superRefine((phone, ctx) => {
         if (!isValidPhoneNumber(phone, 'IL')) {
           ctx.addIssue({
             code: Zod.ZodIssueCode.custom,
-            message: 'Invalid phone number'
+            message: 'Invalid phone',
+            fatal: true
           });
 
           return Zod.NEVER;
         }
-
-        return phone;
       }),
       gender: Zod.string({
         invalid_type_error: invalidStringErr('gender'),
         required_error: requiredErr('gender')
       }).transform((gender, ctx) => {
-        const loweredCase = gender.toLowerCase() as AllowedGenderValues;
-        if (!ALLOWED_GENDER_VALUES.has(loweredCase)) {
+        const loweredCaseVal = gender.toLowerCase() as AllowedGenderValues;
+        if (!ALLOWED_GENDER_VALUES.has(loweredCaseVal)) {
           ctx.addIssue({
             code: Zod.ZodIssueCode.custom,
-            message: 'Invalid gender value'
+            message: 'Invalid gender'
           });
 
           return Zod.NEVER;
         }
 
-        return loweredCase;
+        return loweredCaseVal;
       }),
       address: Zod.string({
         invalid_type_error: invalidStringErr('address'),
@@ -161,15 +160,15 @@ export function createOne(req: Request) {
         )
     },
     {
-      invalid_type_error: invalidObjectErr('user'),
-      required_error: requiredErr('user')
+      invalid_type_error: invalidObjectErr('request body'),
+      required_error: requiredErr('request body')
     }
-  ).strict(invalidObjectErr('user'));
+  ).strict(invalidObjectErr('request body'));
 
   const paramsRes = bodySchema.safeParse(body);
   const err = checkAndParseErrors(
     paramsRes,
-    validateEmptyObject('user', { ...params, ...query })
+    validateEmptyObject('request params & query', { ...params, ...query })
   );
   if (err) {
     throw err;
@@ -189,29 +188,27 @@ export function updateOne(req: Request) {
       }).uuid({ message: invalidUuid('user id') })
     },
     {
-      invalid_type_error: invalidObjectErr('user'),
-      required_error: requiredErr('user')
+      invalid_type_error: invalidObjectErr('request params'),
+      required_error: requiredErr('request params')
     }
-  ).strict(invalidObjectErr('params'));
+  ).strict(invalidObjectErr('request params'));
 
   const bodySchema = Zod.object(
     {
       email: Zod.string({
-        invalid_type_error: invalidStringErr('email'),
-        required_error: requiredErr('email')
+        invalid_type_error: invalidStringErr('email')
       })
         .min(USER_EMAIL_MIN_LENGTH, minErr('email', USER_EMAIL_MIN_LENGTH))
         .max(USER_EMAIL_MAX_LENGTH, maxErr('email', USER_EMAIL_MAX_LENGTH))
         .email('Invalid email address')
         .optional(),
       password: Zod.string({
-        invalid_type_error: invalidStringErr('password'),
-        required_error: requiredErr('password')
+        invalid_type_error: invalidStringErr('password')
       })
         .regex(
           passwordRegex,
           `Password should be between ${USER_PASSWORD_MIN_LENGTH} and ${USER_PASSWORD_MAX_LENGTH}.\n` +
-            ' The password should contain at least 1 upper case and special letters'
+            ' The password should contain at least one upper case letter and one special letter'
         )
         .optional(),
       firstName: Zod.string({
@@ -241,25 +238,24 @@ export function updateOne(req: Request) {
       phone: Zod.string({
         invalid_type_error: invalidStringErr('phone')
       })
-        .transform((phone, ctx) => {
+        .superRefine((phone, ctx) => {
           if (!isValidPhoneNumber(phone, 'IL')) {
             ctx.addIssue({
               code: Zod.ZodIssueCode.custom,
-              message: 'Invalid phone'
+              message: 'Invalid phone',
+              fatal: true
             });
 
             return Zod.NEVER;
           }
-
-          return phone;
         })
         .optional(),
       gender: Zod.string({
         invalid_type_error: invalidStringErr('gender')
       })
         .transform((gender, ctx) => {
-          const loweredCase = gender.toLowerCase() as AllowedGenderValues;
-          if (!ALLOWED_GENDER_VALUES.has(loweredCase)) {
+          const loweredCaseVal = gender.toLowerCase() as AllowedGenderValues;
+          if (!ALLOWED_GENDER_VALUES.has(loweredCaseVal)) {
             ctx.addIssue({
               code: Zod.ZodIssueCode.custom,
               message: 'Invalid gender'
@@ -268,7 +264,7 @@ export function updateOne(req: Request) {
             return Zod.NEVER;
           }
 
-          return loweredCase;
+          return loweredCaseVal;
         })
         .optional(),
       address: Zod.string({
@@ -285,22 +281,21 @@ export function updateOne(req: Request) {
         .optional()
     },
     {
-      invalid_type_error: invalidObjectErr('user'),
-      required_error: requiredErr('user')
+      invalid_type_error: invalidObjectErr('request body'),
+      required_error: requiredErr('request body')
     }
   )
-    .strict(invalidObjectErr('user'))
-    .transform((val, ctx) => {
-      if (Object.keys(val).length === 0) {
+    .strict(invalidObjectErr('request body'))
+    .superRefine((val, ctx) => {
+      if (!Object.keys(val).length) {
         ctx.addIssue({
           code: Zod.ZodIssueCode.custom,
-          message: 'Empty update is not allowed'
+          message: 'Empty update is not allowed',
+          fatal: true
         });
 
         return Zod.NEVER;
       }
-
-      return val;
     });
 
   const paramsRes = paramsSchema.safeParse(params);
@@ -308,7 +303,7 @@ export function updateOne(req: Request) {
   const err = checkAndParseErrors(
     paramsRes,
     bodyRes,
-    validateEmptyObject('user', query)
+    validateEmptyObject('request query', query)
   );
   if (err) {
     throw err;

@@ -48,6 +48,7 @@ export type ResolvedValue<T> = T extends (...args: any) => any
 /**************************** Package related *************************************/
 /**********************************************************************************/
 
+export const generalDebug = Debug('dashboard:general');
 export const userDebug = Debug('dashboard:user');
 
 export type Logger = HttpLogger['logger'];

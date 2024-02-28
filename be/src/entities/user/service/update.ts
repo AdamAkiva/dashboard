@@ -16,14 +16,14 @@ type UserUpdateOneValidationData = ReturnType<typeof updateOneValidation>;
 
 export async function updateOne(
   ctx: RequestContext,
-  args: UserUpdateOneValidationData
+  updates: UserUpdateOneValidationData
 ) {
   const { db } = ctx;
   const handler = db.getHandler();
   const models = db.getModels();
   const { readUserQuery } = getPreparedStatements(handler, models);
 
-  const { password, userId, ...userInfo } = args;
+  const { password, userId, ...userInfo } = updates;
   const updatedAt = new Date().toISOString();
 
   await handler.transaction(async (transaction) => {
@@ -79,9 +79,11 @@ async function isAllowedToUpdate(params: {
   const { transaction, models, userId } = params;
   const { isUserActiveQuery } = getPreparedStatements(transaction, models);
 
+  userDebug('Checking whether user is active');
   const users = await isUserActiveQuery.execute({
     userId: userId
   });
+  userDebug('Done checking whether user is active');
   if (!users.length) {
     throw userNotFoundError(userId);
   }

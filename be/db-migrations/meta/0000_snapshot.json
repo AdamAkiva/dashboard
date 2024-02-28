@@ -1,5 +1,5 @@
 {
-  "id": "cd49968e-5044-441e-8799-0fd9a97615af",
+  "id": "fe09b894-d49d-45e3-92a2-76324af1574b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -76,7 +76,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -128,7 +128,7 @@
         },
         "gender": {
           "name": "gender",
-          "type": "boolean",
+          "type": "gender",
           "primaryKey": false,
           "notNull": true
         },
@@ -225,7 +225,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -233,7 +233,16 @@
       "uniqueConstraints": {}
     }
   },
-  "enums": {},
+  "enums": {
+    "gender": {
+      "name": "gender",
+      "values": {
+        "male": "male",
+        "female": "female",
+        "other": "other"
+      }
+    }
+  },
   "schemas": {},
   "_meta": {
     "columns": {},

@@ -14,11 +14,11 @@ import * as Validator from './validator.js';
 export async function readOne(req: Request, res: Response, next: NextFunction) {
   try {
     userDebug('readOne validation');
-    const args = Validator.readOne(req);
+    const userId = Validator.readOne(req);
     userDebug('readOne validation done');
 
     userDebug('readOne service');
-    const user = await Service.readOne(res.locals.ctx, args);
+    const user = await Service.readOne(res.locals.ctx, userId);
     userDebug('readOne service done');
 
     return res.status(StatusCodes.SUCCESS).json(user);
@@ -34,11 +34,11 @@ export async function createOne(
 ) {
   try {
     userDebug('createOne validation');
-    const args = Validator.createOne(req);
+    const userData = Validator.createOne(req);
     userDebug('createOne validation done');
 
     userDebug('createOne service');
-    const user = await Service.createOne(res.locals.ctx, args);
+    const user = await Service.createOne(res.locals.ctx, userData);
     userDebug('createOne service done');
 
     return res.status(StatusCodes.SUCCESS).json(user);
@@ -54,11 +54,11 @@ export async function updateOne(
 ) {
   try {
     userDebug('updateOne validation');
-    const args = Validator.updateOne(req);
+    const updates = Validator.updateOne(req);
     userDebug('updateOne validation done');
 
     userDebug('updateOne service');
-    const user = await Service.updateOne(res.locals.ctx, args);
+    const user = await Service.updateOne(res.locals.ctx, updates);
     userDebug('updateOne service done');
 
     return res.status(StatusCodes.SUCCESS).json(user);
@@ -74,11 +74,11 @@ export async function deleteOne(
 ) {
   try {
     userDebug('deleteOne validation');
-    const args = Validator.deleteOne(req);
+    const userId = Validator.deleteOne(req);
     userDebug('deleteOne validation done');
 
     userDebug('deleteOne service');
-    const user = await Service.deleteOne(res.locals.ctx, args);
+    const user = await Service.deleteOne(res.locals.ctx, userId);
     userDebug('deleteOne service done');
 
     return res.status(StatusCodes.SUCCESS).json(user);

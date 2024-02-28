@@ -7,7 +7,7 @@ import {
   type Logger,
   type Mode
 } from '../types/index.js';
-import { isDevelopmentMode, isProductionMode } from '../utils/index.js';
+import { isDevelopmentMode } from '../utils/index.js';
 
 // The default import is on purpose. See: https://orm.drizzle.team/docs/sql-schema-declaration
 import * as schema from './schemas.js';
@@ -63,13 +63,12 @@ export default class DatabaseHandler {
     this._conn = pg(uri, {
       connect_timeout: 30, // in secs
       idle_timeout: 180, // in secs
-      max: 20,
+      max: 10, // The default is fine, unless we discover something else
       max_lifetime: 3_600, // in secs
       prepare: true,
       connection: {
         application_name: name
-      },
-      debug: !isProductionMode(mode)
+      }
     });
 
     this._handler = drizzle(this._conn, {

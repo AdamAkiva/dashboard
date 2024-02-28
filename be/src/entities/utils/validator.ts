@@ -20,10 +20,20 @@ export const VALIDATION = {
   USER_ADDRESS_MAX_LENGTH: 256
 } as const;
 
+const emptyObjectErrorMap: Zod.ZodErrorMap = (issue, ctx) => {
+  if (issue.code === Zod.ZodIssueCode.unrecognized_keys) {
+    return { message: 'Expected an empty object' };
+  }
+
+  return { message: ctx.defaultError };
+};
+
 /**********************************************************************************/
 
 export function validateEmptyObject(name: string, obj: unknown) {
-  return Zod.object({}).strict(name).safeParse(obj);
+  return Zod.object({}, { errorMap: emptyObjectErrorMap })
+    .strict(name)
+    .safeParse(obj);
 }
 
 export function checkAndParseErrors(

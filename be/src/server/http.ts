@@ -23,6 +23,15 @@ export default class HttpServer {
     new URL('', import.meta.url).pathname,
     '../../../assets/openapi.html'
   );
+  private static readonly ALLOWED_METHODS = new Set<string>([
+    'HEAD',
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS'
+  ]);
 
   private readonly _mode;
   private readonly _db;
@@ -57,21 +66,18 @@ export default class HttpServer {
     this._server.close();
   }
 
-  public async attachMiddlewares(
-    allowedMethods: Set<string>,
-    allowedOrigins: Set<string>
+  public async attachConfigurationMiddlewares(
+    allowedOrigins: Set<string> = new Set<string>()
   ) {
-    const origins =
-      allowedOrigins.size === 1
-        ? Array.from(allowedOrigins)[0]
-        : Array.from(allowedOrigins);
-
     this._app.use(
-      Middlewares.checkMethod(allowedMethods),
+      Middlewares.checkMethod(HttpServer.ALLOWED_METHODS),
       cors({
         credentials: true,
-        methods: Array.from(allowedMethods),
-        origin: origins
+        methods: Array.from(HttpServer.ALLOWED_METHODS),
+        origin:
+          allowedOrigins.size === 1
+            ? Array.from(allowedOrigins)[0]
+            : Array.from(allowedOrigins)
       }),
       compress()
     );
@@ -99,7 +105,7 @@ export default class HttpServer {
     }
   }
 
-  public attachRoutes(params: {
+  public attachRoutesMiddlewares(params: {
     allowedHosts: Set<string>;
     readyCheck: () => Promise<string> | string;
     logMiddleware: (req: Request, res: Response, next: NextFunction) => void;
@@ -116,10 +122,12 @@ export default class HttpServer {
       this._attachAPIDocs(apiRoute);
     }
 
-    // Health check route
     this._app
       .get(healthCheckRoute, Middlewares.healthCheck(allowedHosts, readyCheck))
-      // The order matters and there's no point to log every health check
+      // The middlewares are executed in order (as set by express) and there's
+      // no point to log every health check or every call to the api-docs
+      // (development only), so the log middleware comes after the health
+      // check route
       .use(logMiddleware)
       .use(
         apiRoute,
@@ -133,22 +141,41 @@ export default class HttpServer {
   /********************************************************************************/
 
   private _attachConfigurations() {
+    // Every configuration referring to sockets here, talks about network/tcp
+    // socket NOT websockets. Network socket is the underlying layer for http
+    // request (in this case). In short, the socket options refer to a "standard"
+    // connection from a client
     this._server.maxHeadersCount = 256;
-    this._server.headersTimeout = 8_000; // millis
+    this._server.headersTimeout = 32_000; // millis
     this._server.requestTimeout = 32_000; // millis
+    // Connection close will terminate the tcp socket once the payload was
+    // transferred and acknowledged. This setting is for the rare cases where,
+    // for some reason, the tcp socket is left alive
     this._server.timeout = 524_288; // millis
-    this._server.maxRequestsPerSocket = 0; // No request limit
-    this._server.keepAliveTimeout = 4_000; // millis
+    // See: https://github.com/nodejs/node/issues/40071
+    // Leaving this without any limit will cause the server to reuse the
+    // connection indefinitely (in theory). As a result, load balancing will
+    // have very little effects if more instances of the server are brought up
+    // by the deployment orchestration tool.
+    // As for a good number, it depends on the application traffic.
+    // The current value is random power of 2 which we liked
+    this._server.maxRequestsPerSocket = 32;
+    this._server.keepAliveTimeout = 8_000; // millis
   }
 
   private _attachEventHandlers(logger: Logger) {
     this._server
       .on('error', (err) => {
         logger.fatal(err, 'HTTP Server error');
+
+        // If an event emitter error happened, we shutdown the application.
+        // As a result we allow the deployment orchestration tool to attempt to
+        // rerun the application in a clean state
+        process.exit(1);
       })
       .once('close', () => {
         this._db.close().catch((err) => {
-          logger.error(err, 'Error during database termination');
+          logger.fatal(err, 'Error during database termination');
         });
 
         // Graceful shutdown
