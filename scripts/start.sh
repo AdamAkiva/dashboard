@@ -31,10 +31,7 @@ start() {
     fi
 
     # Start the services
-    UID="$UID" GID="$GID" docker compose up -d --wait;
-    status=$?;
-
-    if [ $status -ne 0 ]; then
+    if ! UID="$UID" GID="$GID" docker compose up -d --wait ; then
         printf "\nDocker run failed. Solve the errors and try again.\n";
         exit 1;
     fi

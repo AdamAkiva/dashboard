@@ -16,10 +16,7 @@ DB_DATA_FOLDER="$ROOT_DIR"/db-dev-data;
 
 remove() {
     # Stop docker services
-    UID="$UID" GID="$GID" docker compose down;
-    status=$?;
-
-    if [ $status -ne 0 ]; then
+    if ! UID="$UID" GID="$GID" docker compose down ; then
         printf "\nDocker removal failed. solve the errors and try again.\n";
         exit 1;
     fi
@@ -36,8 +33,7 @@ remove_node_modules() {
     read -r is_remove;
 
     if [ "$is_remove" = "y" ]; then
-        rm -rf "$FE_MODULES_FOLDER";
-        rm -rf "$BE_MODULES_FOLDER";
+        rm -rf "$FE_MODULES_FOLDER" "$BE_MODULES_FOLDER";
     fi
 }
 
