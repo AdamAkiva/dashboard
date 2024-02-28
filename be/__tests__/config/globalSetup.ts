@@ -11,11 +11,11 @@ export async function setup({ provide }: Provide) {
   EventEmitter.captureRejections = true;
 
   const { mode, server: serverEnv, db: dbUri } = getTestEnv();
-  const healthCheckRoute = serverEnv.healthCheck.route;
+  const loggingMocks = mockLogs();
 
   provide('urls', {
     baseURL: `${serverEnv.base}:${serverEnv.port}/${serverEnv.apiRoute}`,
-    healthCheckURL: `${serverEnv.base}:${serverEnv.port}/${healthCheckRoute}`
+    healthCheckURL: `${serverEnv.base}:${serverEnv.port}/${serverEnv.healthCheck.route}`
   });
 
   const db = new DatabaseHandler({
@@ -27,8 +27,6 @@ export async function setup({ provide }: Provide) {
     },
     logger: logger
   });
-
-  const loggingMocks = mockLogs();
 
   const server = new HttpServer({
     mode: mode,
