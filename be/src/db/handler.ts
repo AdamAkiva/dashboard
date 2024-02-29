@@ -1,5 +1,4 @@
 /* eslint-disable max-classes-per-file */
-
 import {
   drizzle,
   eq,
@@ -38,7 +37,9 @@ class DatabaseLogger implements DrizzleLogger {
 
   public logQuery(query: string, params: unknown[]): void {
     if (this._healthCheckQuery !== query) {
-      this._logger.debug({ query, params }, 'Database query:');
+      this._logger.debug(
+        `Database query:\n${query}\nParams: ${JSON.stringify(params, null, 2)}`
+      );
     }
   }
 }
@@ -90,7 +91,7 @@ export default class DatabaseHandler {
       }
     };
 
-    this._preparedQueries = this.createPreparedQueries();
+    this._preparedQueries = this.generatePreparedQueries();
   }
 
   /********************************************************************************/
@@ -113,7 +114,7 @@ export default class DatabaseHandler {
 
   /********************************************************************************/
 
-  private createPreparedQueries() {
+  private generatePreparedQueries() {
     // In regards to using handler and transaction, see this:
     // https://www.answeroverflow.com/m/1164318289674125392
     // In short, it does not matter, handler and transaction are same except
@@ -171,7 +172,7 @@ export default class DatabaseHandler {
           createdAt: userInfoModel.createdAt
         })
         .prepare('createUserInfoQuery'),
-      createCredentialsQuery: this._handler
+      createUserCredentialsQuery: this._handler
         .insert(userCredentialsModel)
         .values({
           userId: sql.placeholder('userId'),
@@ -180,74 +181,41 @@ export default class DatabaseHandler {
           createdAt: sql.placeholder('createdAt')
         })
         .prepare('createCredentialsQuery'),
-      createDefaultSettingsQuery: this._handler
+      createUserDefaultSettingsQuery: this._handler
         .insert(userSettingsModel)
         .values({
           userId: sql.placeholder('userId'),
           createdAt: sql.placeholder('createdAt')
         })
         .prepare('createDefaultSettingsQuery'),
-      activateUser: this._handler
+      reactivateUserQuery: this._handler
         .update(userCredentialsModel)
-        .set({
-          isActive: true
-        })
-        .where(eq(userCredentialsModel.email, sql.placeholder('email')))
-        .returning({ userId: userCredentialsModel.userId })
-        .prepare('activateUser'),
-      updateUserInfoQuery: this._handler
-        .update(userInfoModel)
-        .set({
-          // @ts-expect-error Currently this is a type error, but works on runtime.
-          // Remove this ignore When the PR is merged https://github.com/drizzle-team/drizzle-orm/pull/1666
-          email: sql.placeholder('email'),
-          // @ts-expect-error Currently this is a type error, but works on runtime.
-          // Remove this ignore When the PR is merged https://github.com/drizzle-team/drizzle-orm/pull/1666
-          firstName: sql.placeholder('firstName'),
-          // @ts-expect-error Currently this is a type error, but works on runtime.
-          // Remove this ignore When the PR is merged https://github.com/drizzle-team/drizzle-orm/pull/1666
-          lastName: sql.placeholder('lastName'),
-          // @ts-expect-error Currently this is a type error, but works on runtime.
-          // Remove this ignore When the PR is merged https://github.com/drizzle-team/drizzle-orm/pull/1666
-          gender: sql.placeholder('gender'),
-          // @ts-expect-error Currently this is a type error, but works on runtime.
-          // Remove this ignore When the PR is merged https://github.com/drizzle-team/drizzle-orm/pull/1666
-          phone: sql.placeholder('phone'),
-          // @ts-expect-error Currently this is a type error, but works on runtime.
-          // Remove this ignore When the PR is merged https://github.com/drizzle-team/drizzle-orm/pull/1666
-          address: sql.placeholder('address'),
-          // @ts-expect-error Currently this is a type error, but works on runtime.
-          // Remove this ignore When the PR is merged https://github.com/drizzle-team/drizzle-orm/pull/1666
-          updatedAt: sql.placeholder('updatedAt')
-        })
-        .where(eq(userInfoModel.id, sql.placeholder('userId')))
-        // Returning to check whether the update occurred or not
-        .returning({ id: userInfoModel.id })
-        .prepare('updateUserInfoQuery'),
-      // Type error, works in runtime, can be removed when this PR is merged:
-      // https://github.com/drizzle-team/drizzle-orm/pull/1666
-      updateUserCredentialsQuery: this._handler
-        .update(userCredentialsModel)
-        .set({
-          // @ts-expect-error Currently this is a type error, but works on runtime.
-          // Remove this ignore When the PR is merged https://github.com/drizzle-team/drizzle-orm/pull/1666
-          email: sql.placeholder('email'),
-          // @ts-expect-error Currently this is a type error, but works on runtime.
-          // Remove this ignore When the PR is merged https://github.com/drizzle-team/drizzle-orm/pull/1666
-          password: sql.placeholder('password'),
-          // @ts-expect-error Currently this is a type error, but works on runtime.
-          // Remove this ignore When the PR is merged https://github.com/drizzle-team/drizzle-orm/pull/1666
-          updatedAt: sql.placeholder('updatedAt')
-        })
-        .where(eq(userCredentialsModel.userId, sql.placeholder('userId')))
-        // Returning to check whether the update occurred or not
-        .returning({ userId: userCredentialsModel.userId })
-        .prepare('updateUserCredentialsQuery'),
-      deactivateUserQuery: this._handler
-        .update(userCredentialsModel)
-        .set({ isActive: false })
+        // @ts-expect-error Currently this is a type error, but works on runtime.
+        // Remove this ignore When the PR is merged https://github.com/drizzle-team/drizzle-orm/pull/1666
+        .set({ isActive: true, updatedAt: sql.placeholder('updatedAt') })
         .where(eq(userCredentialsModel.userId, sql.placeholder('userId')))
         .prepare('deactivateUserQuery'),
+      deactivateUserQuery: this._handler
+        .update(userCredentialsModel)
+        // @ts-expect-error Currently this is a type error, but works on runtime.
+        // Remove this ignore When the PR is merged https://github.com/drizzle-team/drizzle-orm/pull/1666
+        .set({ isActive: false, updatedAt: sql.placeholder('updatedAt') })
+        .where(eq(userCredentialsModel.userId, sql.placeholder('userId')))
+        .prepare('deactivateUserQuery'),
+      updateUserInfoTimestampQuery: this._handler
+        .update(userInfoModel)
+        // @ts-expect-error Currently this is a type error, but works on runtime.
+        // Remove this ignore When the PR is merged https://github.com/drizzle-team/drizzle-orm/pull/1666
+        .set({ updatedAt: sql.placeholder('updatedAt') })
+        .where(eq(userInfoModel.id, sql.placeholder('userId')))
+        .prepare('updateUserInfoTimestamp'),
+      updateUserSettingsTimestampQuery: this._handler
+        .update(userInfoModel)
+        // @ts-expect-error Currently this is a type error, but works on runtime.
+        // Remove this ignore When the PR is merged https://github.com/drizzle-team/drizzle-orm/pull/1666
+        .set({ updatedAt: sql.placeholder('updatedAt') })
+        .where(eq(userInfoModel.id, sql.placeholder('userId')))
+        .prepare('updateUserSettingsTimestamp'),
       deleteUserQuery: this._handler
         .delete(userInfoModel)
         .where(eq(userInfoModel.id, sql.placeholder('userId')))

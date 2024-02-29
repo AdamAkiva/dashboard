@@ -53,10 +53,6 @@ const timestamps = {
 
 export const genderEnum = pgEnum('gender', ['male', 'female', 'other']);
 
-// TODO
-// When a user is deleted archive them instead.
-// If an already deleted user is deleted for a second time, remove them permanently
-
 export const userInfoModel = pgTable(
   'users',
   {

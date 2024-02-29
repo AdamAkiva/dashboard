@@ -10,7 +10,7 @@ export type ValidatedType<T extends Zod.ZodType> = Zod.SafeParseSuccess<
 export const VALIDATION = {
   USER_EMAIL_MIN_LENGTH: 3,
   USER_EMAIL_MAX_LENGTH: 512,
-  USER_PASSWORD_MIN_LENGTH: 8,
+  USER_PASSWORD_MIN_LENGTH: 6,
   USER_PASSWORD_MAX_LENGTH: 64,
   USER_FIRST_NAME_MIN_LENGTH: 1,
   USER_FIRST_NAME_MAX_LENGTH: 256,
@@ -20,19 +20,22 @@ export const VALIDATION = {
   USER_ADDRESS_MAX_LENGTH: 256
 } as const;
 
-const emptyObjectErrorMap: Zod.ZodErrorMap = (issue, ctx) => {
-  if (issue.code === Zod.ZodIssueCode.unrecognized_keys) {
-    return { message: 'Expected an empty object' };
-  }
-
-  return { message: ctx.defaultError };
-};
-
 /**********************************************************************************/
 
-export function validateEmptyObject(name: string, obj: unknown) {
-  return Zod.object({}, { errorMap: emptyObjectErrorMap })
-    .strict(name)
+export function validateEmptyObject(errMsg: string, obj: unknown) {
+  return Zod.object(
+    {},
+    {
+      errorMap: (issue, ctx) => {
+        if (issue.code === Zod.ZodIssueCode.unrecognized_keys) {
+          return { message: errMsg };
+        }
+
+        return { message: ctx.defaultError };
+      }
+    }
+  )
+    .strict()
     .safeParse(obj);
 }
 
@@ -40,6 +43,7 @@ export function checkAndParseErrors(
   ...results: Zod.SafeParseReturnType<unknown, unknown>[]
 ) {
   const errs: Zod.ZodError<unknown>[] = [];
+  console.log(JSON.stringify(results, null, 2));
   results.forEach((result) => {
     if (!result.success) {
       errs.push(result.error);

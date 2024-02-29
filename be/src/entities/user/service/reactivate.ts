@@ -1,39 +1,47 @@
 import type { DatabaseHandler } from '../../../db/index.js';
-import { userDebug, type RequestContext } from '../../../types/index.js';
+import {
+  userDebug,
+  type RequestContext,
+  type User
+} from '../../../types/index.js';
 
-import { executePreparedQuery } from '../../utils/index.js';
+import {
+  executePreparedQuery,
+  userAlreadyActive,
+  userNotFoundError
+} from '../../utils/index.js';
 
-import type { deleteOne as deleteOneValidation } from '../validator.js';
+import type { reactivateOne as reactivateOneValidation } from '../validator.js';
 
 /**********************************************************************************/
 
-type UserDeleteOneValidationData = ReturnType<typeof deleteOneValidation>;
+type UserReactivateOneValidationData = ReturnType<
+  typeof reactivateOneValidation
+>;
 type UserUpdateQueryArguments = { userId: string; updatedAt: string };
 
 /**********************************************************************************/
 
-export async function deleteOne(
+export async function reactivateOne(
   ctx: RequestContext,
-  userId: UserDeleteOneValidationData
-): Promise<string> {
+  userId: UserReactivateOneValidationData
+): Promise<User> {
   const { db } = ctx;
   const handler = db.getHandler();
 
-  const userStatuses = await getUserStatus(db, userId);
-  if (!userStatuses.length) {
-    return '';
+  const users = await checkUserStatus(db, userId);
+  if (!users.length) {
+    throw userNotFoundError(userId);
+  }
+  if (users[0].isActive) {
+    throw userAlreadyActive(userId);
   }
 
-  if (!userStatuses[0].isActive) {
-    await deleteUser(db, userId);
-
-    return userId;
-  }
-
+  const updatedAt = new Date().toISOString();
   await handler.transaction(async () => {
-    const args = { userId: userId, updatedAt: new Date().toISOString() };
+    const args = { userId: userId, updatedAt: updatedAt };
     const results = await Promise.allSettled([
-      deactivateUser(db, args),
+      reactivateUser(db, args),
       updateUserInfoTimestamp(db, args),
       updateUserSettingsTimestamp(db, args)
     ]);
@@ -44,61 +52,55 @@ export async function deleteOne(
     }
   });
 
-  return userId;
+  return {
+    ...users[0],
+    isActive: true
+  };
 }
 
 /**********************************************************************************/
 
-async function getUserStatus(db: DatabaseHandler, userId: string) {
+async function checkUserStatus(db: DatabaseHandler, userId: string) {
   return await executePreparedQuery({
     db: db,
-    queryName: 'isUserActiveQuery',
+    queryName: 'readUserQuery',
     phValues: { userId: userId },
     debug: { instance: userDebug, msg: 'Checking whether the user is active' }
   });
 }
 
-async function deleteUser(db: DatabaseHandler, userId: string) {
-  await executePreparedQuery({
-    db: db,
-    queryName: 'deleteUserQuery',
-    phValues: { userId: userId },
-    debug: { instance: userDebug, msg: 'Deleting user' }
-  });
-}
-
-async function deactivateUser(
+async function reactivateUser(
   db: DatabaseHandler,
-  args: UserUpdateQueryArguments
+  phValues: UserUpdateQueryArguments
 ) {
   await executePreparedQuery({
     db: db,
-    queryName: 'deactivateUserQuery',
-    phValues: args,
+    queryName: 'reactivateUserQuery',
+    phValues: phValues,
     debug: { instance: userDebug, msg: 'Deactivating user' }
   });
 }
 
 async function updateUserInfoTimestamp(
   db: DatabaseHandler,
-  args: UserUpdateQueryArguments
+  phValues: UserUpdateQueryArguments
 ) {
   await executePreparedQuery({
     db: db,
     queryName: 'updateUserInfoTimestampQuery',
-    phValues: args,
+    phValues: phValues,
     debug: { instance: userDebug, msg: 'Updating user info timestamp' }
   });
 }
 
 async function updateUserSettingsTimestamp(
   db: DatabaseHandler,
-  args: UserUpdateQueryArguments
+  phValues: UserUpdateQueryArguments
 ) {
   await executePreparedQuery({
     db: db,
     queryName: 'updateUserSettingsTimestampQuery',
-    phValues: args,
+    phValues: phValues,
     debug: { instance: userDebug, msg: 'Updating user settings timestamp' }
   });
 }

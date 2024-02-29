@@ -86,3 +86,25 @@ export async function deleteOne(
     return next(err);
   }
 }
+
+/**********************************************************************************/
+
+export async function reactivateOne(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    userDebug('reactivateOne validation');
+    const userId = Validator.reactivateOne(req);
+    userDebug('reactivateOne validation done');
+
+    userDebug('reactivateOne service');
+    const user = await Service.reactivateOne(res.locals.ctx, userId);
+    userDebug('reactivateOne service done');
+
+    return res.status(StatusCodes.SUCCESS).json(user);
+  } catch (err) {
+    return next(err);
+  }
+}

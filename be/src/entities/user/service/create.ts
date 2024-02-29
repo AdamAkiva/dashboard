@@ -1,9 +1,15 @@
-import type { DBPreparedQueries } from '../../../db/index.js';
+import type { DatabaseHandler } from '../../../db/index.js';
 import {
   userDebug,
   type RequestContext,
   type User
 } from '../../../types/index.js';
+
+import {
+  executePreparedQuery,
+  userCreationError
+} from '../../utils/service.js';
+
 import type { createOne as createOneValidation } from '../validator.js';
 
 /**********************************************************************************/
@@ -16,7 +22,7 @@ export async function createOne(
   ctx: RequestContext,
   userData: UserCreateOneValidationData
 ): Promise<User> {
-  const { db, preparedQueries } = ctx;
+  const { db } = ctx;
   const handler = db.getHandler();
 
   const { password, ...userInfo } = userData;
@@ -26,110 +32,96 @@ export async function createOne(
   // handler and transaction can be used interchangeably, hopefully that is the
   // case. Should check it at some point
   return await handler.transaction(async () => {
-    const user = await activateUser(preparedQueries, userInfo.email);
-    if (user) {
-      return user;
-    }
-
-    const userId = await createUserInfo({
-      preparedQueries: preparedQueries,
-      userInfo: userInfo,
-      createdAt: createdAt
-    });
-    const results = await Promise.allSettled([
-      createUserCredentials({
-        preparedQueries: preparedQueries,
-        credentials: {
-          email: userInfo.email,
-          password: password
-        },
-        userId: userId,
+    try {
+      const userId = await createUserInfo({
+        db: db,
+        userInfo: userInfo,
         createdAt: createdAt
-      }),
-      createUserDefaultSettings({
-        preparedQueries: preparedQueries,
-        userId: userId,
-        createdAt: createdAt
-      })
-    ]);
-    for (const result of results) {
-      if (result.status === 'rejected') {
-        throw result.reason;
+      });
+      const results = await Promise.allSettled([
+        createUserCredentials({
+          db: db,
+          credentials: {
+            email: userInfo.email,
+            password: password
+          },
+          userId: userId,
+          createdAt: createdAt
+        }),
+        createUserDefaultSettings({
+          db: db,
+          userId: userId,
+          createdAt: createdAt
+        })
+      ]);
+      for (const result of results) {
+        if (result.status === 'rejected') {
+          throw result.reason;
+        }
       }
-    }
 
-    return {
-      ...userInfo,
-      id: userId,
-      createdAt: createdAt,
-      isActive: true
-    };
+      return {
+        ...userInfo,
+        id: userId,
+        createdAt: createdAt,
+        isActive: true
+      };
+    } catch (err) {
+      throw userCreationError(err, userInfo.email);
+    }
   });
 }
 
 /**********************************************************************************/
 
-async function activateUser(preparedQueries: DBPreparedQueries, email: string) {
-  const { activateUser, readUserQuery } = preparedQueries;
-
-  const users = await activateUser.execute({ email: email });
-  if (!users.length) {
-    return undefined;
-  }
-
-  return (await readUserQuery.execute({ userId: users[0].userId }))[0];
-}
-
 async function createUserInfo(params: {
-  preparedQueries: DBPreparedQueries;
+  db: DatabaseHandler;
   userInfo: Omit<UserCreateOneValidationData, 'password'>;
   createdAt: string;
 }) {
-  const { preparedQueries, userInfo, createdAt } = params;
-  const { createUserInfoQuery } = preparedQueries;
+  const { db, userInfo, createdAt } = params;
 
-  userDebug('Creating user info entry');
-  const userId = (
-    await createUserInfoQuery.execute({
-      ...userInfo,
-      createdAt: createdAt
+  return (
+    await executePreparedQuery({
+      db: db,
+      queryName: 'createUserInfoQuery',
+      phValues: { ...userInfo, createdAt: createdAt },
+      debug: { instance: userDebug, msg: 'Creating user info entry' }
     })
   )[0].userId;
-  userDebug('Done creating user info entry');
-
-  return userId;
 }
 
 async function createUserCredentials(params: {
-  preparedQueries: DBPreparedQueries;
+  db: DatabaseHandler;
   credentials: Pick<UserCreateOneValidationData, 'email' | 'password'>;
   userId: string;
   createdAt: string;
 }) {
-  const { preparedQueries, credentials, userId, createdAt } = params;
-  const { createCredentialsQuery } = preparedQueries;
+  const { db, credentials, userId, createdAt } = params;
 
-  userDebug('Creating user credentials entry');
-  await createCredentialsQuery.execute({
-    ...credentials,
-    userId: userId,
-    createdAt: createdAt
+  await executePreparedQuery({
+    db: db,
+    queryName: 'createUserCredentialsQuery',
+    phValues: {
+      ...credentials,
+      userId: userId,
+      createdAt: createdAt
+    },
+    debug: { instance: userDebug, msg: 'Creating user credentials entry' }
   });
-  userDebug('Done creating user credentials entry');
 }
 
 async function createUserDefaultSettings(params: {
-  preparedQueries: DBPreparedQueries;
+  db: DatabaseHandler;
   userId: string;
   createdAt: string;
 }) {
-  const { userId, preparedQueries, createdAt } = params;
-  const { createDefaultSettingsQuery } = preparedQueries;
+  const { db, userId, createdAt } = params;
 
-  userDebug('Creating default user settings entry');
-  await createDefaultSettingsQuery.execute({
-    userId: userId,
-    createdAt: createdAt
+  await executePreparedQuery({
+    db: db,
+    queryName: 'createUserDefaultSettingsQuery',
+    phValues: { userId: userId, createdAt: createdAt },
+    debug: { instance: userDebug, msg: 'Creating default user settings entry' }
   });
-  userDebug('Done creating user default settings entry');
 }

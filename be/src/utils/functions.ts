@@ -1,3 +1,7 @@
+import type { UnknownObject } from '../types/index.js';
+
+/**********************************************************************************/
+
 /**
  * Generics allows for VSCode type completion
  * The compare disregard case (more formally known as case-insensitive compare)
@@ -11,9 +15,17 @@ export function strcasecmp<T extends string>(s1: T, s2: T) {
   });
 }
 
-/**
- * Type-safe way to remove null and undefined values from an array
- */
+export function objHasValues(obj: UnknownObject) {
+  let k: keyof typeof obj;
+  for (k in obj) {
+    if (obj[k] != null) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export function filterNullAndUndefined<T>(value?: T | null): value is T {
   return value !== undefined && value !== null;
 }

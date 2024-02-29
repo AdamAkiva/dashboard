@@ -145,13 +145,13 @@ export default class HttpServer {
     // socket NOT websockets. Network socket is the underlying layer for http
     // request (in this case). In short, the socket options refer to a "standard"
     // connection from a client
-    this._server.maxHeadersCount = 256;
-    this._server.headersTimeout = 32_000; // millis
-    this._server.requestTimeout = 32_000; // millis
+    this._server.maxHeadersCount = 50;
+    this._server.headersTimeout = 20_000; // millis
+    this._server.requestTimeout = 20_000; // millis
     // Connection close will terminate the tcp socket once the payload was
     // transferred and acknowledged. This setting is for the rare cases where,
     // for some reason, the tcp socket is left alive
-    this._server.timeout = 524_288; // millis
+    this._server.timeout = 600_000; // millis
     // See: https://github.com/nodejs/node/issues/40071
     // Leaving this without any limit will cause the server to reuse the
     // connection indefinitely (in theory). As a result, load balancing will
@@ -159,8 +159,8 @@ export default class HttpServer {
     // by the deployment orchestration tool.
     // As for a good number, it depends on the application traffic.
     // The current value is random power of 2 which we liked
-    this._server.maxRequestsPerSocket = 32;
-    this._server.keepAliveTimeout = 8_000; // millis
+    this._server.maxRequestsPerSocket = 100;
+    this._server.keepAliveTimeout = 10_000; // millis
   }
 
   private _attachEventHandlers(logger: Logger) {

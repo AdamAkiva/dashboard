@@ -3,7 +3,9 @@ import {
   type RequestContext,
   type User
 } from '../../../types/index.js';
-import { userNotFoundError } from '../../utils/index.js';
+
+import { executePreparedQuery, userNotFoundError } from '../../utils/index.js';
+
 import type { readOne as readOneValidation } from '../validator.js';
 
 /**********************************************************************************/
@@ -16,12 +18,14 @@ export async function readOne(
   ctx: RequestContext,
   userId: UserReadOneValidationData
 ): Promise<User> {
-  const { preparedQueries } = ctx;
-  const { readUserQuery } = preparedQueries;
+  const { db } = ctx;
 
-  userDebug('Fetching user');
-  const users = await readUserQuery.execute({ userId: userId });
-  userDebug('Done fetching user');
+  const users = await executePreparedQuery({
+    db: db,
+    queryName: 'readUserQuery',
+    phValues: { userId: userId },
+    debug: { instance: userDebug, msg: 'Fetching user' }
+  });
   if (!users.length) {
     throw userNotFoundError(userId);
   }

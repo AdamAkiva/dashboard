@@ -5,6 +5,7 @@ import {
   isDevelopmentMode,
   isProductionMode,
   isTestMode,
+  objHasValues,
   strcasecmp
 } from './functions.js';
 import { logMiddleware, logger } from './logger.js';
@@ -21,5 +22,6 @@ export {
   isTestMode,
   logMiddleware,
   logger,
+  objHasValues,
   strcasecmp
 };

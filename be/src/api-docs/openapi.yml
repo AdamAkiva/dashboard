@@ -6,10 +6,44 @@ info:
     email: adam.akiva14@gmail.co.il
   version: 1.0.11
 servers:
-  - url: http://localhost:3223/v0/api
+  - url: http://localhost:2828/v0/api
 tags:
+  - name: general
   - name: user
 paths:
+  /health:
+    get:
+      servers:
+        - url: http://localhost:2828
+      tags:
+        - general
+      summary: Health check for the application
+      description: Health check for the application
+      responses:
+        '204':
+          description: The application is healthy
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '504':
+          $ref: '#/components/responses/GatewayTimeoutError'
+    head:
+      servers:
+        - url: http://localhost:2828
+      tags:
+        - general
+      summary: Health check for the application
+      description: Health check for the application
+      responses:
+        '204':
+          description: The application is healthy
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '504':
+          $ref: '#/components/responses/GatewayTimeoutError'
   /users:
     post:
       tags:
@@ -31,8 +65,6 @@ paths:
           $ref: '#/components/responses/PayloadTooLargeError'
         '500':
           $ref: '#/components/responses/ServerError'
-        '504':
-          $ref: '#/components/responses/GatewayTimeoutError'
   /users/{userId}:
     get:
       tags:
@@ -63,8 +95,6 @@ paths:
           $ref: '#/components/responses/PayloadTooLargeError'
         '500':
           $ref: '#/components/responses/ServerError'
-        '504':
-          $ref: '#/components/responses/GatewayTimeoutError'
     patch:
       tags:
         - user
@@ -96,8 +126,6 @@ paths:
           $ref: '#/components/responses/PayloadTooLargeError'
         '500':
           $ref: '#/components/responses/ServerError'
-        '504':
-          $ref: '#/components/responses/GatewayTimeoutError'
     delete:
       tags:
         - user
@@ -129,8 +157,38 @@ paths:
           $ref: '#/components/responses/PayloadTooLargeError'
         '500':
           $ref: '#/components/responses/ServerError'
-        '504':
-          $ref: '#/components/responses/GatewayTimeoutError'
+  /users/reactivate/{userId}:
+    patch:
+      tags:
+        - user
+      summary: Reactivate a user
+      description: Reactivate a user specified by the given id
+      requestBody:
+        $ref: '#/components/requestBodies/ReactivateUser'
+      parameters:
+        - name: userId
+          in: path
+          description: The id of a user you wish to reactivate
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: adb3271f-94dc-4169-80e9-3d4c8a90201f
+      responses:
+        '200':
+          $ref: '#/components/responses/User'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '413':
+          $ref: '#/components/responses/PayloadTooLargeError'
+        '500':
+          $ref: '#/components/responses/ServerError'
 components:
   schemas:
     User:
@@ -216,6 +274,8 @@ components:
           type: string
         address:
           type: string
+    ReactivateUser:
+      $ref: '#/components/schemas/CreateUser'
   requestBodies:
     CreateUsers:
       description: An array describing Users creation data

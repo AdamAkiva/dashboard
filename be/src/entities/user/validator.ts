@@ -4,6 +4,7 @@ import {
   type ExtractSetType,
   type Request
 } from '../../types/index.js';
+
 import {
   VALIDATION,
   checkAndParseErrors,
@@ -36,10 +37,13 @@ const {
 
 const ALLOWED_GENDER_VALUES = new Set(['male', 'female', 'other'] as const);
 
+// The password is required to have:
+// At least 1 digit, 1 upper case letter, 1 special character (!@#$%^&*),
+// no spaces and be between 6 to 64 characters
 // The non literal values are constants defined by the server
 // eslint-disable-next-line security/detect-non-literal-regexp
 const passwordRegex = new RegExp(
-  `^(?=.*[A-Z])(?=.*[!@#$%^&*()_+-=[]{};':"\\|,.<>/?]).{${USER_PASSWORD_MIN_LENGTH},${USER_PASSWORD_MAX_LENGTH}}$/`
+  `^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[^\\s]{${USER_PASSWORD_MIN_LENGTH},${USER_PASSWORD_MAX_LENGTH}}$`
 );
 
 /**********************************************************************************/
@@ -63,7 +67,10 @@ export function readOne(req: Request) {
   const paramsRes = paramsSchema.safeParse(params);
   const err = checkAndParseErrors(
     paramsRes,
-    validateEmptyObject('request body & query', { ...body, ...query })
+    validateEmptyObject('Expected empty request body and query params', {
+      ...body,
+      ...query
+    })
   );
   if (err) {
     throw err;
@@ -89,8 +96,9 @@ export function createOne(req: Request) {
         required_error: requiredErr('password')
       }).regex(
         passwordRegex,
-        `Password should be between ${USER_PASSWORD_MIN_LENGTH} and ${USER_PASSWORD_MAX_LENGTH}.\n` +
-          ' The password should contain at least one upper case letter and one special letter'
+        'Password must contain at least 1 digit, 1 upper case letter,' +
+          ' 1 special character (!@#$%^&*), no spaces and be between' +
+          ` ${USER_PASSWORD_MIN_LENGTH} to ${USER_PASSWORD_MAX_LENGTH} characters`
       ),
       firstName: Zod.string({
         invalid_type_error: invalidStringErr('first name'),
@@ -168,7 +176,10 @@ export function createOne(req: Request) {
   const paramsRes = bodySchema.safeParse(body);
   const err = checkAndParseErrors(
     paramsRes,
-    validateEmptyObject('request params & query', { ...params, ...query })
+    validateEmptyObject('Expected empty request params and query', {
+      ...params,
+      ...query
+    })
   );
   if (err) {
     throw err;
@@ -207,8 +218,9 @@ export function updateOne(req: Request) {
       })
         .regex(
           passwordRegex,
-          `Password should be between ${USER_PASSWORD_MIN_LENGTH} and ${USER_PASSWORD_MAX_LENGTH}.\n` +
-            ' The password should contain at least one upper case letter and one special letter'
+          'Password must contain at least 1 digit, 1 upper case letter,' +
+            ' 1 special character (!@#$%^&*), no spaces and be between' +
+            ` ${USER_PASSWORD_MIN_LENGTH} to ${USER_PASSWORD_MAX_LENGTH} characters`
         )
         .optional(),
       firstName: Zod.string({
@@ -303,7 +315,7 @@ export function updateOne(req: Request) {
   const err = checkAndParseErrors(
     paramsRes,
     bodyRes,
-    validateEmptyObject('request query', query)
+    validateEmptyObject('Expected empty query params', query)
   );
   if (err) {
     throw err;
@@ -334,7 +346,43 @@ export function deleteOne(req: Request) {
   const paramsRes = paramsSchema.safeParse(params);
   const err = checkAndParseErrors(
     paramsRes,
-    validateEmptyObject('user', { ...body, ...query })
+    validateEmptyObject('Expected empty request body and query params', {
+      ...body,
+      ...query
+    })
+  );
+  if (err) {
+    throw err;
+  }
+
+  return (paramsRes as ValidatedType<typeof paramsSchema>).data.userId;
+}
+
+/**********************************************************************************/
+
+export function reactivateOne(req: Request) {
+  const { body, params, query } = req;
+
+  const paramsSchema = Zod.object(
+    {
+      userId: Zod.string({
+        invalid_type_error: invalidStringErr('user id'),
+        required_error: requiredErr('user id')
+      }).uuid({ message: invalidUuid('user id') })
+    },
+    {
+      invalid_type_error: invalidObjectErr('request params'),
+      required_error: requiredErr('request params')
+    }
+  ).strict(invalidObjectErr('request params'));
+
+  const paramsRes = paramsSchema.safeParse(params);
+  const err = checkAndParseErrors(
+    paramsRes,
+    validateEmptyObject('Expected empty request body and query params', {
+      ...body,
+      ...query
+    })
   );
   if (err) {
     throw err;

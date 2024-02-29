@@ -81,6 +81,7 @@ export {
   compress,
   cors,
   createServer,
+  Debug,
   drizzle,
   eq,
   EventEmitter,

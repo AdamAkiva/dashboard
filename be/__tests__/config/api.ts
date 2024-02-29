@@ -50,3 +50,5 @@ export interface UpdateUser {
   gender?: string;
   address?: string;
 }
+
+export type ReactivateUser = CreateUser;

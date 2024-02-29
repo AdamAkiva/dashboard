@@ -1,4 +1,7 @@
 import {
+  executePreparedQuery,
+  userAlreadyActive,
+  userCreationError,
   userNotAllowedToBeUpdated,
   userNotFoundError,
   userUpdatedButReadFailed
@@ -24,6 +27,7 @@ import {
 export {
   VALIDATION,
   emptyErr,
+  executePreparedQuery,
   invalidArrayErr,
   invalidBoolean,
   invalidObjectErr,
@@ -33,6 +37,8 @@ export {
   maxErr,
   minErr,
   requiredErr,
+  userAlreadyActive,
+  userCreationError,
   userNotAllowedToBeUpdated,
   userNotFoundError,
   userUpdatedButReadFailed,

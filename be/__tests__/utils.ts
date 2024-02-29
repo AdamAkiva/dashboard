@@ -29,6 +29,7 @@ import type {
   UnknownObject
 } from '../src/types/index.js';
 import { DashboardError, StatusCodes } from '../src/utils/index.js';
+
 import type { CreateUser, UpdateUser, User } from './config/api.js';
 
 /**********************************************************************************/
