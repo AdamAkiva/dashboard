@@ -5,7 +5,7 @@ import { defineConfig } from 'vitest/config';
 
 const defaultConfig: UserConfig = {
   root: './',
-  include: ['**/*{general,middleware}.test.ts'],
+  include: ['**/*{general,user,middleware}.test.ts'],
   testTimeout: 8_000,
   teardownTimeout: 4_000,
   globalSetup: './__tests__/config/globalSetup.ts',
@@ -19,7 +19,7 @@ const defaultConfig: UserConfig = {
       useAtomics: true
     }
   },
-  maxConcurrency: 8,
+  maxConcurrency: 16,
   server: {
     sourcemap: 'inline' as const
   },

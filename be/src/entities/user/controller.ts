@@ -41,7 +41,7 @@ export async function createOne(
     const user = await Service.createOne(res.locals.ctx, userData);
     userDebug('createOne service done');
 
-    return res.status(StatusCodes.SUCCESS).json(user);
+    return res.status(StatusCodes.CREATED).json(user);
   } catch (err) {
     return next(err);
   }

@@ -43,7 +43,6 @@ export function checkAndParseErrors(
   ...results: Zod.SafeParseReturnType<unknown, unknown>[]
 ) {
   const errs: Zod.ZodError<unknown>[] = [];
-  console.log(JSON.stringify(results, null, 2));
   results.forEach((result) => {
     if (!result.success) {
       errs.push(result.error);

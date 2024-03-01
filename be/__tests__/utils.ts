@@ -25,6 +25,7 @@ import * as Middlewares from '../src/server/middleware.js';
 import type {
   AddRequired,
   Request,
+  ResolvedValue,
   Response,
   UnknownObject
 } from '../src/types/index.js';
@@ -42,6 +43,21 @@ type StressTestOptions = AddRequired<Omit<autocannon.Options, 'url'>, 'method'>;
 
 /***************************** General utils **************************************/
 /**********************************************************************************/
+
+export function randStr(len = 32) {
+  const alphabeticCharacters =
+    'ABCDEABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  const alphabeticCharactersLen = alphabeticCharacters.length;
+
+  let str = '';
+  for (let i = 0; i < len; ++i) {
+    str += alphabeticCharacters.charAt(
+      Math.floor(Math.random() * alphabeticCharactersLen)
+    );
+  }
+
+  return str;
+}
 
 export function omit<T extends {}, K extends string & keyof T>(
   obj: T,
@@ -226,6 +242,7 @@ export {
   VALIDATION,
   vi,
   type CreateUser,
+  type ResolvedValue,
   type UpdateUser,
   type User
 };

@@ -16,7 +16,6 @@ describe.concurrent('General tests', () => {
         const res = await sendHttpRequest<never>(healthCheckURL, {
           method: 'get'
         });
-
         expect(res.statusCode).toBe(StatusCodes.NO_CONTENT);
         expect(res.data).toStrictEqual('');
       });

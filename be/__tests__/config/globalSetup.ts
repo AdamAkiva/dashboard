@@ -27,6 +27,8 @@ export async function setup({ provide }: Provide) {
     },
     logger: logger
   });
+  const handler = db.getHandler();
+  const models = db.getModels();
 
   const server = new HttpServer({
     mode: mode,
@@ -63,9 +65,6 @@ export async function setup({ provide }: Provide) {
   server.listen(serverEnv.port);
 
   return async function teardown() {
-    const handler = db.getHandler();
-    const models = db.getModels();
-
     /* eslint-disable drizzle/enforce-delete-with-where */
     await handler.delete(models.user.userInfoModel);
     await handler.delete(models.user.userCredentialsModel);
