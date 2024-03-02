@@ -1,8 +1,4 @@
-import type {
-  DBModels,
-  DatabaseHandler,
-  Transaction
-} from '../../../db/index.js';
+import type { DBModels, Transaction } from '../../../db/index.js';
 import {
   eq,
   userDebug,
@@ -32,7 +28,9 @@ export async function updateOne(
 ): Promise<User> {
   const { db } = ctx;
   const handler = db.getHandler();
-  const models = db.getModels();
+  const {
+    user: { userInfoModel, userCredentialsModel }
+  } = db.getModels();
 
   const { password, userId, ...userInfo } = updates;
   const updatedAt = new Date().toISOString();
@@ -42,17 +40,21 @@ export async function updateOne(
   // case. Should check it at some point
   await handler.transaction(async (transaction) => {
     const results = await Promise.allSettled([
-      isAllowedToUpdate(db, userId),
+      isAllowedToUpdate({
+        transaction: transaction,
+        models: { userCredentialsModel: userCredentialsModel },
+        userId: userId
+      }),
       updateUserInfo({
         transaction: transaction,
-        models: models,
+        models: { userInfoModel: userInfoModel },
         userInfo: userInfo,
         userId: userId,
         updatedAt: updatedAt
       }),
       updateUserCredentials({
         transaction: transaction,
-        models: models,
+        models: { userCredentialsModel: userCredentialsModel },
         credentials: {
           email: userInfo.email,
           password: password
@@ -84,33 +86,38 @@ export async function updateOne(
 
 /**********************************************************************************/
 
-async function isAllowedToUpdate(db: DatabaseHandler, userId: string) {
-  const users = await executePreparedQuery({
-    db: db,
-    queryName: 'isUserActiveQuery',
-    phValues: { userId: userId },
-    debug: { instance: userDebug, msg: 'Checking whether user is active' }
-  });
-  if (!users.length) {
+async function isAllowedToUpdate(params: {
+  transaction: Transaction;
+  models: { userCredentialsModel: DBModels['user']['userCredentialsModel'] };
+  userId: string;
+}) {
+  const {
+    transaction,
+    models: { userCredentialsModel },
+    userId
+  } = params;
+  const usersStatus = await transaction
+    .select({ isActive: userCredentialsModel.isActive })
+    .from(userCredentialsModel)
+    .where(eq(userCredentialsModel.userId, userId));
+  if (!usersStatus.length) {
     throw userNotFoundError(userId);
   }
-  if (!users[0].isActive) {
+  if (!usersStatus[0].isActive) {
     throw userNotAllowedToBeUpdated(userId);
   }
 }
 
 async function updateUserInfo(params: {
   transaction: Transaction;
-  models: DBModels;
+  models: { userInfoModel: DBModels['user']['userInfoModel'] };
   userInfo: Omit<UserUpdateOneValidationData, 'password' | 'userId'>;
   userId: string;
   updatedAt: string;
 }) {
   const {
     transaction,
-    models: {
-      user: { userInfoModel }
-    },
+    models: { userInfoModel },
     userInfo,
     userId,
     updatedAt
@@ -136,16 +143,14 @@ async function updateUserInfo(params: {
 
 async function updateUserCredentials(params: {
   transaction: Transaction;
-  models: DBModels;
+  models: { userCredentialsModel: DBModels['user']['userCredentialsModel'] };
   credentials: Pick<UserUpdateOneValidationData, 'email' | 'password'>;
   userId: string;
   updatedAt: string;
 }) {
   const {
     transaction,
-    models: {
-      user: { userCredentialsModel }
-    },
+    models: { userCredentialsModel },
     credentials,
     userId,
     updatedAt

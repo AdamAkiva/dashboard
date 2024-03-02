@@ -1,14 +1,11 @@
-import type { DatabaseHandler } from '../../../db/index.js';
-import { userDebug, type RequestContext } from '../../../types/index.js';
-
-import { executePreparedQuery } from '../../utils/index.js';
+import type { DBHandler, DBModels, Transaction } from '../../../db/index.js';
+import { eq, userDebug, type RequestContext } from '../../../types/index.js';
 
 import type { deleteOne as deleteOneValidation } from '../validator.js';
 
 /**********************************************************************************/
 
 type UserDeleteOneValidationData = ReturnType<typeof deleteOneValidation>;
-type UserUpdateQueryArguments = { userId: string; updatedAt: string };
 
 /**********************************************************************************/
 
@@ -18,24 +15,51 @@ export async function deleteOne(
 ): Promise<string> {
   const { db } = ctx;
   const handler = db.getHandler();
+  const {
+    user: { userInfoModel, userCredentialsModel, userSettingsModel }
+  } = db.getModels();
 
-  const userStatuses = await getUserStatus(db, userId);
+  const userStatuses = await getUserStatus({
+    handler: handler,
+    models: { userCredentialsModel: userCredentialsModel },
+    userId: userId
+  });
   if (!userStatuses.length) {
     return '';
   }
 
   if (!userStatuses[0].isActive) {
-    await deleteUser(db, userId);
+    await deleteUser({
+      handler: handler,
+      models: { userInfoModel: userInfoModel },
+      userId: userId
+    });
 
     return userId;
   }
 
-  await handler.transaction(async () => {
-    const args = { userId: userId, updatedAt: new Date().toISOString() };
+  await handler.transaction(async (transaction) => {
+    const updatedAt = new Date().toISOString();
+
     const results = await Promise.allSettled([
-      deactivateUser(db, args),
-      updateUserInfoTimestamp(db, args),
-      updateUserSettingsTimestamp(db, args)
+      deactivateUser({
+        transaction: transaction,
+        models: { userCredentialsModel: userCredentialsModel },
+        userId: userId,
+        updatedAt: updatedAt
+      }),
+      updateUserInfoTimestamp({
+        transaction: transaction,
+        models: { userInfoModel: userInfoModel },
+        userId: userId,
+        updatedAt: updatedAt
+      }),
+      updateUserSettingsTimestamp({
+        transaction: transaction,
+        models: { userSettingsModel: userSettingsModel },
+        userId: userId,
+        updatedAt: updatedAt
+      })
     ]);
     for (const result of results) {
       if (result.status === 'rejected') {
@@ -49,56 +73,101 @@ export async function deleteOne(
 
 /**********************************************************************************/
 
-async function getUserStatus(db: DatabaseHandler, userId: string) {
-  return await executePreparedQuery({
-    db: db,
-    queryName: 'isUserActiveQuery',
-    phValues: { userId: userId },
-    debug: { instance: userDebug, msg: 'Checking whether the user is active' }
-  });
+async function getUserStatus(params: {
+  handler: DBHandler;
+  models: { userCredentialsModel: DBModels['user']['userCredentialsModel'] };
+  userId: string;
+}) {
+  const {
+    handler,
+    models: { userCredentialsModel },
+    userId
+  } = params;
+  userDebug('Checking whether the user is active');
+  const isActive = await handler
+    .select({ isActive: userCredentialsModel.isActive })
+    .from(userCredentialsModel)
+    .where(eq(userCredentialsModel.userId, userId));
+  userDebug('Done checking whether the user is active');
+
+  return isActive;
 }
 
-async function deleteUser(db: DatabaseHandler, userId: string) {
-  await executePreparedQuery({
-    db: db,
-    queryName: 'deleteUserQuery',
-    phValues: { userId: userId },
-    debug: { instance: userDebug, msg: 'Deleting user' }
-  });
+async function deleteUser(params: {
+  handler: DBHandler;
+  models: { userInfoModel: DBModels['user']['userInfoModel'] };
+  userId: string;
+}) {
+  const {
+    handler,
+    models: { userInfoModel },
+    userId
+  } = params;
+
+  userDebug('Deleting user');
+  await handler.delete(userInfoModel).where(eq(userInfoModel.id, userId));
+  userDebug('Done deleting user');
 }
 
-async function deactivateUser(
-  db: DatabaseHandler,
-  args: UserUpdateQueryArguments
-) {
-  await executePreparedQuery({
-    db: db,
-    queryName: 'deactivateUserQuery',
-    phValues: args,
-    debug: { instance: userDebug, msg: 'Deactivating user' }
-  });
+async function deactivateUser(params: {
+  transaction: Transaction;
+  models: { userCredentialsModel: DBModels['user']['userCredentialsModel'] };
+  userId: string;
+  updatedAt: string;
+}) {
+  const {
+    transaction,
+    models: { userCredentialsModel },
+    userId,
+    updatedAt
+  } = params;
+
+  userDebug('Deactivating user');
+  await transaction
+    .update(userCredentialsModel)
+    .set({ isActive: false, updatedAt: updatedAt })
+    .where(eq(userCredentialsModel.userId, userId));
+  userDebug('Done deactivating user');
 }
 
-async function updateUserInfoTimestamp(
-  db: DatabaseHandler,
-  args: UserUpdateQueryArguments
-) {
-  await executePreparedQuery({
-    db: db,
-    queryName: 'updateUserInfoTimestampQuery',
-    phValues: args,
-    debug: { instance: userDebug, msg: 'Updating user info timestamp' }
-  });
+async function updateUserInfoTimestamp(params: {
+  transaction: Transaction;
+  models: { userInfoModel: DBModels['user']['userInfoModel'] };
+  userId: string;
+  updatedAt: string;
+}) {
+  const {
+    transaction,
+    models: { userInfoModel },
+    userId,
+    updatedAt
+  } = params;
+
+  userDebug('Updating user info timestamp');
+  await transaction
+    .update(userInfoModel)
+    .set({ updatedAt: updatedAt })
+    .where(eq(userInfoModel.id, userId));
+  userDebug('Done updating user info timestamp');
 }
 
-async function updateUserSettingsTimestamp(
-  db: DatabaseHandler,
-  args: UserUpdateQueryArguments
-) {
-  await executePreparedQuery({
-    db: db,
-    queryName: 'updateUserSettingsTimestampQuery',
-    phValues: args,
-    debug: { instance: userDebug, msg: 'Updating user settings timestamp' }
-  });
+async function updateUserSettingsTimestamp(params: {
+  transaction: Transaction;
+  models: { userSettingsModel: DBModels['user']['userSettingsModel'] };
+  userId: string;
+  updatedAt: string;
+}) {
+  const {
+    transaction,
+    models: { userSettingsModel },
+    userId,
+    updatedAt
+  } = params;
+
+  userDebug('Updating user settings timestamp');
+  await transaction
+    .update(userSettingsModel)
+    .set({ updatedAt: updatedAt })
+    .where(eq(userSettingsModel.userId, userId));
+  userDebug('Done updating user settings timestamp');
 }

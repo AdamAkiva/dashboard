@@ -120,7 +120,7 @@ export default class DatabaseHandler {
     // In short, it does not matter, handler and transaction are same except
     // for a rollback method, which occurs if an error is thrown
     const {
-      user: { userInfoModel, userCredentialsModel, userSettingsModel }
+      user: { userInfoModel, userCredentialsModel }
     } = this._models;
 
     return {
@@ -142,84 +142,7 @@ export default class DatabaseHandler {
           userCredentialsModel,
           eq(userCredentialsModel.userId, sql.placeholder('userId'))
         )
-        .prepare('readUserQuery'),
-      isUserActiveQuery: this._handler
-        .select({
-          isActive: userCredentialsModel.isActive
-        })
-        .from(userCredentialsModel)
-        .where(eq(userCredentialsModel.userId, sql.placeholder('userId')))
-        .prepare('isUserActiveQuery'),
-      createUserInfoQuery: this._handler
-        .insert(userInfoModel)
-        .values({
-          email: sql.placeholder('email'),
-          firstName: sql.placeholder('firstName'),
-          lastName: sql.placeholder('lastName'),
-          gender: sql.placeholder('gender'),
-          phone: sql.placeholder('phone'),
-          address: sql.placeholder('address'),
-          createdAt: sql.placeholder('createdAt')
-        })
-        .returning({
-          userId: userInfoModel.id,
-          email: userInfoModel.email,
-          firstName: userInfoModel.firstName,
-          lastName: userInfoModel.lastName,
-          gender: userInfoModel.gender,
-          phone: userInfoModel.phone,
-          address: userInfoModel.address,
-          createdAt: userInfoModel.createdAt
-        })
-        .prepare('createUserInfoQuery'),
-      createUserCredentialsQuery: this._handler
-        .insert(userCredentialsModel)
-        .values({
-          userId: sql.placeholder('userId'),
-          email: sql.placeholder('email'),
-          password: sql.placeholder('password'),
-          createdAt: sql.placeholder('createdAt')
-        })
-        .prepare('createCredentialsQuery'),
-      createUserDefaultSettingsQuery: this._handler
-        .insert(userSettingsModel)
-        .values({
-          userId: sql.placeholder('userId'),
-          createdAt: sql.placeholder('createdAt')
-        })
-        .prepare('createDefaultSettingsQuery'),
-      reactivateUserQuery: this._handler
-        .update(userCredentialsModel)
-        // @ts-expect-error Currently this is a type error, but works on runtime.
-        // Remove this ignore When the PR is merged https://github.com/drizzle-team/drizzle-orm/pull/1666
-        .set({ isActive: true, updatedAt: sql.placeholder('updatedAt') })
-        .where(eq(userCredentialsModel.userId, sql.placeholder('userId')))
-        .prepare('deactivateUserQuery'),
-      deactivateUserQuery: this._handler
-        .update(userCredentialsModel)
-        // @ts-expect-error Currently this is a type error, but works on runtime.
-        // Remove this ignore When the PR is merged https://github.com/drizzle-team/drizzle-orm/pull/1666
-        .set({ isActive: false, updatedAt: sql.placeholder('updatedAt') })
-        .where(eq(userCredentialsModel.userId, sql.placeholder('userId')))
-        .prepare('deactivateUserQuery'),
-      updateUserInfoTimestampQuery: this._handler
-        .update(userInfoModel)
-        // @ts-expect-error Currently this is a type error, but works on runtime.
-        // Remove this ignore When the PR is merged https://github.com/drizzle-team/drizzle-orm/pull/1666
-        .set({ updatedAt: sql.placeholder('updatedAt') })
-        .where(eq(userInfoModel.id, sql.placeholder('userId')))
-        .prepare('updateUserInfoTimestamp'),
-      updateUserSettingsTimestampQuery: this._handler
-        .update(userInfoModel)
-        // @ts-expect-error Currently this is a type error, but works on runtime.
-        // Remove this ignore When the PR is merged https://github.com/drizzle-team/drizzle-orm/pull/1666
-        .set({ updatedAt: sql.placeholder('updatedAt') })
-        .where(eq(userInfoModel.id, sql.placeholder('userId')))
-        .prepare('updateUserSettingsTimestamp'),
-      deleteUserQuery: this._handler
-        .delete(userInfoModel)
-        .where(eq(userInfoModel.id, sql.placeholder('userId')))
-        .prepare('deleteUserQuery')
+        .prepare('readUserQuery')
     } as const;
   }
 }

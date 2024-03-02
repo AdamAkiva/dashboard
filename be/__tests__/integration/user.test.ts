@@ -38,7 +38,7 @@ describe.concurrent('User tests', () => {
         );
       });
       it('Multiple', async () => {
-        const usersData: CreateUser[] = [...Array(5)].map(() => {
+        const usersData: CreateUser[] = [...Array(10)].map(() => {
           return {
             email: `${randStr()}@bla.com`,
             password: 'Bla123!@#',
@@ -80,7 +80,7 @@ describe.concurrent('User tests', () => {
         });
       });
       it('Many', async () => {
-        const usersData: CreateUser[] = [...Array(10)].map(() => {
+        const usersData: CreateUser[] = [...Array(100)].map(() => {
           return {
             email: `${randStr()}@bla.com`,
             password: 'Bla123!@#',
