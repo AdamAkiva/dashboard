@@ -5,13 +5,14 @@ import {
   createHttpMocks,
   describe,
   expect,
+  isStressTest,
   it,
   vi
 } from '../utils.js';
 
 /**********************************************************************************/
 
-describe.concurrent('General tests', () => {
+describe.skipIf(isStressTest()).concurrent('General tests', () => {
   describe('Health check', () => {
     describe('Method', () => {
       it('Valid method', () => {

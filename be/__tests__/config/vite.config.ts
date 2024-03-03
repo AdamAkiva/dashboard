@@ -5,7 +5,6 @@ import { defineConfig } from 'vitest/config';
 
 const defaultConfig: UserConfig = {
   root: './',
-  include: ['**/*{general,user,middleware}.test.ts'],
   testTimeout: 8_000,
   teardownTimeout: 4_000,
   globalSetup: './__tests__/config/globalSetup.ts',
@@ -23,16 +22,22 @@ const defaultConfig: UserConfig = {
   server: {
     sourcemap: 'inline' as const
   },
-  reporters: ['basic', 'hanging-process']
+  reporters: ['default', 'hanging-process']
 };
 
 const stressConfig: UserConfig = {
   ...defaultConfig,
-  include: ['**/*stress.test.ts'],
+  fileParallelism: false,
   testTimeout: 600_000,
   teardownTimeout: 16_000
 };
 
 export default defineConfig(
-  process.env.STRESS ? { test: stressConfig } : { test: defaultConfig }
+  isStressTest() ? { test: stressConfig } : { test: defaultConfig }
 );
+
+/**********************************************************************************/
+
+export function isStressTest() {
+  return !!process.env.STRESS;
+}

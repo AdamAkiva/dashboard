@@ -31,14 +31,14 @@ import type {
 } from '../src/types/index.js';
 import { DashboardError, StatusCodes } from '../src/utils/index.js';
 
-import type { CreateUser, UpdateUser, User } from './config/api.js';
+import type { CreateUser, UpdateUser, User } from './apiTypes.js';
+import { isStressTest } from './config/vite.config.js';
 
 /**********************************************************************************/
 
 type HttpOptions = Omit<KyOptions, 'method'> & {
   method: 'delete' | 'get' | 'head' | 'patch' | 'post' | 'put';
 };
-
 type StressTestOptions = AddRequired<Omit<autocannon.Options, 'url'>, 'method'>;
 
 /***************************** General utils **************************************/
@@ -104,9 +104,14 @@ function recursivelyCheckFields(obj: UnknownObject): unknown {
 /******************************** Routes ******************************************/
 /**********************************************************************************/
 
-const { baseURL, healthCheckURL } = inject('urls');
+export function getRoutes() {
+  const { baseURL, healthCheckURL } = inject('urls');
 
-export const userURL = `${baseURL}/users`;
+  return {
+    health: healthCheckURL,
+    user: `${baseURL}/users`
+  };
+}
 
 /******************************* API calls ****************************************/
 /**********************************************************************************/
@@ -212,10 +217,13 @@ export async function createUsers(usersData: CreateUser[]) {
   for (const userData of usersData) {
     // On purpose
     // eslint-disable-next-line no-await-in-loop
-    const { data, statusCode } = await sendHttpRequest<User[]>(userURL, {
-      method: 'post',
-      json: userData
-    });
+    const { data, statusCode } = await sendHttpRequest<User[]>(
+      getRoutes().user,
+      {
+        method: 'post',
+        json: userData
+      }
+    );
     expect(statusCode).toBe(StatusCodes.CREATED);
 
     users.push(...data);
@@ -234,7 +242,7 @@ export {
   DashboardError,
   describe,
   expect,
-  healthCheckURL,
+  isStressTest,
   it,
   Middlewares,
   randomUUID,

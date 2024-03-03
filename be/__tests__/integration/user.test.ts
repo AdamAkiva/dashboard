@@ -2,11 +2,12 @@ import {
   StatusCodes,
   describe,
   expect,
+  getRoutes,
+  isStressTest,
   it,
   omit,
   randStr,
   sendHttpRequest,
-  userURL,
   type CreateUser,
   type ResolvedValue,
   type User
@@ -14,7 +15,9 @@ import {
 
 /**********************************************************************************/
 
-describe.concurrent('User tests', () => {
+describe.skipIf(isStressTest()).concurrent('User tests', () => {
+  const userURL = getRoutes().user;
+
   describe('Create', () => {
     describe('Valid', () => {
       it('Single', async () => {
@@ -79,8 +82,8 @@ describe.concurrent('User tests', () => {
           ).toStrictEqual(omit(userData, 'password'));
         });
       });
-      it('Many', async () => {
-        const usersData: CreateUser[] = [...Array(100)].map(() => {
+      it('A lot', async () => {
+        const usersData: CreateUser[] = [...Array(1_000)].map(() => {
           return {
             email: `${randStr()}@bla.com`,
             password: 'Bla123!@#',
@@ -122,5 +125,29 @@ describe.concurrent('User tests', () => {
         });
       });
     });
+    describe.skip('Invalid', () => {});
   });
+
+  /********************************************************************************/
+
+  describe.skip('Read', () => {
+    describe('Valid', () => {});
+    describe('Invalid', () => {});
+  });
+
+  /********************************************************************************/
+
+  describe.skip('Update', () => {
+    describe('Valid', () => {});
+    describe('Invalid', () => {});
+  });
+
+  /********************************************************************************/
+
+  describe.skip('Delete', () => {
+    describe('Valid', () => {});
+    describe('Invalid', () => {});
+  });
+
+  /********************************************************************************/
 });

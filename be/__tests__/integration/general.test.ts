@@ -2,14 +2,17 @@ import {
   StatusCodes,
   describe,
   expect,
-  healthCheckURL,
+  getRoutes,
+  isStressTest,
   it,
   sendHttpRequest
 } from '../utils.js';
 
 /**********************************************************************************/
 
-describe.concurrent('General tests', () => {
+describe.skipIf(isStressTest()).concurrent('General tests', () => {
+  const healthCheckURL = getRoutes().health;
+
   describe('Health check', () => {
     describe('Host', () => {
       it('Valid host', async () => {
