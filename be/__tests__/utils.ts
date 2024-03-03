@@ -217,16 +217,16 @@ export async function createUsers(usersData: CreateUser[]) {
   for (const userData of usersData) {
     // On purpose
     // eslint-disable-next-line no-await-in-loop
-    const { data, statusCode } = await sendHttpRequest<User[]>(
-      getRoutes().user,
-      {
-        method: 'post',
-        json: userData
-      }
-    );
+    const { data, statusCode } = await sendHttpRequest<User>(getRoutes().user, {
+      method: 'post',
+      json: userData
+    });
     expect(statusCode).toBe(StatusCodes.CREATED);
+    expect(omit(data, 'id', 'createdAt', 'isActive')).toStrictEqual(
+      omit(userData, 'password')
+    );
 
-    users.push(...data);
+    users.push(data);
   }
 
   return users;

@@ -1,5 +1,7 @@
 import {
   StatusCodes,
+  beforeAll,
+  createUsers,
   describe,
   expect,
   getRoutes,
@@ -125,29 +127,210 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         });
       });
     });
-    describe.skip('Invalid', () => {});
+    describe.skip('Invalid', () => {
+      describe('Email', () => {
+        it('Without', async () => {});
+        it('Empty', async () => {});
+        it('Too short', async () => {});
+        it('Too long', async () => {});
+        it('Invalid format', async () => {});
+      });
+      describe('Password', () => {
+        it('Without', async () => {});
+        it('Empty', async () => {});
+        it('Too short', async () => {});
+        it('Too long', async () => {});
+        it('Invalid format', async () => {});
+      });
+      describe('First name', () => {
+        it('Without', async () => {});
+        it('Empty', async () => {});
+        it('Too long', async () => {});
+      });
+      describe('Last name', () => {
+        it('Without', async () => {});
+        it('Empty', async () => {});
+        it('Too long', async () => {});
+      });
+      describe('Phone', () => {
+        it('Without', async () => {});
+        it('Empty', async () => {});
+        it('Too short', async () => {});
+        it('Too long', async () => {});
+        it('Invalid format', async () => {});
+      });
+      describe('Gender', () => {
+        it('Without', async () => {});
+        it('Empty', async () => {});
+        it('Invalid format', async () => {});
+      });
+      describe('Address', () => {
+        it('Without', async () => {});
+        it('Empty', async () => {});
+        it('Too long', async () => {});
+      });
+      it('Duplicate with active user', async () => {});
+      it('Duplicate with inactive user', async () => {});
+    });
   });
 
   /********************************************************************************/
 
+  // For all the tests below, we wish we could have used a beforeEachHook to
+  // create a user before each test, however, since the tests run concurrently
+  // it is not safe, and the result may differ as a result of which test ran
+  // first (race-condition). The way we resolved it is to create X number of
+  // users and use a different one in every test
+
   describe.skip('Read', () => {
-    describe('Valid', () => {});
-    describe('Invalid', () => {});
+    const USERS_AMOUNT = 1;
+    const userIds: string[] = [];
+
+    beforeAll(async () => {
+      const usersData: CreateUser[] = [...Array(USERS_AMOUNT)].map(() => {
+        return {
+          email: `${randStr()}@bla.com`,
+          password: 'Bla123!@#',
+          firstName: 'TMP',
+          lastName: 'TMP',
+          phone: '052-2222222',
+          gender: 'male',
+          address: 'TMP'
+        };
+      });
+      userIds.push(
+        ...(await createUsers(usersData)).map(({ id }) => {
+          return id;
+        })
+      );
+    });
+
+    describe('Valid', () => {
+      it('Single active', async () => {});
+      it('Single inactive', async () => {});
+    });
+    describe('Invalid', () => {
+      describe('User id', () => {
+        it('Without', async () => {});
+        it('Empty', async () => {});
+        it('Invalid format', async () => {});
+      });
+      it('Non-existent user', async () => {});
+    });
   });
 
   /********************************************************************************/
 
   describe.skip('Update', () => {
-    describe('Valid', () => {});
-    describe('Invalid', () => {});
+    const USERS_AMOUNT = 1;
+    const userIds: string[] = [];
+
+    beforeAll(async () => {
+      const usersData: CreateUser[] = [...Array(USERS_AMOUNT)].map(() => {
+        return {
+          email: `${randStr()}@bla.com`,
+          password: 'Bla123!@#',
+          firstName: 'TMP',
+          lastName: 'TMP',
+          phone: '052-2222222',
+          gender: 'male',
+          address: 'TMP'
+        };
+      });
+      userIds.push(
+        ...(await createUsers(usersData)).map(({ id }) => {
+          return id;
+        })
+      );
+    });
+
+    describe('Valid', () => {
+      it('Update email', async () => {});
+      it('Update password', async () => {});
+      it('Update first name', async () => {});
+      it('Update last name', async () => {});
+      it('Update ', async () => {});
+      it('Update phone', async () => {});
+      it('Update gender', async () => {});
+      it('Update address', async () => {});
+      it('All possible fields', async () => {});
+    });
+    describe('Invalid', () => {
+      describe('Email', () => {
+        it('Empty', async () => {});
+        it('Too short', async () => {});
+        it('Too long', async () => {});
+        it('Invalid format', async () => {});
+      });
+      describe('Password', () => {
+        it('Empty', async () => {});
+        it('Too short', async () => {});
+        it('Too long', async () => {});
+        it('Invalid format', async () => {});
+      });
+      describe('First name', () => {
+        it('Empty', async () => {});
+        it('Too long', async () => {});
+      });
+      describe('Last name', () => {
+        it('Empty', async () => {});
+        it('Too long', async () => {});
+      });
+      describe('Phone', () => {
+        it('Empty', async () => {});
+        it('Too short', async () => {});
+        it('Too long', async () => {});
+        it('Invalid format', async () => {});
+      });
+      describe('Gender', () => {
+        it('Empty', async () => {});
+        it('Invalid format', async () => {});
+      });
+      describe('Address', () => {
+        it('Empty', async () => {});
+        it('Too long', async () => {});
+      });
+      it('Duplicate with active user', async () => {});
+      it('Duplicate with inactive user', async () => {});
+    });
   });
 
   /********************************************************************************/
 
   describe.skip('Delete', () => {
-    describe('Valid', () => {});
-    describe('Invalid', () => {});
-  });
+    const USERS_AMOUNT = 1;
+    const userIds: string[] = [];
 
-  /********************************************************************************/
+    beforeAll(async () => {
+      const usersData: CreateUser[] = [...Array(USERS_AMOUNT)].map(() => {
+        return {
+          email: `${randStr()}@bla.com`,
+          password: 'Bla123!@#',
+          firstName: 'TMP',
+          lastName: 'TMP',
+          phone: '052-2222222',
+          gender: 'male',
+          address: 'TMP'
+        };
+      });
+      userIds.push(
+        ...(await createUsers(usersData)).map(({ id }) => {
+          return id;
+        })
+      );
+    });
+
+    describe('Valid', () => {
+      it('Deactivate user', async () => {});
+      it('Delete user', async () => {});
+      it('Delete non-existent user', async () => {});
+    });
+    describe('Invalid', () => {
+      describe('User id', () => {
+        it('Without', async () => {});
+        it('Empty', async () => {});
+        it('Invalid format', async () => {});
+      });
+    });
+  });
 });
