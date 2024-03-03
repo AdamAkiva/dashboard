@@ -9,6 +9,7 @@ import {
   it,
   omit,
   randStr,
+  randomUUID,
   sendHttpRequest,
   type CreateUser,
   type ResolvedValue,
@@ -127,7 +128,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         });
       });
     });
-    describe.skip('Invalid', () => {
+    describe('Invalid', () => {
       describe('Email', () => {
         it('Without', async () => {});
         it('Empty', async () => {});
@@ -182,40 +183,79 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
   // first (race-condition). The way we resolved it is to create X number of
   // users and use a different one in every test
 
-  describe.skip('Read', () => {
-    const USERS_AMOUNT = 1;
-    const userIds: string[] = [];
+  describe('Read', () => {
+    const USERS_AMOUNT = 2;
+    let usersData: User[] = [];
 
     beforeAll(async () => {
-      const usersData: CreateUser[] = [...Array(USERS_AMOUNT)].map(() => {
-        return {
-          email: `${randStr()}@bla.com`,
-          password: 'Bla123!@#',
-          firstName: 'TMP',
-          lastName: 'TMP',
-          phone: '052-2222222',
-          gender: 'male',
-          address: 'TMP'
-        };
-      });
-      userIds.push(
-        ...(await createUsers(usersData)).map(({ id }) => {
-          return id;
+      usersData = await createUsers(
+        [...Array(USERS_AMOUNT)].map(() => {
+          return {
+            email: `${randStr()}@bla.com`,
+            password: 'Bla123!@#',
+            firstName: 'TMP',
+            lastName: 'TMP',
+            phone: '052-2222222',
+            gender: 'male',
+            address: 'TMP'
+          };
         })
       );
     });
 
     describe('Valid', () => {
-      it('Single active', async () => {});
-      it('Single inactive', async () => {});
+      it('Single active', async () => {
+        const res = await sendHttpRequest<User>(
+          `${userURL}/${usersData[0].id}`,
+          { method: 'get' }
+        );
+        expect(res.statusCode).toBe(StatusCodes.SUCCESS);
+        expect(res.data).toStrictEqual(usersData[0]);
+      });
+      it('Single inactive', async () => {
+        // TODO Disable created usersData[1] before the read call
+
+        const res = await sendHttpRequest<User>(
+          `${userURL}/${usersData[1].id}`,
+          { method: 'get' }
+        );
+        expect(res.statusCode).toBe(StatusCodes.SUCCESS);
+        expect(res.data).toStrictEqual(usersData[1]);
+      });
     });
     describe('Invalid', () => {
       describe('User id', () => {
-        it('Without', async () => {});
-        it('Empty', async () => {});
-        it('Invalid format', async () => {});
+        it('Without', async () => {
+          const res = await sendHttpRequest<unknown>(`${userURL}/`, {
+            method: 'get'
+          });
+          expect(res.statusCode).toBe(StatusCodes.NOT_FOUND);
+          expect(typeof res.data === 'string').toBe(true);
+        });
+        it('Empty', async () => {
+          const res = await sendHttpRequest<unknown>(`${userURL}/''`, {
+            method: 'get'
+          });
+          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof res.data === 'string').toBe(true);
+        });
+        it('Invalid format', async () => {
+          const res = await sendHttpRequest<unknown>(
+            `${userURL}/abcdefg12345`,
+            { method: 'get' }
+          );
+          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof res.data === 'string').toBe(true);
+        });
       });
-      it('Non-existent user', async () => {});
+      it('Non-existent user', async () => {
+        const res = await sendHttpRequest<unknown>(
+          `${userURL}/${randomUUID()}`,
+          { method: 'get' }
+        );
+        expect(res.statusCode).toBe(StatusCodes.NOT_FOUND);
+        expect(typeof res.data === 'string').toBe(true);
+      });
     });
   });
 
@@ -223,23 +263,20 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
 
   describe.skip('Update', () => {
     const USERS_AMOUNT = 1;
-    const userIds: string[] = [];
+    let usersData: User[] = [];
 
     beforeAll(async () => {
-      const usersData: CreateUser[] = [...Array(USERS_AMOUNT)].map(() => {
-        return {
-          email: `${randStr()}@bla.com`,
-          password: 'Bla123!@#',
-          firstName: 'TMP',
-          lastName: 'TMP',
-          phone: '052-2222222',
-          gender: 'male',
-          address: 'TMP'
-        };
-      });
-      userIds.push(
-        ...(await createUsers(usersData)).map(({ id }) => {
-          return id;
+      usersData = await createUsers(
+        [...Array(USERS_AMOUNT)].map(() => {
+          return {
+            email: `${randStr()}@bla.com`,
+            password: 'Bla123!@#',
+            firstName: 'TMP',
+            lastName: 'TMP',
+            phone: '052-2222222',
+            gender: 'male',
+            address: 'TMP'
+          };
         })
       );
     });
@@ -297,39 +334,78 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
 
   /********************************************************************************/
 
-  describe.skip('Delete', () => {
-    const USERS_AMOUNT = 1;
-    const userIds: string[] = [];
+  describe('Delete', () => {
+    const USERS_AMOUNT = 2;
+    let usersData: User[] = [];
 
     beforeAll(async () => {
-      const usersData: CreateUser[] = [...Array(USERS_AMOUNT)].map(() => {
-        return {
-          email: `${randStr()}@bla.com`,
-          password: 'Bla123!@#',
-          firstName: 'TMP',
-          lastName: 'TMP',
-          phone: '052-2222222',
-          gender: 'male',
-          address: 'TMP'
-        };
-      });
-      userIds.push(
-        ...(await createUsers(usersData)).map(({ id }) => {
-          return id;
+      usersData = await createUsers(
+        [...Array(USERS_AMOUNT)].map(() => {
+          return {
+            email: `${randStr()}@bla.com`,
+            password: 'Bla123!@#',
+            firstName: 'TMP',
+            lastName: 'TMP',
+            phone: '052-2222222',
+            gender: 'male',
+            address: 'TMP'
+          };
         })
       );
     });
 
     describe('Valid', () => {
-      it('Deactivate user', async () => {});
-      it('Delete user', async () => {});
-      it('Delete non-existent user', async () => {});
+      it('Deactivate user', async () => {
+        const res = await sendHttpRequest<string>(
+          `${userURL}/${usersData[0].id}`,
+          { method: 'delete' }
+        );
+        expect(res.statusCode).toBe(StatusCodes.SUCCESS);
+        expect(res.data).toStrictEqual(usersData[0].id);
+      });
+      it('Delete user', async () => {
+        // TODO Disable created usersData[1] before the read call
+
+        const res = await sendHttpRequest<string>(
+          `${userURL}/${usersData[1].id}`,
+          { method: 'delete' }
+        );
+        expect(res.statusCode).toBe(StatusCodes.SUCCESS);
+        expect(res.data).toStrictEqual(usersData[0].id);
+      });
+      it('Delete non-existent user', async () => {
+        const res = await sendHttpRequest<string>(
+          `${userURL}/${randomUUID()}`,
+          { method: 'delete' }
+        );
+        expect(res.statusCode).toBe(StatusCodes.SUCCESS);
+        expect(res.data).toStrictEqual('');
+      });
     });
     describe('Invalid', () => {
       describe('User id', () => {
-        it('Without', async () => {});
-        it('Empty', async () => {});
-        it('Invalid format', async () => {});
+        it('Without', async () => {
+          const res = await sendHttpRequest<unknown>(`${userURL}/`, {
+            method: 'delete'
+          });
+          expect(res.statusCode).toBe(StatusCodes.NOT_FOUND);
+          expect(typeof res.data === 'string').toBe(true);
+        });
+        it('Empty', async () => {
+          const res = await sendHttpRequest<unknown>(`${userURL}/''`, {
+            method: 'delete'
+          });
+          expect(res.statusCode).toBe(StatusCodes.NOT_FOUND);
+          expect(typeof res.data === 'string').toBe(true);
+        });
+        it('Invalid format', async () => {
+          const res = await sendHttpRequest<unknown>(
+            `${userURL}/abcdefg12345`,
+            { method: 'delete' }
+          );
+          expect(res.statusCode).toBe(StatusCodes.NOT_FOUND);
+          expect(typeof res.data === 'string').toBe(true);
+        });
       });
     });
   });
