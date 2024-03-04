@@ -20,19 +20,21 @@ import {
   vi
 } from 'vitest';
 
+import type { DatabaseHandler } from '../src/db/index.js';
 import { VALIDATION } from '../src/entities/utils/index.js';
 import * as Middlewares from '../src/server/middleware.js';
-import type {
-  AddRequired,
-  Request,
-  ResolvedValue,
-  Response,
-  UnknownObject
+import {
+  eq,
+  type AddRequired,
+  type Request,
+  type ResolvedValue,
+  type Response,
+  type UnknownObject
 } from '../src/types/index.js';
 import { DashboardError, StatusCodes } from '../src/utils/index.js';
 
 import type { CreateUser, UpdateUser, User } from './apiTypes.js';
-import { isStressTest } from './config/vite.config.js';
+import { isStressTest } from './config/utils.js';
 
 /**********************************************************************************/
 
@@ -232,6 +234,36 @@ export async function createUsers(usersData: CreateUser[]) {
   return users;
 }
 
+/******************************** Database ****************************************/
+/**********************************************************************************/
+
+export async function deactivateUser(db: DatabaseHandler, userId: string) {
+  const handler = db.getHandler();
+  const {
+    user: { userCredentialsModel }
+  } = db.getModels();
+
+  await handler
+    .update(userCredentialsModel)
+    .set({ isActive: false })
+    .where(eq(userCredentialsModel.userId, userId));
+}
+
+export async function checkUserExists(db: DatabaseHandler, userId: string) {
+  const handler = db.getHandler();
+  const {
+    user: { userCredentialsModel }
+  } = db.getModels();
+
+  return !!(
+    await handler
+      .select({ id: userCredentialsModel.userId })
+      .from(userCredentialsModel)
+      .where(eq(userCredentialsModel.userId, userId))
+      .limit(1)
+  ).length;
+}
+
 /**********************************************************************************/
 
 export {
@@ -241,6 +273,7 @@ export {
   beforeEach,
   DashboardError,
   describe,
+  eq,
   expect,
   isStressTest,
   it,

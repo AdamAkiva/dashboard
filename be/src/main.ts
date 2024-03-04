@@ -15,7 +15,7 @@ async function startServer() {
     mode: mode,
     conn: {
       name: `dashboard-pg-${mode}`,
-      uri: dbUri,
+      url: dbUri,
       healthCheckQuery: DatabaseHandler.HEALTH_CHECK_QUERY
     },
     logger: logger

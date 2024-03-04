@@ -1,6 +1,8 @@
 import type { UserConfig } from 'vitest';
 import { defineConfig } from 'vitest/config';
 
+import { isStressTest, withLogs } from './utils.js';
+
 /**********************************************************************************/
 
 const defaultConfig: UserConfig = {
@@ -8,8 +10,10 @@ const defaultConfig: UserConfig = {
   testTimeout: 8_000,
   teardownTimeout: 4_000,
   globalSetup: './__tests__/config/globalSetup.ts',
+  setupFiles: './__tests__/config/setup.ts',
   restoreMocks: true,
   logHeapUsage: true,
+  fileParallelism: true,
   slowTestThreshold: 128,
   pool: 'threads',
   poolOptions: {
@@ -22,7 +26,10 @@ const defaultConfig: UserConfig = {
   server: {
     sourcemap: 'inline' as const
   },
-  reporters: ['default', 'hanging-process']
+  // default reporter override some logs for some reason. This is how we handle it
+  reporters: withLogs()
+    ? ['basic', 'hanging-process']
+    : ['default', 'hanging-process']
 };
 
 const stressConfig: UserConfig = {
@@ -35,9 +42,3 @@ const stressConfig: UserConfig = {
 export default defineConfig(
   isStressTest() ? { test: stressConfig } : { test: defaultConfig }
 );
-
-/**********************************************************************************/
-
-export function isStressTest() {
-  return !!process.env.STRESS;
-}

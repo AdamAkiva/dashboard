@@ -31,6 +31,8 @@ const {
   USER_FIRST_NAME_MAX_LENGTH,
   USER_LAST_NAME_MIN_LENGTH,
   USER_LAST_NAME_MAX_LENGTH,
+  USER_PHONE_MIN_LENGTH,
+  USER_PHONE_MAX_LENGTH,
   USER_ADDRESS_MIN_LENGTH,
   USER_ADDRESS_MAX_LENGTH
 } = VALIDATION;
@@ -96,9 +98,9 @@ export function createOne(req: Request) {
         required_error: requiredErr('password')
       }).regex(
         passwordRegex,
-        'Password must contain at least 1 digit, 1 upper case letter,' +
-          ' 1 special character (!@#$%^&*), no spaces and be between' +
-          ` ${USER_PASSWORD_MIN_LENGTH} to ${USER_PASSWORD_MAX_LENGTH} characters`
+        'Password must contain at least 1 digit, 1 lower case letter,' +
+          ' 1 upper case letter, 1 special character (!@#$%^&*), no spaces,' +
+          ` and be between ${USER_PASSWORD_MIN_LENGTH} to ${USER_PASSWORD_MAX_LENGTH} characters`
       ),
       firstName: Zod.string({
         invalid_type_error: invalidStringErr('first name'),
@@ -127,17 +129,20 @@ export function createOne(req: Request) {
       phone: Zod.string({
         invalid_type_error: invalidStringErr('phone'),
         required_error: requiredErr('phone')
-      }).superRefine((phone, ctx) => {
-        if (!isValidPhoneNumber(phone, 'IL')) {
-          ctx.addIssue({
-            code: Zod.ZodIssueCode.custom,
-            message: 'Invalid phone',
-            fatal: true
-          });
+      })
+        .min(USER_PHONE_MIN_LENGTH, minErr('phone', USER_PHONE_MIN_LENGTH))
+        .max(USER_PHONE_MAX_LENGTH, maxErr('phone', USER_PHONE_MAX_LENGTH))
+        .superRefine((phone, ctx) => {
+          if (!isValidPhoneNumber(phone, 'IL')) {
+            ctx.addIssue({
+              code: Zod.ZodIssueCode.custom,
+              message: 'Invalid phone',
+              fatal: true
+            });
 
-          return Zod.NEVER;
-        }
-      }),
+            return Zod.NEVER;
+          }
+        }),
       gender: Zod.string({
         invalid_type_error: invalidStringErr('gender'),
         required_error: requiredErr('gender')
@@ -218,9 +223,9 @@ export function updateOne(req: Request) {
       })
         .regex(
           passwordRegex,
-          'Password must contain at least 1 digit, 1 upper case letter,' +
-            ' 1 special character (!@#$%^&*), no spaces and be between' +
-            ` ${USER_PASSWORD_MIN_LENGTH} to ${USER_PASSWORD_MAX_LENGTH} characters`
+          'Password must contain at least 1 digit, 1 lower case letter,' +
+            ' 1 upper case letter, 1 special character (!@#$%^&*), no spaces,' +
+            ` and be between ${USER_PASSWORD_MIN_LENGTH} to ${USER_PASSWORD_MAX_LENGTH} characters`
         )
         .optional(),
       firstName: Zod.string({

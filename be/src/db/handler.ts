@@ -56,16 +56,16 @@ export default class DatabaseHandler {
 
   public constructor(params: {
     mode: Mode;
-    conn: { name: string; uri: string; healthCheckQuery: string };
+    conn: { name: string; url: string; healthCheckQuery: string };
     logger: Logger;
   }) {
     const {
       mode,
-      conn: { name, uri, healthCheckQuery },
+      conn: { name, url, healthCheckQuery },
       logger
     } = params;
 
-    this._conn = pg(uri, {
+    this._conn = pg(url, {
       connect_timeout: 30, // in secs
       idle_timeout: 180, // in secs
       max: 10, // The default is fine, unless we discover something else
