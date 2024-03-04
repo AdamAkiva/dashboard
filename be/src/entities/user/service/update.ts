@@ -27,7 +27,7 @@ export async function updateOne(
   ctx: RequestContext,
   updates: UserUpdateOneValidationData
 ): Promise<User> {
-  const { db } = ctx;
+  const { db, logger } = ctx;
   const handler = db.getHandler();
   const {
     user: { userInfoModel, userCredentialsModel }
@@ -82,7 +82,11 @@ export async function updateOne(
       })
     )[0];
   } catch (err) {
-    throw userUpdatedButReadFailed(err, userId);
+    throw userUpdatedButReadFailed({
+      err: err,
+      userId: userId,
+      logger: logger
+    });
   }
 }
 

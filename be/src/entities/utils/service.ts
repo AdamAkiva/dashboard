@@ -1,11 +1,11 @@
 import type { DBPreparedQueries, DatabaseHandler } from '../../db/index.js';
-import { pg, type Debug, type UnknownObject } from '../../types/index.js';
 import {
-  DashboardError,
-  ERR_CODES,
-  StatusCodes,
-  logger
-} from '../../utils/index.js';
+  pg,
+  type Debug,
+  type RequestContext,
+  type UnknownObject
+} from '../../types/index.js';
+import { DashboardError, ERR_CODES, StatusCodes } from '../../utils/index.js';
 
 /**********************************************************************************/
 
@@ -33,6 +33,8 @@ export async function executePreparedQuery<
 
   return res;
 }
+
+/**********************************************************************************/
 
 export function userNotFoundError(userId: string) {
   return new DashboardError(
@@ -77,7 +79,13 @@ export function userNotAllowedToBeUpdated(userId: string) {
   );
 }
 
-export function userUpdatedButReadFailed(err: unknown, userId: string) {
+export function userUpdatedButReadFailed(params: {
+  err: unknown;
+  userId: string;
+  logger: RequestContext['logger'];
+}) {
+  const { err, userId, logger } = params;
+
   const errMsg =
     `User '${userId}' was updated successfully, however, sending it back` +
     ' to the client failed';

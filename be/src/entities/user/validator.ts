@@ -82,6 +82,8 @@ export function readOne(req: Request) {
   return (paramsRes as ValidatedType<typeof paramsSchema>).data.userId;
 }
 
+/**********************************************************************************/
+
 export function createOne(req: Request) {
   const { body, params, query } = req;
 
@@ -193,6 +195,8 @@ export function createOne(req: Request) {
 
   return (paramsRes as ValidatedType<typeof bodySchema>).data;
 }
+
+/**********************************************************************************/
 
 export function updateOne(req: Request) {
   const { body, params, query } = req;
@@ -336,7 +340,7 @@ export function updateOne(req: Request) {
   };
 }
 
-export function deleteOne(req: Request) {
+export function reactivateOne(req: Request) {
   const { body, params, query } = req;
 
   const paramsSchema = Zod.object(
@@ -347,10 +351,10 @@ export function deleteOne(req: Request) {
       }).uuid({ message: invalidUuid('user id') })
     },
     {
-      invalid_type_error: invalidObjectErr('user'),
-      required_error: requiredErr('user')
+      invalid_type_error: invalidObjectErr('request params'),
+      required_error: requiredErr('request params')
     }
-  ).strict(invalidObjectErr('params'));
+  ).strict(invalidObjectErr('request params'));
 
   const paramsRes = paramsSchema.safeParse(params);
   const err = checkAndParseErrors(
@@ -369,7 +373,7 @@ export function deleteOne(req: Request) {
 
 /**********************************************************************************/
 
-export function reactivateOne(req: Request) {
+export function deleteOne(req: Request) {
   const { body, params, query } = req;
 
   const paramsSchema = Zod.object(
@@ -380,10 +384,10 @@ export function reactivateOne(req: Request) {
       }).uuid({ message: invalidUuid('user id') })
     },
     {
-      invalid_type_error: invalidObjectErr('request params'),
-      required_error: requiredErr('request params')
+      invalid_type_error: invalidObjectErr('user'),
+      required_error: requiredErr('user')
     }
-  ).strict(invalidObjectErr('request params'));
+  ).strict(invalidObjectErr('params'));
 
   const paramsRes = paramsSchema.safeParse(params);
   const err = checkAndParseErrors(

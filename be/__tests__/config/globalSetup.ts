@@ -1,9 +1,9 @@
 import { DatabaseHandler } from '../../src/db/index.js';
 import { HttpServer } from '../../src/server/index.js';
 import { EventEmitter, sql } from '../../src/types/index.js';
-import { ERR_CODES, logger } from '../../src/utils/index.js';
+import { ERR_CODES } from '../../src/utils/index.js';
 
-import { cleanupDatabase, mockLogs } from './utils.js';
+import { cleanupDatabase, mockLogger } from './utils.js';
 
 /**********************************************************************************/
 
@@ -16,7 +16,7 @@ export async function setup({ provide }: Provide) {
   EventEmitter.captureRejections = true;
 
   const { mode, server: serverEnv, db: dbUrl } = getTestEnv();
-  const loggingMocks = mockLogs();
+  const { logMiddleware, handler } = mockLogger();
 
   provide('mode', 'test');
   provide('urls', {
@@ -35,13 +35,13 @@ export async function setup({ provide }: Provide) {
       url: dbUrl,
       healthCheckQuery: DatabaseHandler.HEALTH_CHECK_QUERY
     },
-    logger: logger
+    logger: handler
   });
 
   const server = new HttpServer({
     mode: mode,
     db: db,
-    logger: loggingMocks.logger
+    logger: handler
   });
 
   // The order matters!
@@ -57,13 +57,13 @@ export async function setup({ provide }: Provide) {
           .getHandler()
           .execute(sql.raw(DatabaseHandler.HEALTH_CHECK_QUERY));
       } catch (err) {
-        logger.error(err, 'Database error');
+        handler.error(err, 'Database error');
         notReadyMsg += '\nDatabase is unavailable';
       }
 
       return notReadyMsg;
     },
-    logMiddleware: loggingMocks.logMiddleware,
+    logMiddleware: logMiddleware,
     routes: {
       api: `/${serverEnv.apiRoute}`,
       health: `/${serverEnv.healthCheck.route}`
@@ -105,7 +105,7 @@ function checkRuntimeEnv(mode?: string | undefined): mode is 'test' {
     return true;
   }
 
-  logger.fatal(
+  console.error(
     `Missing or invalid 'NODE_ENV' env value, should never happen.` +
       ' Unresolvable, exiting...'
   );
@@ -128,7 +128,9 @@ function checkEnvVariables() {
   });
 
   if (missingValues) {
-    logger.fatal(`\nMissing the following environment vars:\n${missingValues}`);
+    console.error(
+      `\nMissing the following environment vars:\n${missingValues}`
+    );
 
     process.exit(ERR_CODES.EXIT_NO_RESTART);
   }

@@ -1,6 +1,6 @@
 import type { DatabaseHandler } from '../../src/db/index.js';
 import type { NextFunction, Request, Response } from '../../src/types/index.js';
-import { logMiddleware, logger } from '../../src/utils/index.js';
+import { Logger } from '../../src/utils/index.js';
 
 /**********************************************************************************/
 
@@ -22,12 +22,15 @@ export async function cleanupDatabase(db: DatabaseHandler) {
   /* eslint-enable drizzle/enforce-delete-with-where */
 }
 
-export function mockLogs() {
+export function mockLogger() {
+  const logger = new Logger(true);
+  const { logMiddleware, handler } = logger;
+
   return {
-    logger: process.env.DEBUG
-      ? logger
+    handler: process.env.DEBUG
+      ? handler
       : {
-          ...logger,
+          ...handler,
           debug: () => {
             // Disable logs
           },

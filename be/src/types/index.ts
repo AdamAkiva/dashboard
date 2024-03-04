@@ -24,6 +24,7 @@ import pg from 'postgres';
 import { z as Zod } from 'zod';
 
 import type { DatabaseHandler, DBPreparedQueries } from '../db/index.js';
+import type { Logger } from '../utils/index.js';
 
 import type { CreateUser, UpdateUser, User } from './api.js';
 
@@ -50,7 +51,6 @@ export type ResolvedValue<T> = T extends (...args: any) => any
 export const generalDebug = Debug('dashboard:general');
 export const userDebug = Debug('dashboard:user');
 
-export type Logger = HttpLogger['logger'];
 export type Response = ExpressResponse<unknown, { ctx: RequestContext }>;
 
 /********************************** Http ******************************************/
@@ -71,7 +71,7 @@ export type EnvironmentVariables = {
 export type RequestContext = {
   db: DatabaseHandler;
   preparedQueries: DBPreparedQueries;
-  logger: Logger;
+  logger: Logger['handler'];
 };
 
 /**********************************************************************************/

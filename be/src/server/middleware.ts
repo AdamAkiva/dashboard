@@ -1,11 +1,11 @@
 import type { DatabaseHandler } from '../db/index.js';
-import type {
-  Logger,
-  NextFunction,
-  Request,
-  Response
-} from '../types/index.js';
-import { DashboardError, StatusCodes, strcasecmp } from '../utils/index.js';
+import type { NextFunction, Request, Response } from '../types/index.js';
+import {
+  DashboardError,
+  StatusCodes,
+  strcasecmp,
+  type Logger
+} from '../utils/index.js';
 
 /**********************************************************************************/
 
@@ -18,7 +18,10 @@ export function checkMethod(allowedMethods: Set<string>) {
     const reqMethod = req.method.toUpperCase();
 
     if (!allowedMethods.has(reqMethod)) {
+      // Reason for explicitly adding the header:
+      // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Allow
       return res
+        .set('Allow', Array.from(allowedMethods).join(', '))
         .status(StatusCodes.NOT_ALLOWED)
         .json(`${reqMethod} is not a support method`);
     }
@@ -35,7 +38,7 @@ export function healthCheck(
     if (strcasecmp(req.method, 'HEAD') && strcasecmp(req.method, 'GET')) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json(`Health check must be a 'GET' request`);
+        .json(`Health check must be a 'HEAD' or 'GET' request`);
     }
 
     const hostName = req.hostname.toLowerCase();
@@ -57,7 +60,7 @@ export function healthCheck(
   };
 }
 
-export function attachContext(db: DatabaseHandler, logger: Logger) {
+export function attachContext(db: DatabaseHandler, logger: Logger['handler']) {
   return function _attachContext(
     _: Request,
     res: Response,

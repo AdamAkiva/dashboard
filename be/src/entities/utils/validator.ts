@@ -57,8 +57,6 @@ export function checkAndParseErrors(
   return parseErrors(errs);
 }
 
-/**********************************************************************************/
-
 function parseErrors(errs: Zod.ZodError<unknown>[]) {
   const delimiter = ', ';
 
@@ -108,8 +106,6 @@ export function invalidBoolean(fieldName: string) {
   return `'${fieldName}' is not a valid boolean`;
 }
 
-/**********************************************************************************/
-
 export function requiredErr(fieldName: string) {
   return `'${fieldName}' is required`;
 }
@@ -117,8 +113,6 @@ export function requiredErr(fieldName: string) {
 export function emptyErr(fieldName: string) {
   return `'${fieldName}' must contain one or more element(s)`;
 }
-
-/**********************************************************************************/
 
 export function minErr(fieldName: string, minAmount: number) {
   return `'${fieldName}' must contain at least ${String(minAmount)} characters`;

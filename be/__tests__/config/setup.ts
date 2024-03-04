@@ -2,7 +2,7 @@ import { afterAll, beforeAll, inject } from 'vitest';
 
 import { DatabaseHandler } from '../../src/db/index.js';
 
-import { cleanupDatabase, mockLogs } from './utils.js';
+import { cleanupDatabase, mockLogger } from './utils.js';
 
 /**********************************************************************************/
 
@@ -20,7 +20,7 @@ beforeAll(() => {
       url: url,
       healthCheckQuery: DatabaseHandler.HEALTH_CHECK_QUERY
     },
-    logger: mockLogs().logger
+    logger: mockLogger().handler
   });
 });
 

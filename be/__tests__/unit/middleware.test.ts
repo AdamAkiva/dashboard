@@ -73,7 +73,7 @@ describe.skipIf(isStressTest()).concurrent('General tests', () => {
         expect(callbackMock).toHaveBeenCalledTimes(0);
         expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST);
         expect(response._getJSONData()).toStrictEqual(
-          `Health check must be a 'GET' request`
+          `Health check must be a 'HEAD' or 'GET' request`
         );
       });
       it('Invalid host', async () => {

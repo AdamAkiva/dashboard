@@ -26,6 +26,7 @@ export const ERR_CODES = {
     UNIQUE_VIOLATION: '23505'
   },
   // Indicator to the deployment orchestration service to not attempt to restart
-  // the service, since the error is a result of a programmer error
+  // the service, since the error is a result of a programmer error, and therefore
+  // the application should not restart by default
   EXIT_NO_RESTART: 180
 } as const;
