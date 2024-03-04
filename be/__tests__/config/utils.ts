@@ -23,7 +23,7 @@ export async function cleanupDatabase(db: DatabaseHandler) {
 }
 
 export function mockLogger() {
-  const logger = new Logger(true);
+  const logger = new Logger();
   const { logMiddleware, handler } = logger;
 
   return {

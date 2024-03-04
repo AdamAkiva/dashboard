@@ -90,6 +90,7 @@ export default class HttpServer {
       this._app.use(
         (await import('helmet')).default({
           contentSecurityPolicy: true /* require-corp */,
+          crossOriginEmbedderPolicy: { policy: 'require-corp' },
           crossOriginOpenerPolicy: { policy: 'same-origin' },
           crossOriginResourcePolicy: { policy: 'same-origin' },
           originAgentCluster: true,
@@ -101,9 +102,8 @@ export default class HttpServer {
           xContentTypeOptions: true,
           xDnsPrefetchControl: false,
           xDownloadOptions: true,
-          xFrameOptions: { action: 'sameorigin' },
+          xFrameOptions: { action: 'deny' },
           xPermittedCrossDomainPolicies: { permittedPolicies: 'none' },
-          xPoweredBy: false,
           xXssProtection: true
         })
       );
