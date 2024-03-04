@@ -55,6 +55,21 @@ export function userCreationError(err: unknown, userEmail: string) {
   return err;
 }
 
+export function userUpdateError(err: unknown, userEmail?: string) {
+  if (
+    userEmail &&
+    err instanceof pg.PostgresError &&
+    err.code === ERR_CODES.PG.UNIQUE_VIOLATION
+  ) {
+    return new DashboardError(
+      `User '${userEmail}' already exists`,
+      StatusCodes.CONFLICT
+    );
+  }
+
+  return err;
+}
+
 export function userNotAllowedToBeUpdated(userId: string) {
   return new DashboardError(
     `User '${userId}' is deactivated and therefore can't be updated`,

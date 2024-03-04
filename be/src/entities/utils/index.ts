@@ -4,10 +4,10 @@ import {
   userCreationError,
   userNotAllowedToBeUpdated,
   userNotFoundError,
-  userUpdatedButReadFailed
+  userUpdatedButReadFailed,
+  userUpdateError
 } from './service.js';
 import {
-  VALIDATION,
   emptyErr,
   invalidArrayErr,
   invalidBoolean,
@@ -19,13 +19,13 @@ import {
   minErr,
   requiredErr,
   validateEmptyObject,
+  VALIDATION,
   type ValidatedType
 } from './validator.js';
 
 /**********************************************************************************/
 
 export {
-  VALIDATION,
   emptyErr,
   executePreparedQuery,
   invalidArrayErr,
@@ -42,6 +42,8 @@ export {
   userNotAllowedToBeUpdated,
   userNotFoundError,
   userUpdatedButReadFailed,
+  userUpdateError,
   validateEmptyObject,
+  VALIDATION,
   type ValidatedType
 };

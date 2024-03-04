@@ -28,9 +28,6 @@ export async function createOne(
   const { password, ...userInfo } = userData;
   const createdAt = new Date().toISOString();
 
-  // According to: https://www.answeroverflow.com/m/1164318289674125392
-  // handler and transaction can be used interchangeably, hopefully that is the
-  // case. Should check it at some point
   return await handler.transaction(async (transaction) => {
     try {
       const userId = await createUserInfo({

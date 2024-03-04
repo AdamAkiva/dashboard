@@ -780,9 +780,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         it('Without', async () => {
           const { data, statusCode } = await sendHttpRequest<unknown>(
             `${userURL}/`,
-            {
-              method: 'get'
-            }
+            { method: 'get' }
           );
           expect(statusCode).toBe(StatusCodes.NOT_FOUND);
           expect(typeof data === 'string').toBe(true);
@@ -790,9 +788,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         it('Empty', async () => {
           const { data, statusCode } = await sendHttpRequest<unknown>(
             `${userURL}/''`,
-            {
-              method: 'get'
-            }
+            { method: 'get' }
           );
           expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
           expect(typeof data === 'string').toBe(true);
@@ -822,7 +818,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
   describe('Update', () => {
     // Match this number to the amount of tests needing a unique user
     // database entry
-    const USERS_AMOUNT = 8;
+    const USERS_AMOUNT = 11;
     let usersData: User[] = [];
 
     beforeAll(async () => {
@@ -847,7 +843,10 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
 
         const { data, statusCode } = await sendHttpRequest<User>(
           `${userURL}/${usersData[0].id}`,
-          { method: 'patch', json: { email: updatedEmail } }
+          {
+            method: 'patch',
+            json: { email: updatedEmail } satisfies UpdateUser
+          }
         );
         expect(statusCode).toBe(StatusCodes.SUCCESS);
         expect(data).toStrictEqual({ ...usersData[0], email: updatedEmail });
@@ -857,7 +856,10 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
 
         const { statusCode } = await sendHttpRequest<User>(
           `${userURL}/${usersData[1].id}`,
-          { method: 'patch', json: { password: updatedPassword } }
+          {
+            method: 'patch',
+            json: { password: updatedPassword } satisfies UpdateUser
+          }
         );
         expect(statusCode).toBe(StatusCodes.SUCCESS);
         // Currently there is not route to get password, and there probably will
@@ -875,7 +877,10 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
 
         const { data, statusCode } = await sendHttpRequest<User>(
           `${userURL}/${usersData[2].id}`,
-          { method: 'patch', json: { firstName: updatedFirstName } }
+          {
+            method: 'patch',
+            json: { firstName: updatedFirstName } satisfies UpdateUser
+          }
         );
         expect(statusCode).toBe(StatusCodes.SUCCESS);
         expect(data).toStrictEqual({
@@ -888,7 +893,10 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
 
         const { data, statusCode } = await sendHttpRequest<User>(
           `${userURL}/${usersData[3].id}`,
-          { method: 'patch', json: { lastName: updatedLastName } }
+          {
+            method: 'patch',
+            json: { lastName: updatedLastName } satisfies UpdateUser
+          }
         );
         expect(statusCode).toBe(StatusCodes.SUCCESS);
         expect(data).toStrictEqual({
@@ -901,7 +909,10 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
 
         const { data, statusCode } = await sendHttpRequest<User>(
           `${userURL}/${usersData[4].id}`,
-          { method: 'patch', json: { phone: updatedPhone } }
+          {
+            method: 'patch',
+            json: { phone: updatedPhone } satisfies UpdateUser
+          }
         );
         expect(statusCode).toBe(StatusCodes.SUCCESS);
         expect(data).toStrictEqual({ ...usersData[4], phone: updatedPhone });
@@ -911,7 +922,10 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
 
         const { data, statusCode } = await sendHttpRequest<User>(
           `${userURL}/${usersData[5].id}`,
-          { method: 'patch', json: { gender: updatedGender } }
+          {
+            method: 'patch',
+            json: { gender: updatedGender } satisfies UpdateUser
+          }
         );
         expect(statusCode).toBe(StatusCodes.SUCCESS);
         expect(data).toStrictEqual({ ...usersData[5], gender: updatedGender });
@@ -921,7 +935,10 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
 
         const { data, statusCode } = await sendHttpRequest<User>(
           `${userURL}/${usersData[6].id}`,
-          { method: 'patch', json: { address: updatedAddress } }
+          {
+            method: 'patch',
+            json: { address: updatedAddress } satisfies UpdateUser
+          }
         );
         expect(statusCode).toBe(StatusCodes.SUCCESS);
         expect(data).toStrictEqual({
@@ -960,43 +977,375 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         );
       });
     });
-    describe.skip('Invalid', () => {
+    describe('Invalid', () => {
       describe('Email', () => {
-        it('Empty', async () => {});
-        it('Too short', async () => {});
-        it('Too long', async () => {});
-        it('Invalid format', async () => {});
+        it('Empty', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                email: ''
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Too short', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                email: 'a'.repeat(VALIDATION.USER_EMAIL_MIN_LENGTH - 1)
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Too long', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                email: 'a'.repeat(VALIDATION.USER_EMAIL_MAX_LENGTH + 1)
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Invalid format', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                email: `${randStr()}@bla`
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
       });
       describe('Password', () => {
-        it('Empty', async () => {});
-        it('Too short', async () => {});
-        it('Too long', async () => {});
-        it('Invalid format', async () => {});
+        it('Empty', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                password: ''
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Too short', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                password: 'a'.repeat(VALIDATION.USER_PASSWORD_MIN_LENGTH - 1)
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Too long', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                password: 'a'.repeat(VALIDATION.USER_PASSWORD_MAX_LENGTH + 1)
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Invalid format', async () => {
+          let res = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                password: 'BAMBA123!@#' // Missing lower case character(s)
+              } satisfies UpdateUser
+            }
+          );
+          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof res.data === 'string').toBe(true);
+
+          res = await sendHttpRequest<string>(`${userURL}/${randomUUID()}`, {
+            method: 'patch',
+            json: {
+              password: 'bamba123!@#' // Missing upper case character(s)
+            } satisfies UpdateUser
+          });
+          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof res.data === 'string').toBe(true);
+
+          res = await sendHttpRequest<string>(`${userURL}/${randomUUID()}`, {
+            method: 'patch',
+            json: {
+              password: 'Bamba123' // Missing special character(s)
+            } satisfies UpdateUser
+          });
+          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof res.data === 'string').toBe(true);
+
+          res = await sendHttpRequest<string>(`${userURL}/${randomUUID()}`, {
+            method: 'patch',
+            json: {
+              password: 'bamba!@#' // Missing digit character
+            } satisfies UpdateUser
+          });
+          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof res.data === 'string').toBe(true);
+        });
       });
       describe('First name', () => {
-        it('Empty', async () => {});
-        it('Too long', async () => {});
+        it('Empty', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                firstName: ''
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Too short', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                firstName: 'a'.repeat(VALIDATION.USER_FIRST_NAME_MIN_LENGTH - 1)
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Too long', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                firstName: 'a'.repeat(VALIDATION.USER_FIRST_NAME_MAX_LENGTH + 1)
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
       });
       describe('Last name', () => {
-        it('Empty', async () => {});
-        it('Too long', async () => {});
+        it('Empty', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                lastName: ''
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Too short', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                lastName: 'a'.repeat(VALIDATION.USER_LAST_NAME_MIN_LENGTH - 1)
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Too long', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                lastName: 'a'.repeat(VALIDATION.USER_LAST_NAME_MAX_LENGTH + 1)
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
       });
       describe('Phone', () => {
-        it('Empty', async () => {});
-        it('Too short', async () => {});
-        it('Too long', async () => {});
-        it('Invalid format', async () => {});
+        it('Empty', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                phone: ''
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Too short', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                phone: '1'.repeat(VALIDATION.USER_PHONE_MIN_LENGTH - 1)
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Too long', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                phone: '1'.repeat(VALIDATION.USER_PHONE_MAX_LENGTH + 1)
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Invalid format', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                phone: '052-2abc222'
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
       });
       describe('Gender', () => {
-        it('Empty', async () => {});
-        it('Invalid format', async () => {});
+        it('Empty', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                gender: ''
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Invalid format', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                gender: 'aaa'
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
       });
       describe('Address', () => {
-        it('Empty', async () => {});
-        it('Too long', async () => {});
+        it('Empty', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                address: ''
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Too short', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                address: 'a'.repeat(VALIDATION.USER_ADDRESS_MIN_LENGTH - 1)
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Too long', async () => {
+          const { data, statusCode } = await sendHttpRequest<string>(
+            `${userURL}/${randomUUID()}`,
+            {
+              method: 'patch',
+              json: {
+                address: 'a'.repeat(VALIDATION.USER_ADDRESS_MAX_LENGTH + 1)
+              } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
       });
-      it('Duplicate with active user', async () => {});
-      it('Duplicate with inactive user', async () => {});
+      it('Duplicate with active user', async () => {
+        const { data, statusCode } = await sendHttpRequest<string>(
+          `${userURL}/${usersData[8].id}`,
+          {
+            method: 'patch',
+            json: {
+              email: usersData[1].email
+            } satisfies UpdateUser
+          }
+        );
+        expect(statusCode).toBe(StatusCodes.CONFLICT);
+        expect(typeof data === 'string').toBe(true);
+      });
+      it('Duplicate with inactive user', async () => {
+        await deactivateUser(globalThis.db, usersData[10].id);
+
+        const { data, statusCode } = await sendHttpRequest<string>(
+          `${userURL}/${usersData[9].id}`,
+          {
+            method: 'patch',
+            json: {
+              email: usersData[10].email
+            } satisfies UpdateUser
+          }
+        );
+        expect(statusCode).toBe(StatusCodes.CONFLICT);
+        expect(typeof data === 'string').toBe(true);
+      });
     });
   });
 
@@ -1060,9 +1409,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         it('Without', async () => {
           const { data, statusCode } = await sendHttpRequest<unknown>(
             `${userURL}/`,
-            {
-              method: 'delete'
-            }
+            { method: 'delete' }
           );
           expect(statusCode).toBe(StatusCodes.NOT_FOUND);
           expect(typeof data === 'string').toBe(true);
@@ -1070,9 +1417,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         it('Empty', async () => {
           const { data, statusCode } = await sendHttpRequest<unknown>(
             `${userURL}/''`,
-            {
-              method: 'delete'
-            }
+            { method: 'delete' }
           );
           expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
           expect(typeof data === 'string').toBe(true);

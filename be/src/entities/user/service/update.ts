@@ -11,6 +11,7 @@ import {
   executePreparedQuery,
   userNotAllowedToBeUpdated,
   userNotFoundError,
+  userUpdateError,
   userUpdatedButReadFailed
 } from '../../utils/index.js';
 
@@ -35,38 +36,39 @@ export async function updateOne(
   const { password, userId, ...userInfo } = updates;
   const updatedAt = new Date().toISOString();
 
-  // According to: https://www.answeroverflow.com/m/1164318289674125392
-  // handler and transaction can be used interchangeably, hopefully that is the
-  // case. Should check it at some point
   await handler.transaction(async (transaction) => {
-    const results = await Promise.allSettled([
-      isAllowedToUpdate({
-        transaction: transaction,
-        models: { userCredentialsModel: userCredentialsModel },
-        userId: userId
-      }),
-      updateUserInfo({
-        transaction: transaction,
-        models: { userInfoModel: userInfoModel },
-        userInfo: userInfo,
-        userId: userId,
-        updatedAt: updatedAt
-      }),
-      updateUserCredentials({
-        transaction: transaction,
-        models: { userCredentialsModel: userCredentialsModel },
-        credentials: {
-          email: userInfo.email,
-          password: password
-        },
-        userId: userId,
-        updatedAt: updatedAt
-      })
-    ]);
-    for (const result of results) {
-      if (result.status === 'rejected') {
-        throw result.reason;
+    try {
+      const results = await Promise.allSettled([
+        isAllowedToUpdate({
+          transaction: transaction,
+          models: { userCredentialsModel: userCredentialsModel },
+          userId: userId
+        }),
+        updateUserInfo({
+          transaction: transaction,
+          models: { userInfoModel: userInfoModel },
+          userInfo: userInfo,
+          userId: userId,
+          updatedAt: updatedAt
+        }),
+        updateUserCredentials({
+          transaction: transaction,
+          models: { userCredentialsModel: userCredentialsModel },
+          credentials: {
+            email: userInfo.email,
+            password: password
+          },
+          userId: userId,
+          updatedAt: updatedAt
+        })
+      ]);
+      for (const result of results) {
+        if (result.status === 'rejected') {
+          throw result.reason;
+        }
       }
+    } catch (err) {
+      throw userUpdateError(err, updates.email);
     }
   });
 
@@ -128,8 +130,6 @@ async function updateUserInfo(params: {
   }
 
   userDebug('Updating user info entry');
-  // Since the update is dynamic (different fields are possible each time, there's
-  // no point of using prepared statements, it has no benefit)
   const updates = await transaction
     .update(userInfoModel)
     .set({ ...userInfo, updatedAt: updatedAt })
@@ -161,8 +161,6 @@ async function updateUserCredentials(params: {
   }
 
   userDebug('Updating user credentials entry');
-  // Since the update is dynamic (different fields are possible each time, there's
-  // no point of using prepared statements, it has no benefit)
   const updates = await transaction
     .update(userCredentialsModel)
     .set({
