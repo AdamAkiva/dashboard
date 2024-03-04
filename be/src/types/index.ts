@@ -7,7 +7,7 @@ import { URL } from 'node:url';
 import compress from 'compression';
 import cors from 'cors';
 import Debug from 'debug';
-import { eq, sql, type Logger as DrizzleLogger } from 'drizzle-orm';
+import { and, eq, sql, type Logger as DrizzleLogger } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import express, {
   json,
@@ -78,6 +78,7 @@ export type RequestContext = {
 /**********************************************************************************/
 
 export {
+  and,
   compress,
   cors,
   createServer,

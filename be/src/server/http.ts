@@ -49,6 +49,8 @@ export default class HttpServer {
     this._db = params.db;
     this._logger = params.logger;
 
+    // Disable 'x-powered-by' should be pretty clear. Reason to disable etag
+    // can be understood by this great answer: https://stackoverflow.com/a/67929691
     this._app = express().disable('etag').disable('x-powered-by');
     this._server = createServer(this._app);
 

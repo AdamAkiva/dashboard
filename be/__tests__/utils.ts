@@ -24,6 +24,7 @@ import type { DatabaseHandler } from '../src/db/index.js';
 import { VALIDATION } from '../src/entities/utils/index.js';
 import * as Middlewares from '../src/server/middleware.js';
 import {
+  and,
   eq,
   type AddRequired,
   type Request,
@@ -260,6 +261,33 @@ export async function checkUserExists(db: DatabaseHandler, userId: string) {
       .select({ id: userCredentialsModel.userId })
       .from(userCredentialsModel)
       .where(eq(userCredentialsModel.userId, userId))
+      .limit(1)
+  ).length;
+}
+
+export async function checkUserPasswordMatch(params: {
+  db: DatabaseHandler;
+  userId: string;
+  expectedPassword: string;
+}) {
+  const { db, userId, expectedPassword } = params;
+  const handler = db.getHandler();
+  const {
+    user: { userCredentialsModel }
+  } = db.getModels();
+
+  return !!(
+    await handler
+      .select({
+        id: userCredentialsModel.userId
+      })
+      .from(userCredentialsModel)
+      .where(
+        and(
+          eq(userCredentialsModel.userId, userId),
+          eq(userCredentialsModel.password, expectedPassword)
+        )
+      )
       .limit(1)
   ).length;
 }

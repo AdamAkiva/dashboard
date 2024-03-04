@@ -3,6 +3,7 @@ import {
   VALIDATION,
   beforeAll,
   checkUserExists,
+  checkUserPasswordMatch,
   createUsers,
   deactivateUser,
   describe,
@@ -16,6 +17,7 @@ import {
   sendHttpRequest,
   type CreateUser,
   type ResolvedValue,
+  type UpdateUser,
   type User
 } from '../utils.js';
 
@@ -37,12 +39,12 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
           address: 'TMP'
         };
 
-        const res = await sendHttpRequest<User>(userURL, {
+        const { data, statusCode } = await sendHttpRequest<User>(userURL, {
           method: 'post',
           json: userData
         });
-        expect(res.statusCode).toBe(StatusCodes.CREATED);
-        expect(omit(res.data, 'id', 'createdAt', 'isActive')).toStrictEqual(
+        expect(statusCode).toBe(StatusCodes.CREATED);
+        expect(omit(data, 'id', 'createdAt', 'isActive')).toStrictEqual(
           omit(userData, 'password')
         );
       });
@@ -78,14 +80,14 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         ).map(({ value }) => {
           return value;
         });
-        responses.forEach((response) => {
-          expect(response.statusCode).toBe(StatusCodes.CREATED);
+        responses.forEach(({ data, statusCode }) => {
+          expect(statusCode).toBe(StatusCodes.CREATED);
           const userData = usersData.find((user) => {
-            return user.email === response.data.email;
+            return user.email === data.email;
           })!;
-          expect(
-            omit(response.data, 'id', 'createdAt', 'isActive')
-          ).toStrictEqual(omit(userData, 'password'));
+          expect(omit(data, 'id', 'createdAt', 'isActive')).toStrictEqual(
+            omit(userData, 'password')
+          );
         });
       });
       it('A lot', async () => {
@@ -120,21 +122,21 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         ).map(({ value }) => {
           return value;
         });
-        responses.forEach((response) => {
-          expect(response.statusCode).toBe(StatusCodes.CREATED);
+        responses.forEach(({ data, statusCode }) => {
+          expect(statusCode).toBe(StatusCodes.CREATED);
           const userData = usersData.find((user) => {
-            return user.email === response.data.email;
+            return user.email === data.email;
           })!;
-          expect(
-            omit(response.data, 'id', 'createdAt', 'isActive')
-          ).toStrictEqual(omit(userData, 'password'));
+          expect(omit(data, 'id', 'createdAt', 'isActive')).toStrictEqual(
+            omit(userData, 'password')
+          );
         });
       });
     });
     describe('Invalid', () => {
       describe('Email', () => {
         it('Without', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               password: 'Bla123!@#',
@@ -145,11 +147,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             }
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Empty', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: '',
@@ -161,11 +163,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Too short', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr(1)}@a.c`,
@@ -177,11 +179,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Too long', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr(VALIDATION.USER_EMAIL_MAX_LENGTH)}@bla.com`,
@@ -193,11 +195,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Invalid format', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla`,
@@ -209,13 +211,13 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
       });
       describe('Password', () => {
         it('Without', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -226,11 +228,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             }
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Empty', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -242,11 +244,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Too short', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -258,11 +260,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Too long', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -274,8 +276,8 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Invalid format', async () => {
           let res = await sendHttpRequest<string>(userURL, {
@@ -341,7 +343,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
       });
       describe('First name', () => {
         it('Without', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -352,11 +354,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             }
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Empty', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -368,11 +370,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Too short', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -384,11 +386,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Too long', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -400,13 +402,13 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
       });
       describe('Last name', () => {
         it('Without', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -417,11 +419,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             }
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Empty', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -433,11 +435,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Too short', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -449,11 +451,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Too long', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -465,13 +467,13 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
       });
       describe('Phone', () => {
         it('Without', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -482,11 +484,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             }
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Empty', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -498,11 +500,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Too short', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -514,11 +516,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Too long', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -530,11 +532,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Invalid format', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -546,13 +548,13 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
       });
       describe('Gender', () => {
         it('Without', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -563,11 +565,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             }
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Empty', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -579,11 +581,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Invalid format', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -595,13 +597,13 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'TMP'
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
       });
       describe('Address', () => {
         it('Without', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -612,11 +614,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               gender: 'male'
             }
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Empty', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -628,11 +630,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: ''
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Too short', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -644,11 +646,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'a'.repeat(VALIDATION.USER_ADDRESS_MIN_LENGTH - 1)
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Too long', async () => {
-          const res = await sendHttpRequest<string>(userURL, {
+          const { data, statusCode } = await sendHttpRequest<string>(userURL, {
             method: 'post',
             json: {
               email: `${randStr()}@bla.com`,
@@ -660,8 +662,8 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               address: 'a'.repeat(VALIDATION.USER_ADDRESS_MAX_LENGTH + 1)
             } satisfies CreateUser
           });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
       });
       it('Duplicate with active user', async () => {
@@ -732,6 +734,8 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
   // users and use a different one in every test
 
   describe('Read', () => {
+    // Match this number to the amount of tests needing a unique user
+    // database entry
     const USERS_AMOUNT = 2;
     let usersData: User[] = [];
 
@@ -753,64 +757,72 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
 
     describe('Valid', () => {
       it('Single active', async () => {
-        const res = await sendHttpRequest<User>(
+        const { data, statusCode } = await sendHttpRequest<User>(
           `${userURL}/${usersData[0].id}`,
           { method: 'get' }
         );
-        expect(res.statusCode).toBe(StatusCodes.SUCCESS);
-        expect(res.data).toStrictEqual(usersData[0]);
+        expect(statusCode).toBe(StatusCodes.SUCCESS);
+        expect(data).toStrictEqual(usersData[0]);
       });
       it('Single inactive', async () => {
         await deactivateUser(globalThis.db, usersData[1].id);
 
-        const res = await sendHttpRequest<User>(
+        const { data, statusCode } = await sendHttpRequest<User>(
           `${userURL}/${usersData[1].id}`,
           { method: 'get' }
         );
-        expect(res.statusCode).toBe(StatusCodes.SUCCESS);
-        expect(res.data).toStrictEqual({ ...usersData[1], isActive: false });
+        expect(statusCode).toBe(StatusCodes.SUCCESS);
+        expect(data).toStrictEqual({ ...usersData[1], isActive: false });
       });
     });
     describe('Invalid', () => {
       describe('User id', () => {
         it('Without', async () => {
-          const res = await sendHttpRequest<unknown>(`${userURL}/`, {
-            method: 'get'
-          });
-          expect(res.statusCode).toBe(StatusCodes.NOT_FOUND);
-          expect(typeof res.data === 'string').toBe(true);
+          const { data, statusCode } = await sendHttpRequest<unknown>(
+            `${userURL}/`,
+            {
+              method: 'get'
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.NOT_FOUND);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Empty', async () => {
-          const res = await sendHttpRequest<unknown>(`${userURL}/''`, {
-            method: 'get'
-          });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          const { data, statusCode } = await sendHttpRequest<unknown>(
+            `${userURL}/''`,
+            {
+              method: 'get'
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Invalid format', async () => {
-          const res = await sendHttpRequest<unknown>(
+          const { data, statusCode } = await sendHttpRequest<unknown>(
             `${userURL}/abcdefg12345`,
             { method: 'get' }
           );
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
       });
       it('Non-existent user', async () => {
-        const res = await sendHttpRequest<unknown>(
+        const { data, statusCode } = await sendHttpRequest<unknown>(
           `${userURL}/${randomUUID()}`,
           { method: 'get' }
         );
-        expect(res.statusCode).toBe(StatusCodes.NOT_FOUND);
-        expect(typeof res.data === 'string').toBe(true);
+        expect(statusCode).toBe(StatusCodes.NOT_FOUND);
+        expect(typeof data === 'string').toBe(true);
       });
     });
   });
 
   /********************************************************************************/
 
-  describe.skip('Update', () => {
-    const USERS_AMOUNT = 1;
+  describe('Update', () => {
+    // Match this number to the amount of tests needing a unique user
+    // database entry
+    const USERS_AMOUNT = 8;
     let usersData: User[] = [];
 
     beforeAll(async () => {
@@ -830,17 +842,125 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
     });
 
     describe('Valid', () => {
-      it('Update email', async () => {});
-      it('Update password', async () => {});
-      it('Update first name', async () => {});
-      it('Update last name', async () => {});
-      it('Update ', async () => {});
-      it('Update phone', async () => {});
-      it('Update gender', async () => {});
-      it('Update address', async () => {});
-      it('All possible fields', async () => {});
+      it('Update email', async () => {
+        const updatedEmail = `${randStr()}@bla.com`;
+
+        const { data, statusCode } = await sendHttpRequest<User>(
+          `${userURL}/${usersData[0].id}`,
+          { method: 'patch', json: { email: updatedEmail } }
+        );
+        expect(statusCode).toBe(StatusCodes.SUCCESS);
+        expect(data).toStrictEqual({ ...usersData[0], email: updatedEmail });
+      });
+      it('Update password', async () => {
+        const updatedPassword = `Bisli123!@#`;
+
+        const { statusCode } = await sendHttpRequest<User>(
+          `${userURL}/${usersData[1].id}`,
+          { method: 'patch', json: { password: updatedPassword } }
+        );
+        expect(statusCode).toBe(StatusCodes.SUCCESS);
+        // Currently there is not route to get password, and there probably will
+        // never be one, so we check directly against the database
+        expect(
+          await checkUserPasswordMatch({
+            db: globalThis.db,
+            userId: usersData[1].id,
+            expectedPassword: updatedPassword
+          })
+        );
+      });
+      it('Update first name', async () => {
+        const updatedFirstName = 'BLA';
+
+        const { data, statusCode } = await sendHttpRequest<User>(
+          `${userURL}/${usersData[2].id}`,
+          { method: 'patch', json: { firstName: updatedFirstName } }
+        );
+        expect(statusCode).toBe(StatusCodes.SUCCESS);
+        expect(data).toStrictEqual({
+          ...usersData[2],
+          firstName: updatedFirstName
+        });
+      });
+      it('Update last name', async () => {
+        const updatedLastName = 'BLA';
+
+        const { data, statusCode } = await sendHttpRequest<User>(
+          `${userURL}/${usersData[3].id}`,
+          { method: 'patch', json: { lastName: updatedLastName } }
+        );
+        expect(statusCode).toBe(StatusCodes.SUCCESS);
+        expect(data).toStrictEqual({
+          ...usersData[3],
+          lastName: updatedLastName
+        });
+      });
+      it('Update phone', async () => {
+        const updatedPhone = '054-3333333';
+
+        const { data, statusCode } = await sendHttpRequest<User>(
+          `${userURL}/${usersData[4].id}`,
+          { method: 'patch', json: { phone: updatedPhone } }
+        );
+        expect(statusCode).toBe(StatusCodes.SUCCESS);
+        expect(data).toStrictEqual({ ...usersData[4], phone: updatedPhone });
+      });
+      it('Update gender', async () => {
+        const updatedGender = 'other';
+
+        const { data, statusCode } = await sendHttpRequest<User>(
+          `${userURL}/${usersData[5].id}`,
+          { method: 'patch', json: { gender: updatedGender } }
+        );
+        expect(statusCode).toBe(StatusCodes.SUCCESS);
+        expect(data).toStrictEqual({ ...usersData[5], gender: updatedGender });
+      });
+      it('Update address', async () => {
+        const updatedAddress = 'BLA';
+
+        const { data, statusCode } = await sendHttpRequest<User>(
+          `${userURL}/${usersData[6].id}`,
+          { method: 'patch', json: { address: updatedAddress } }
+        );
+        expect(statusCode).toBe(StatusCodes.SUCCESS);
+        expect(data).toStrictEqual({
+          ...usersData[6],
+          address: updatedAddress
+        });
+      });
+      it('All possible fields', async () => {
+        const updatedData: UpdateUser = {
+          email: `${randStr()}@bla.com`,
+          password: 'Bisli123!@#',
+          firstName: 'BLA',
+          lastName: 'BLA',
+          phone: '054-3333333',
+          gender: 'other',
+          address: 'BLA'
+        };
+
+        const { data, statusCode } = await sendHttpRequest<User>(
+          `${userURL}/${usersData[7].id}`,
+          { method: 'patch', json: updatedData }
+        );
+        expect(statusCode).toBe(StatusCodes.SUCCESS);
+        expect(data).toStrictEqual({
+          ...usersData[7],
+          ...omit(updatedData, 'password')
+        });
+        // Currently there is not route to get password, and there probably will
+        // never be one, so we check directly against the database
+        expect(
+          await checkUserPasswordMatch({
+            db: globalThis.db,
+            userId: usersData[7].id,
+            expectedPassword: updatedData.password!
+          })
+        );
+      });
     });
-    describe('Invalid', () => {
+    describe.skip('Invalid', () => {
       describe('Email', () => {
         it('Empty', async () => {});
         it('Too short', async () => {});
@@ -883,6 +1003,8 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
   /********************************************************************************/
 
   describe('Delete', () => {
+    // Match this number to the amount of tests needing a unique user
+    // database entry
     const USERS_AMOUNT = 2;
     let usersData: User[] = [];
 
@@ -904,58 +1026,64 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
 
     describe('Valid', () => {
       it('Deactivate user', async () => {
-        const res = await sendHttpRequest<string>(
+        const { data, statusCode } = await sendHttpRequest<string>(
           `${userURL}/${usersData[0].id}`,
           { method: 'delete' }
         );
-        expect(res.statusCode).toBe(StatusCodes.SUCCESS);
-        expect(res.data).toStrictEqual(usersData[0].id);
+        expect(statusCode).toBe(StatusCodes.SUCCESS);
+        expect(data).toStrictEqual(usersData[0].id);
       });
       it('Delete user', async () => {
         await deactivateUser(globalThis.db, usersData[1].id);
 
-        const res = await sendHttpRequest<string>(
+        const { data, statusCode } = await sendHttpRequest<string>(
           `${userURL}/${usersData[1].id}`,
           { method: 'delete' }
         );
-        expect(res.statusCode).toBe(StatusCodes.SUCCESS);
-        expect(res.data).toStrictEqual(usersData[1].id);
+        expect(statusCode).toBe(StatusCodes.SUCCESS);
+        expect(data).toStrictEqual(usersData[1].id);
         expect(await checkUserExists(globalThis.db, usersData[1].id)).toBe(
           false
         );
       });
       it('Delete non-existent user', async () => {
-        const res = await sendHttpRequest<string>(
+        const { data, statusCode } = await sendHttpRequest<string>(
           `${userURL}/${randomUUID()}`,
           { method: 'delete' }
         );
-        expect(res.statusCode).toBe(StatusCodes.SUCCESS);
-        expect(res.data).toStrictEqual('');
+        expect(statusCode).toBe(StatusCodes.SUCCESS);
+        expect(data).toStrictEqual('');
       });
     });
     describe('Invalid', () => {
       describe('User id', () => {
         it('Without', async () => {
-          const res = await sendHttpRequest<unknown>(`${userURL}/`, {
-            method: 'delete'
-          });
-          expect(res.statusCode).toBe(StatusCodes.NOT_FOUND);
-          expect(typeof res.data === 'string').toBe(true);
+          const { data, statusCode } = await sendHttpRequest<unknown>(
+            `${userURL}/`,
+            {
+              method: 'delete'
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.NOT_FOUND);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Empty', async () => {
-          const res = await sendHttpRequest<unknown>(`${userURL}/''`, {
-            method: 'delete'
-          });
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          const { data, statusCode } = await sendHttpRequest<unknown>(
+            `${userURL}/''`,
+            {
+              method: 'delete'
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
         it('Invalid format', async () => {
-          const res = await sendHttpRequest<unknown>(
+          const { data, statusCode } = await sendHttpRequest<unknown>(
             `${userURL}/abcdefg12345`,
             { method: 'delete' }
           );
-          expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof res.data === 'string').toBe(true);
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
         });
       });
     });
