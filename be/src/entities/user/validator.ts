@@ -1,8 +1,9 @@
 import {
   Zod,
   isValidPhoneNumber,
-  type ExtractSetType,
-  type Request
+  type CreateUser,
+  type Request,
+  type UpdateUser
 } from '../../types/index.js';
 
 import {
@@ -20,8 +21,6 @@ import {
 
 /**********************************************************************************/
 
-type AllowedGenderValues = ExtractSetType<typeof ALLOWED_GENDER_VALUES>;
-
 const {
   USER_EMAIL_MIN_LENGTH,
   USER_EMAIL_MAX_LENGTH,
@@ -31,11 +30,15 @@ const {
   USER_FIRST_NAME_MAX_LENGTH,
   USER_LAST_NAME_MIN_LENGTH,
   USER_LAST_NAME_MAX_LENGTH,
+  USER_PHONE_MIN_LENGTH,
+  USER_PHONE_MAX_LENGTH,
   USER_ADDRESS_MIN_LENGTH,
   USER_ADDRESS_MAX_LENGTH
 } = VALIDATION;
 
-const ALLOWED_GENDER_VALUES = new Set(['male', 'female', 'other'] as const);
+const ALLOWED_GENDER_VALUES = new Set<
+  CreateUser['gender'] | UpdateUser['gender']
+>(['male', 'female', 'other'] as const);
 
 // The password is required to have:
 // At least 1 digit, 1 upper case letter, 1 special character (!@#$%^&*),
@@ -79,6 +82,8 @@ export function readOne(req: Request) {
   return (paramsRes as ValidatedType<typeof paramsSchema>).data.userId;
 }
 
+/**********************************************************************************/
+
 export function createOne(req: Request) {
   const { body, params, query } = req;
 
@@ -96,9 +101,9 @@ export function createOne(req: Request) {
         required_error: requiredErr('password')
       }).regex(
         passwordRegex,
-        'Password must contain at least 1 digit, 1 upper case letter,' +
-          ' 1 special character (!@#$%^&*), no spaces and be between' +
-          ` ${USER_PASSWORD_MIN_LENGTH} to ${USER_PASSWORD_MAX_LENGTH} characters`
+        'Password must contain at least 1 digit, 1 lower case letter,' +
+          ' 1 upper case letter, 1 special character (!@#$%^&*), no spaces,' +
+          ` and be between ${USER_PASSWORD_MIN_LENGTH} to ${USER_PASSWORD_MAX_LENGTH} characters`
       ),
       firstName: Zod.string({
         invalid_type_error: invalidStringErr('first name'),
@@ -127,22 +132,25 @@ export function createOne(req: Request) {
       phone: Zod.string({
         invalid_type_error: invalidStringErr('phone'),
         required_error: requiredErr('phone')
-      }).superRefine((phone, ctx) => {
-        if (!isValidPhoneNumber(phone, 'IL')) {
-          ctx.addIssue({
-            code: Zod.ZodIssueCode.custom,
-            message: 'Invalid phone',
-            fatal: true
-          });
+      })
+        .min(USER_PHONE_MIN_LENGTH, minErr('phone', USER_PHONE_MIN_LENGTH))
+        .max(USER_PHONE_MAX_LENGTH, maxErr('phone', USER_PHONE_MAX_LENGTH))
+        .superRefine((phone, ctx) => {
+          if (!isValidPhoneNumber(phone, 'IL')) {
+            ctx.addIssue({
+              code: Zod.ZodIssueCode.custom,
+              message: 'Invalid phone',
+              fatal: true
+            });
 
-          return Zod.NEVER;
-        }
-      }),
+            return Zod.NEVER;
+          }
+        }),
       gender: Zod.string({
         invalid_type_error: invalidStringErr('gender'),
         required_error: requiredErr('gender')
       }).transform((gender, ctx) => {
-        const loweredCaseVal = gender.toLowerCase() as AllowedGenderValues;
+        const loweredCaseVal = gender.toLowerCase() as CreateUser['gender'];
         if (!ALLOWED_GENDER_VALUES.has(loweredCaseVal)) {
           ctx.addIssue({
             code: Zod.ZodIssueCode.custom,
@@ -188,6 +196,8 @@ export function createOne(req: Request) {
   return (paramsRes as ValidatedType<typeof bodySchema>).data;
 }
 
+/**********************************************************************************/
+
 export function updateOne(req: Request) {
   const { body, params, query } = req;
 
@@ -218,9 +228,9 @@ export function updateOne(req: Request) {
       })
         .regex(
           passwordRegex,
-          'Password must contain at least 1 digit, 1 upper case letter,' +
-            ' 1 special character (!@#$%^&*), no spaces and be between' +
-            ` ${USER_PASSWORD_MIN_LENGTH} to ${USER_PASSWORD_MAX_LENGTH} characters`
+          'Password must contain at least 1 digit, 1 lower case letter,' +
+            ' 1 upper case letter, 1 special character (!@#$%^&*), no spaces,' +
+            ` and be between ${USER_PASSWORD_MIN_LENGTH} to ${USER_PASSWORD_MAX_LENGTH} characters`
         )
         .optional(),
       firstName: Zod.string({
@@ -266,7 +276,10 @@ export function updateOne(req: Request) {
         invalid_type_error: invalidStringErr('gender')
       })
         .transform((gender, ctx) => {
-          const loweredCaseVal = gender.toLowerCase() as AllowedGenderValues;
+          const loweredCaseVal = gender.toLowerCase() as UpdateUser['gender'];
+          if (loweredCaseVal === undefined) {
+            return undefined;
+          }
           if (!ALLOWED_GENDER_VALUES.has(loweredCaseVal)) {
             ctx.addIssue({
               code: Zod.ZodIssueCode.custom,
@@ -327,7 +340,7 @@ export function updateOne(req: Request) {
   };
 }
 
-export function deleteOne(req: Request) {
+export function reactivateOne(req: Request) {
   const { body, params, query } = req;
 
   const paramsSchema = Zod.object(
@@ -338,10 +351,10 @@ export function deleteOne(req: Request) {
       }).uuid({ message: invalidUuid('user id') })
     },
     {
-      invalid_type_error: invalidObjectErr('user'),
-      required_error: requiredErr('user')
+      invalid_type_error: invalidObjectErr('request params'),
+      required_error: requiredErr('request params')
     }
-  ).strict(invalidObjectErr('params'));
+  ).strict(invalidObjectErr('request params'));
 
   const paramsRes = paramsSchema.safeParse(params);
   const err = checkAndParseErrors(
@@ -360,7 +373,7 @@ export function deleteOne(req: Request) {
 
 /**********************************************************************************/
 
-export function reactivateOne(req: Request) {
+export function deleteOne(req: Request) {
   const { body, params, query } = req;
 
   const paramsSchema = Zod.object(
@@ -371,10 +384,10 @@ export function reactivateOne(req: Request) {
       }).uuid({ message: invalidUuid('user id') })
     },
     {
-      invalid_type_error: invalidObjectErr('request params'),
-      required_error: requiredErr('request params')
+      invalid_type_error: invalidObjectErr('user'),
+      required_error: requiredErr('user')
     }
-  ).strict(invalidObjectErr('request params'));
+  ).strict(invalidObjectErr('params'));
 
   const paramsRes = paramsSchema.safeParse(params);
   const err = checkAndParseErrors(

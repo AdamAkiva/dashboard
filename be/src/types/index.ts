@@ -7,7 +7,7 @@ import { URL } from 'node:url';
 import compress from 'compression';
 import cors from 'cors';
 import Debug from 'debug';
-import { eq, sql, type Logger as DrizzleLogger } from 'drizzle-orm';
+import { and, eq, sql, type Logger as DrizzleLogger } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import express, {
   json,
@@ -24,6 +24,7 @@ import pg from 'postgres';
 import { z as Zod } from 'zod';
 
 import type { DatabaseHandler, DBPreparedQueries } from '../db/index.js';
+import type { Logger } from '../utils/index.js';
 
 import type { CreateUser, UpdateUser, User } from './api.js';
 
@@ -39,7 +40,6 @@ export type AddOptional<T, K extends keyof T> = Omit<T, K> &
 export type SwapKeysValue<T, K extends keyof T, V> = Omit<T, K> & {
   [P in K]: V;
 };
-export type ExtractSetType<T> = T extends Set<infer U> ? U : never;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ResolvedValue<T> = T extends (...args: any) => any
   ? PromiseFulfilledResult<Awaited<ReturnType<T>>>
@@ -51,7 +51,6 @@ export type ResolvedValue<T> = T extends (...args: any) => any
 export const generalDebug = Debug('dashboard:general');
 export const userDebug = Debug('dashboard:user');
 
-export type Logger = HttpLogger['logger'];
 export type Response = ExpressResponse<unknown, { ctx: RequestContext }>;
 
 /********************************** Http ******************************************/
@@ -72,12 +71,13 @@ export type EnvironmentVariables = {
 export type RequestContext = {
   db: DatabaseHandler;
   preparedQueries: DBPreparedQueries;
-  logger: Logger;
+  logger: Logger['handler'];
 };
 
 /**********************************************************************************/
 
 export {
+  and,
   compress,
   cors,
   createServer,

@@ -8,7 +8,7 @@
     "start:dev": "DEBUG=dashboard:* npx nodemon --config ./nodemon.json ./src/main.ts",
     "test": "NODE_ENV=test npx vitest run --config ./__tests__/config/vite.config.ts",
     "test:logs": "NODE_ENV=test DEBUG=dashboard:* npx vitest --run --config ./__tests__/config/vite.config.ts",
-    "test:stress": "NODE_ENV=test STRESS=1 npx vitest --run --config ./__test__/config/vite.config.ts",
+    "test:stress": "NODE_ENV=test STRESS=1 npx vitest --run --config ./__tests__/config/vite.config.ts",
     "lint": "npx tsc --project ./tsconfig.json --noEmit && npx eslint \"src/**/*.ts\"",
     "generate:migrations-dev": "npx drizzle-kit drop --config=./db-migrations/drizzle.config.ts && npx drizzle-kit generate:pg --config=./db-migrations/drizzle.config.ts",
     "generate:migrations-prod": "printf 'NYI\n'",

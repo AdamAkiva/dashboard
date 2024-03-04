@@ -5,10 +5,9 @@ import {
   pg,
   sql,
   type DrizzleLogger,
-  type Logger,
   type Mode
 } from '../types/index.js';
-import { isDevelopmentMode } from '../utils/index.js';
+import { isDevelopmentMode, type Logger } from '../utils/index.js';
 
 // The default import is on purpose. See: https://orm.drizzle.team/docs/sql-schema-declaration
 import * as schema from './schemas.js';
@@ -30,7 +29,7 @@ class DatabaseLogger implements DrizzleLogger {
   private readonly _healthCheckQuery;
   private readonly _logger;
 
-  public constructor(healthCheckQuery: string, logger: Logger) {
+  public constructor(healthCheckQuery: string, logger: Logger['handler']) {
     this._healthCheckQuery = healthCheckQuery;
     this._logger = logger;
   }
@@ -56,16 +55,16 @@ export default class DatabaseHandler {
 
   public constructor(params: {
     mode: Mode;
-    conn: { name: string; uri: string; healthCheckQuery: string };
-    logger: Logger;
+    conn: { name: string; url: string; healthCheckQuery: string };
+    logger: Logger['handler'];
   }) {
     const {
       mode,
-      conn: { name, uri, healthCheckQuery },
+      conn: { name, url, healthCheckQuery },
       logger
     } = params;
 
-    this._conn = pg(uri, {
+    this._conn = pg(url, {
       connect_timeout: 30, // in secs
       idle_timeout: 180, // in secs
       max: 10, // The default is fine, unless we discover something else

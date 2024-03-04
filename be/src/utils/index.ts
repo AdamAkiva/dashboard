@@ -8,20 +8,19 @@ import {
   objHasValues,
   strcasecmp
 } from './functions.js';
-import { logMiddleware, logger } from './logger.js';
+import Logger from './logger.js';
 
 /**********************************************************************************/
 
 export {
   DashboardError,
   ERR_CODES,
+  Logger,
   StatusCodes,
   getEnv,
   isDevelopmentMode,
   isProductionMode,
   isTestMode,
-  logMiddleware,
-  logger,
   objHasValues,
   strcasecmp
 };

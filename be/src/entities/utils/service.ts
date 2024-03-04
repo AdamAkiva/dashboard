@@ -1,11 +1,11 @@
 import type { DBPreparedQueries, DatabaseHandler } from '../../db/index.js';
-import { pg, type Debug, type UnknownObject } from '../../types/index.js';
 import {
-  DashboardError,
-  ERR_CODES,
-  StatusCodes,
-  logger
-} from '../../utils/index.js';
+  pg,
+  type Debug,
+  type RequestContext,
+  type UnknownObject
+} from '../../types/index.js';
+import { DashboardError, ERR_CODES, StatusCodes } from '../../utils/index.js';
 
 /**********************************************************************************/
 
@@ -34,6 +34,8 @@ export async function executePreparedQuery<
   return res;
 }
 
+/**********************************************************************************/
+
 export function userNotFoundError(userId: string) {
   return new DashboardError(
     `User '${userId}' not found`,
@@ -55,6 +57,21 @@ export function userCreationError(err: unknown, userEmail: string) {
   return err;
 }
 
+export function userUpdateError(err: unknown, userEmail?: string) {
+  if (
+    userEmail &&
+    err instanceof pg.PostgresError &&
+    err.code === ERR_CODES.PG.UNIQUE_VIOLATION
+  ) {
+    return new DashboardError(
+      `User '${userEmail}' already exists`,
+      StatusCodes.CONFLICT
+    );
+  }
+
+  return err;
+}
+
 export function userNotAllowedToBeUpdated(userId: string) {
   return new DashboardError(
     `User '${userId}' is deactivated and therefore can't be updated`,
@@ -62,7 +79,13 @@ export function userNotAllowedToBeUpdated(userId: string) {
   );
 }
 
-export function userUpdatedButReadFailed(err: unknown, userId: string) {
+export function userUpdatedButReadFailed(params: {
+  err: unknown;
+  userId: string;
+  logger: RequestContext['logger'];
+}) {
+  const { err, userId, logger } = params;
+
   const errMsg =
     `User '${userId}' was updated successfully, however, sending it back` +
     ' to the client failed';

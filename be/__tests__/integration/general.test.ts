@@ -16,11 +16,12 @@ describe.skipIf(isStressTest()).concurrent('General tests', () => {
   describe('Health check', () => {
     describe('Host', () => {
       it('Valid host', async () => {
-        const res = await sendHttpRequest<never>(healthCheckURL, {
+        const { data, statusCode } = await sendHttpRequest<unknown>(healthCheckURL, {
           method: 'get'
         });
-        expect(res.statusCode).toBe(StatusCodes.NO_CONTENT);
-        expect(res.data).toStrictEqual('');
+        expect(statusCode).toBe(StatusCodes.NO_CONTENT);
+        expect(typeof data === 'string').toBe(true);
+        expect(data).toStrictEqual('');
       });
     });
   });

@@ -6,13 +6,16 @@ import {
   createServer,
   express,
   resolve,
-  type Logger,
   type Mode,
   type NextFunction,
   type Request,
   type Response
 } from '../types/index.js';
-import { isDevelopmentMode, isProductionMode } from '../utils/index.js';
+import {
+  isDevelopmentMode,
+  isProductionMode,
+  type Logger
+} from '../utils/index.js';
 
 import * as Middlewares from './middleware.js';
 
@@ -27,7 +30,6 @@ export default class HttpServer {
     'HEAD',
     'GET',
     'POST',
-    'PUT',
     'PATCH',
     'DELETE',
     'OPTIONS'
@@ -43,12 +45,14 @@ export default class HttpServer {
   public constructor(params: {
     mode: Mode;
     db: DatabaseHandler;
-    logger: Logger;
+    logger: Logger['handler'];
   }) {
     this._mode = params.mode;
     this._db = params.db;
     this._logger = params.logger;
 
+    // Disable 'x-powered-by' should be pretty clear. Reason to disable etag
+    // can be understood by this comprehensive answer: https://stackoverflow.com/a/67929691
     this._app = express().disable('etag').disable('x-powered-by');
     this._server = createServer(this._app);
 
@@ -77,7 +81,8 @@ export default class HttpServer {
         origin:
           allowedOrigins.size === 1
             ? Array.from(allowedOrigins)[0]
-            : Array.from(allowedOrigins)
+            : Array.from(allowedOrigins),
+        maxAge: 86400 // 1 day in secs
       }),
       compress()
     );
@@ -85,6 +90,7 @@ export default class HttpServer {
       this._app.use(
         (await import('helmet')).default({
           contentSecurityPolicy: true /* require-corp */,
+          crossOriginEmbedderPolicy: { policy: 'require-corp' },
           crossOriginOpenerPolicy: { policy: 'same-origin' },
           crossOriginResourcePolicy: { policy: 'same-origin' },
           originAgentCluster: true,
@@ -96,9 +102,8 @@ export default class HttpServer {
           xContentTypeOptions: true,
           xDnsPrefetchControl: false,
           xDownloadOptions: true,
-          xFrameOptions: { action: 'sameorigin' },
+          xFrameOptions: { action: 'deny' },
           xPermittedCrossDomainPolicies: { permittedPolicies: 'none' },
-          xPoweredBy: false,
           xXssProtection: true
         })
       );
@@ -163,7 +168,7 @@ export default class HttpServer {
     this._server.keepAliveTimeout = 10_000; // millis
   }
 
-  private _attachEventHandlers(logger: Logger) {
+  private _attachEventHandlers(logger: Logger['handler']) {
     this._server
       .on('error', (err) => {
         logger.fatal(err, 'HTTP Server error');

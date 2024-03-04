@@ -1,13 +1,9 @@
 import { DatabaseHandler } from '../../src/db/index.js';
 import { HttpServer } from '../../src/server/index.js';
-import {
-  EventEmitter,
-  sql,
-  type NextFunction,
-  type Request,
-  type Response
-} from '../../src/types/index.js';
-import { ERR_CODES, logMiddleware, logger } from '../../src/utils/index.js';
+import { EventEmitter, sql } from '../../src/types/index.js';
+import { ERR_CODES } from '../../src/utils/index.js';
+
+import { cleanupDatabase, mockLogger } from './utils.js';
 
 /**********************************************************************************/
 
@@ -19,30 +15,33 @@ type Provide = { provide: (key: string, value: unknown) => void };
 export async function setup({ provide }: Provide) {
   EventEmitter.captureRejections = true;
 
-  const { mode, server: serverEnv, db: dbUri } = getTestEnv();
-  const loggingMocks = mockLogs();
+  const { mode, server: serverEnv, db: dbUrl } = getTestEnv();
+  const { logMiddleware, handler } = mockLogger();
 
+  provide('mode', 'test');
   provide('urls', {
     baseURL: `${serverEnv.base}:${serverEnv.port}/${serverEnv.apiRoute}`,
     healthCheckURL: `${serverEnv.base}:${serverEnv.port}/${serverEnv.healthCheck.route}`
+  });
+  provide('db', {
+    name: `dashboard-pg-${mode}`,
+    url: dbUrl
   });
 
   const db = new DatabaseHandler({
     mode: mode,
     conn: {
       name: `dashboard-pg-${mode}`,
-      uri: dbUri,
+      url: dbUrl,
       healthCheckQuery: DatabaseHandler.HEALTH_CHECK_QUERY
     },
-    logger: logger
+    logger: handler
   });
-  const handler = db.getHandler();
-  const models = db.getModels();
 
   const server = new HttpServer({
     mode: mode,
     db: db,
-    logger: loggingMocks.logger
+    logger: handler
   });
 
   // The order matters!
@@ -58,13 +57,13 @@ export async function setup({ provide }: Provide) {
           .getHandler()
           .execute(sql.raw(DatabaseHandler.HEALTH_CHECK_QUERY));
       } catch (err) {
-        logger.error(err, 'Database error');
+        handler.error(err, 'Database error');
         notReadyMsg += '\nDatabase is unavailable';
       }
 
       return notReadyMsg;
     },
-    logMiddleware: loggingMocks.logMiddleware,
+    logMiddleware: logMiddleware,
     routes: {
       api: `/${serverEnv.apiRoute}`,
       health: `/${serverEnv.healthCheck.route}`
@@ -74,19 +73,14 @@ export async function setup({ provide }: Provide) {
   server.listen(serverEnv.port);
 
   return async function teardown() {
-    /* eslint-disable drizzle/enforce-delete-with-where */
-    await handler.delete(models.user.userInfoModel);
-    await handler.delete(models.user.userCredentialsModel);
-    await handler.delete(models.user.userSettingsModel);
-    /* eslint-enable drizzle/enforce-delete-with-where */
-
+    await cleanupDatabase(db);
     server.close();
   };
 }
 
 /**********************************************************************************/
 
-export function getTestEnv() {
+function getTestEnv() {
   const mode = process.env.NODE_ENV;
   checkRuntimeEnv(mode);
   checkEnvVariables();
@@ -111,7 +105,7 @@ function checkRuntimeEnv(mode?: string | undefined): mode is 'test' {
     return true;
   }
 
-  logger.fatal(
+  console.error(
     `Missing or invalid 'NODE_ENV' env value, should never happen.` +
       ' Unresolvable, exiting...'
   );
@@ -134,36 +128,10 @@ function checkEnvVariables() {
   });
 
   if (missingValues) {
-    logger.fatal(`\nMissing the following environment vars:\n${missingValues}`);
+    console.error(
+      `\nMissing the following environment vars:\n${missingValues}`
+    );
 
     process.exit(ERR_CODES.EXIT_NO_RESTART);
   }
-}
-
-export function mockLogs() {
-  return {
-    logger: process.env.DEBUG
-      ? logger
-      : {
-          ...logger,
-          debug: () => {
-            // Disable logs
-          },
-          trace: () => {
-            // Disable logs
-          },
-          info: () => {
-            // Disable logs
-          },
-          warn: () => {
-            // Disable logs
-          }
-        },
-    logMiddleware: process.env.DEBUG
-      ? logMiddleware
-      : (_: Request, __: Response, next: NextFunction) => {
-          // Disable logging middleware
-          next();
-        }
-  };
 }

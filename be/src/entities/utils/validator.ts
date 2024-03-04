@@ -8,7 +8,7 @@ export type ValidatedType<T extends Zod.ZodType> = Zod.SafeParseSuccess<
 >;
 
 export const VALIDATION = {
-  USER_EMAIL_MIN_LENGTH: 3,
+  USER_EMAIL_MIN_LENGTH: 6,
   USER_EMAIL_MAX_LENGTH: 512,
   USER_PASSWORD_MIN_LENGTH: 6,
   USER_PASSWORD_MAX_LENGTH: 64,
@@ -16,6 +16,8 @@ export const VALIDATION = {
   USER_FIRST_NAME_MAX_LENGTH: 256,
   USER_LAST_NAME_MIN_LENGTH: 1,
   USER_LAST_NAME_MAX_LENGTH: 256,
+  USER_PHONE_MIN_LENGTH: 3,
+  USER_PHONE_MAX_LENGTH: 16,
   USER_ADDRESS_MIN_LENGTH: 1,
   USER_ADDRESS_MAX_LENGTH: 256
 } as const;
@@ -54,8 +56,6 @@ export function checkAndParseErrors(
 
   return parseErrors(errs);
 }
-
-/**********************************************************************************/
 
 function parseErrors(errs: Zod.ZodError<unknown>[]) {
   const delimiter = ', ';
@@ -106,8 +106,6 @@ export function invalidBoolean(fieldName: string) {
   return `'${fieldName}' is not a valid boolean`;
 }
 
-/**********************************************************************************/
-
 export function requiredErr(fieldName: string) {
   return `'${fieldName}' is required`;
 }
@@ -115,8 +113,6 @@ export function requiredErr(fieldName: string) {
 export function emptyErr(fieldName: string) {
   return `'${fieldName}' must contain one or more element(s)`;
 }
-
-/**********************************************************************************/
 
 export function minErr(fieldName: string, minAmount: number) {
   return `'${fieldName}' must contain at least ${String(minAmount)} characters`;

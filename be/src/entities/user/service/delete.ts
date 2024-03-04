@@ -19,16 +19,16 @@ export async function deleteOne(
     user: { userInfoModel, userCredentialsModel, userSettingsModel }
   } = db.getModels();
 
-  const userStatuses = await getUserStatus({
+  const usersStatuses = await getUserStatus({
     handler: handler,
     models: { userCredentialsModel: userCredentialsModel },
     userId: userId
   });
-  if (!userStatuses.length) {
+  if (!usersStatuses.length) {
     return '';
   }
 
-  if (!userStatuses[0].isActive) {
+  if (!usersStatuses[0].isActive) {
     await deleteUser({
       handler: handler,
       models: { userInfoModel: userInfoModel },

@@ -1,7 +1,7 @@
 import { DatabaseHandler } from './db/index.js';
 import { HttpServer } from './server/index.js';
 import { EventEmitter, generalDebug, sql } from './types/index.js';
-import { getEnv, logMiddleware, logger } from './utils/index.js';
+import { Logger, getEnv } from './utils/index.js';
 
 /**********************************************************************************/
 
@@ -11,16 +11,19 @@ async function startServer() {
 
   const { mode, server: serverEnv, db: dbUri } = getEnv();
 
+  const logger = new Logger();
+  const { handler, logMiddleware } = logger;
+
   const db = new DatabaseHandler({
     mode: mode,
     conn: {
       name: `dashboard-pg-${mode}`,
-      uri: dbUri,
+      url: dbUri,
       healthCheckQuery: DatabaseHandler.HEALTH_CHECK_QUERY
     },
-    logger: logger
+    logger: handler
   });
-  const server = new HttpServer({ mode: mode, db: db, logger: logger });
+  const server = new HttpServer({ mode: mode, db: db, logger: handler });
 
   // The order matters!
   // These calls setup express middleware, and the configuration middleware
@@ -35,7 +38,7 @@ async function startServer() {
           .getHandler()
           .execute(sql.raw(DatabaseHandler.HEALTH_CHECK_QUERY));
       } catch (err) {
-        logger.error(err, 'Database error');
+        handler.error(err, 'Database error');
         notReadyMsg += '\nDatabase is unavailable';
       }
 
@@ -55,7 +58,7 @@ async function startServer() {
   // if something failed (partially true since the database is ready before
   // the server, but again, that goes more into the first point)
   process
-    .on('warning', logger.warn)
+    .on('warning', handler.warn)
     .once('SIGINT', () => {
       server.close();
     })
@@ -66,7 +69,7 @@ async function startServer() {
     .once('uncaughtException', globalErrorHandler(server, 'exception'));
 
   server.listen(serverEnv.port, () => {
-    logger.info(
+    handler.info(
       `Server is running in '${mode}' mode on:` +
         ` ${serverEnv.url}:${serverEnv.port}/${serverEnv.apiRoute}`
     );
@@ -79,7 +82,7 @@ function globalErrorHandler(
   reason: 'exception' | 'rejection'
 ) {
   return (err: unknown) => {
-    logger.fatal(err, `Unhandled ${reason}`);
+    console.error(err, `Unhandled ${reason}`);
 
     server.close();
 

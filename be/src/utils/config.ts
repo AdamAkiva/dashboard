@@ -6,7 +6,6 @@ import {
   isProductionMode,
   isTestMode
 } from './functions.js';
-import { logger } from './logger.js';
 
 /**********************************************************************************/
 
@@ -37,7 +36,7 @@ const checkRuntimeEnv = (mode?: string): mode is Mode => {
     return true;
   }
 
-  logger.fatal(
+  console.error(
     `Missing or invalid 'NODE_ENV' env value, should never happen.` +
       ' Unresolvable, exiting...'
   );
@@ -53,7 +52,7 @@ const checkEnvVariables = (mode: Mode) => {
     }
   });
   if (missingValues) {
-    logger.fatal(`\nMissing the following env vars:\n${missingValues}`);
+    console.error(`\nMissing the following env vars:\n${missingValues}`);
 
     process.exit(ERR_CODES.EXIT_NO_RESTART);
   }
