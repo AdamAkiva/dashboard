@@ -4,7 +4,7 @@ info:
   description: Describes the operations and schemas for Dashboard
   contact:
     email: adam.akiva14@gmail.co.il
-  version: 1.0.11
+  version: 0.0.0
 servers:
   - url: http://localhost:2828/v0/api
 tags:
@@ -219,6 +219,7 @@ components:
           format: phone
         gender:
           type: string
+          enum: [male, female, other]
         address:
           type: string
         createdAt:
@@ -252,6 +253,7 @@ components:
           format: phone
         gender:
           type: string
+          enum: [male, female, other]
         address:
           type: string
     UpdateUser:
@@ -272,6 +274,7 @@ components:
           format: phone
         gender:
           type: string
+          enum: [male, female, other]
         address:
           type: string
     ReactivateUser:

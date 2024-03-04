@@ -39,7 +39,6 @@ export type AddOptional<T, K extends keyof T> = Omit<T, K> &
 export type SwapKeysValue<T, K extends keyof T, V> = Omit<T, K> & {
   [P in K]: V;
 };
-export type ExtractSetType<T> = T extends Set<infer U> ? U : never;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ResolvedValue<T> = T extends (...args: any) => any
   ? PromiseFulfilledResult<Awaited<ReturnType<T>>>

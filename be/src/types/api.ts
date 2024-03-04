@@ -18,7 +18,7 @@ export interface User {
   lastName: string;
   /** @format phone */
   phone: string;
-  gender: string;
+  gender: 'male' | 'female' | 'other';
   address: string;
   /** @format date-time */
   createdAt: string;
@@ -34,7 +34,7 @@ export interface CreateUser {
   lastName: string;
   /** @format phone */
   phone: string;
-  gender: string;
+  gender: 'male' | 'female' | 'other';
   address: string;
 }
 
@@ -47,7 +47,7 @@ export interface UpdateUser {
   lastName?: string;
   /** @format phone */
   phone?: string;
-  gender?: string;
+  gender?: 'male' | 'female' | 'other';
   address?: string;
 }
 

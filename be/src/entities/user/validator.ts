@@ -1,8 +1,9 @@
 import {
   Zod,
   isValidPhoneNumber,
-  type ExtractSetType,
-  type Request
+  type CreateUser,
+  type Request,
+  type UpdateUser
 } from '../../types/index.js';
 
 import {
@@ -20,8 +21,6 @@ import {
 
 /**********************************************************************************/
 
-type AllowedGenderValues = ExtractSetType<typeof ALLOWED_GENDER_VALUES>;
-
 const {
   USER_EMAIL_MIN_LENGTH,
   USER_EMAIL_MAX_LENGTH,
@@ -37,7 +36,9 @@ const {
   USER_ADDRESS_MAX_LENGTH
 } = VALIDATION;
 
-const ALLOWED_GENDER_VALUES = new Set(['male', 'female', 'other'] as const);
+const ALLOWED_GENDER_VALUES = new Set<
+  CreateUser['gender'] | UpdateUser['gender']
+>(['male', 'female', 'other'] as const);
 
 // The password is required to have:
 // At least 1 digit, 1 upper case letter, 1 special character (!@#$%^&*),
@@ -147,7 +148,7 @@ export function createOne(req: Request) {
         invalid_type_error: invalidStringErr('gender'),
         required_error: requiredErr('gender')
       }).transform((gender, ctx) => {
-        const loweredCaseVal = gender.toLowerCase() as AllowedGenderValues;
+        const loweredCaseVal = gender.toLowerCase() as CreateUser['gender'];
         if (!ALLOWED_GENDER_VALUES.has(loweredCaseVal)) {
           ctx.addIssue({
             code: Zod.ZodIssueCode.custom,
@@ -271,7 +272,10 @@ export function updateOne(req: Request) {
         invalid_type_error: invalidStringErr('gender')
       })
         .transform((gender, ctx) => {
-          const loweredCaseVal = gender.toLowerCase() as AllowedGenderValues;
+          const loweredCaseVal = gender.toLowerCase() as UpdateUser['gender'];
+          if (loweredCaseVal === undefined) {
+            return undefined;
+          }
           if (!ALLOWED_GENDER_VALUES.has(loweredCaseVal)) {
             ctx.addIssue({
               code: Zod.ZodIssueCode.custom,

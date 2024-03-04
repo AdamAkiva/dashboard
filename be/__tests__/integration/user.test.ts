@@ -577,7 +577,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               firstName: 'TMP',
               lastName: 'TMP',
               phone: '052-2222222',
-              gender: '',
+              gender: '' as CreateUser['gender'],
               address: 'TMP'
             } satisfies CreateUser
           });
@@ -593,7 +593,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
               firstName: 'TMP',
               lastName: 'TMP',
               phone: '052-2222222',
-              gender: 'aaa',
+              gender: 'aaa' as CreateUser['gender'],
               address: 'TMP'
             } satisfies CreateUser
           });
@@ -1256,7 +1256,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
             {
               method: 'patch',
               json: {
-                gender: ''
+                gender: '' as UpdateUser['gender']
               } satisfies UpdateUser
             }
           );
@@ -1269,7 +1269,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
             {
               method: 'patch',
               json: {
-                gender: 'aaa'
+                gender: 'aaa' as UpdateUser['gender']
               } satisfies UpdateUser
             }
           );
