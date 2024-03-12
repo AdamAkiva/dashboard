@@ -1,4 +1,4 @@
-import type { DBHandler, DBModels, Transaction } from '../../../db/index.js';
+import type { DBHandler, DBModels } from '../../../db/index.js';
 import {
   eq,
   userDebug,
@@ -6,9 +6,9 @@ import {
   type User
 } from '../../../types/index.js';
 
-import { userAlreadyActive, userNotFoundError } from '../../utils/index.js';
-
 import type { reactivateOne as reactivateOneValidation } from '../validator.js';
+
+import { userAlreadyActive, userNotFoundError } from './utils.js';
 
 /**********************************************************************************/
 
@@ -18,14 +18,18 @@ type UserReactivateOneValidationData = ReturnType<
 
 /**********************************************************************************/
 
-export async function reactivateOne(
-  ctx: RequestContext,
-  userId: UserReactivateOneValidationData
-): Promise<User> {
-  const { db } = ctx;
+export async function reactivateOne(params: {
+  ctx: RequestContext;
+  userId: UserReactivateOneValidationData;
+}): Promise<User> {
+  const {
+    ctx: { db },
+    userId
+  } = params;
+
   const handler = db.getHandler();
   const {
-    user: { userInfoModel, userCredentialsModel, userSettingsModel }
+    user: { userInfoModel, userCredentialsModel }
   } = db.getModels();
 
   const users = await checkUserStatus({
@@ -39,43 +43,18 @@ export async function reactivateOne(
   if (!users.length) {
     throw userNotFoundError(userId);
   }
-  if (users[0].isActive) {
+  if (!users[0].archivedAt) {
     throw userAlreadyActive(userId);
   }
 
-  await handler.transaction(async (transaction) => {
-    const updatedAt = new Date().toISOString();
-
-    const results = await Promise.allSettled([
-      reactivateUser({
-        transaction: transaction,
-        models: { userCredentialsModel: userCredentialsModel },
-        userId: userId,
-        updatedAt: updatedAt
-      }),
-      updateUserInfoTimestamp({
-        transaction: transaction,
-        models: { userInfoModel: userInfoModel },
-        userId: userId,
-        updatedAt: updatedAt
-      }),
-      updateUserSettingsTimestamp({
-        transaction: transaction,
-        models: { userSettingsModel: userSettingsModel },
-        userId: userId,
-        updatedAt: updatedAt
-      })
-    ]);
-    for (const result of results) {
-      if (result.status === 'rejected') {
-        throw result.reason;
-      }
-    }
+  await reactivateUser({
+    transaction: handler,
+    models: { userCredentialsModel: userCredentialsModel },
+    userId: userId
   });
 
   return {
-    ...users[0],
-    isActive: true
+    ...users[0]
   };
 }
 
@@ -106,7 +85,7 @@ async function checkUserStatus(params: {
       gender: userInfoModel.gender,
       address: userInfoModel.address,
       createdAt: userInfoModel.createdAt,
-      isActive: userCredentialsModel.isActive
+      archivedAt: userCredentialsModel.archivedAt
     })
     .from(userInfoModel)
     .where(eq(userInfoModel.id, userId))
@@ -117,64 +96,20 @@ async function checkUserStatus(params: {
 }
 
 async function reactivateUser(params: {
-  transaction: Transaction;
+  transaction: DBHandler;
   models: { userCredentialsModel: DBModels['user']['userCredentialsModel'] };
   userId: string;
-  updatedAt: string;
 }) {
   const {
     transaction,
     models: { userCredentialsModel },
-    userId,
-    updatedAt
+    userId
   } = params;
 
   userDebug('Reactivating user');
   await transaction
     .update(userCredentialsModel)
-    .set({ isActive: true, updatedAt: updatedAt })
+    .set({ archivedAt: null })
     .where(eq(userCredentialsModel.userId, userId));
   userDebug('Done reactivating user');
-}
-
-async function updateUserInfoTimestamp(params: {
-  transaction: Transaction;
-  models: { userInfoModel: DBModels['user']['userInfoModel'] };
-  userId: string;
-  updatedAt: string;
-}) {
-  const {
-    transaction,
-    models: { userInfoModel },
-    userId,
-    updatedAt
-  } = params;
-
-  userDebug('Updating user info timestamp');
-  await transaction
-    .update(userInfoModel)
-    .set({ updatedAt: updatedAt })
-    .where(eq(userInfoModel.id, userId));
-  userDebug('Done updating user info timestamp');
-}
-
-async function updateUserSettingsTimestamp(params: {
-  transaction: Transaction;
-  models: { userSettingsModel: DBModels['user']['userSettingsModel'] };
-  userId: string;
-  updatedAt: string;
-}) {
-  const {
-    transaction,
-    models: { userSettingsModel },
-    userId,
-    updatedAt
-  } = params;
-
-  userDebug('Updating user settings timestamp');
-  await transaction
-    .update(userSettingsModel)
-    .set({ updatedAt: updatedAt })
-    .where(eq(userSettingsModel.userId, userId));
-  userDebug('Done updating user settings timestamp');
 }

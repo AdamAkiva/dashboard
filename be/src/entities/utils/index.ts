@@ -1,13 +1,7 @@
+import { asyncDebugWrapper, debugWrapper } from './controller.js';
+import { executePreparedQuery } from './service.js';
 import {
-  executePreparedQuery,
-  userAlreadyActive,
-  userCreationError,
-  userNotAllowedToBeUpdated,
-  userNotFoundError,
-  userUpdatedButReadFailed,
-  userUpdateError
-} from './service.js';
-import {
+  VALIDATION,
   emptyErr,
   invalidArrayErr,
   invalidBoolean,
@@ -19,13 +13,15 @@ import {
   minErr,
   requiredErr,
   validateEmptyObject,
-  VALIDATION,
   type ValidatedType
 } from './validator.js';
 
 /**********************************************************************************/
 
 export {
+  VALIDATION,
+  asyncDebugWrapper,
+  debugWrapper,
   emptyErr,
   executePreparedQuery,
   invalidArrayErr,
@@ -37,13 +33,6 @@ export {
   maxErr,
   minErr,
   requiredErr,
-  userAlreadyActive,
-  userCreationError,
-  userNotAllowedToBeUpdated,
-  userNotFoundError,
-  userUpdatedButReadFailed,
-  userUpdateError,
   validateEmptyObject,
-  VALIDATION,
   type ValidatedType
 };

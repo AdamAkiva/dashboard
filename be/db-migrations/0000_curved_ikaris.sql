@@ -6,9 +6,9 @@ END $$;
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "users_credentials" (
 	"user_id" uuid PRIMARY KEY NOT NULL,
-	"email" varchar(512) NOT NULL,
-	"password" varchar(256) NOT NULL,
-	"is_active" boolean DEFAULT true NOT NULL,
+	"email" varchar(256) NOT NULL,
+	"password" varchar(64) NOT NULL,
+	"archived_at" timestamp(6) with time zone,
 	"created_at" timestamp(6) with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp(6) with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "users_credentials_email_unique" UNIQUE("email")
@@ -16,11 +16,11 @@ CREATE TABLE IF NOT EXISTS "users_credentials" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "users" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"email" varchar(512) NOT NULL,
-	"first_name" varchar(256) NOT NULL,
+	"email" varchar(256) NOT NULL,
+	"first_name" varchar(128) NOT NULL,
 	"last_name" varchar(256) NOT NULL,
-	"phone" varchar(64) NOT NULL,
-	"gender" "gender" NOT NULL,
+	"phone" varchar(16) NOT NULL,
+	"gender" "gender" DEFAULT 'other' NOT NULL,
 	"address" varchar(256) NOT NULL,
 	"created_at" timestamp(6) with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp(6) with time zone DEFAULT now() NOT NULL,

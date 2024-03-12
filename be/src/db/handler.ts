@@ -14,14 +14,16 @@ import * as schema from './schemas.js';
 
 /**********************************************************************************/
 
-export type DBHandler = DatabaseHandler['_handler'];
+// In regards to using handler and transaction, see this:
+// https://www.answeroverflow.com/m/1164318289674125392
+// In short, it does not matter, handler and transaction are same except
+// for a rollback method, which occurs if an error is thrown
+export type DBHandler =
+  | DatabaseHandler['_handler']
+  // For your own sanity, don't ask or think about it
+  | Parameters<Parameters<DatabaseHandler['_handler']['transaction']>[0]>[0];
 export type DBModels = DatabaseHandler['_models'];
 export type DBPreparedQueries = DatabaseHandler['_preparedQueries'];
-
-// For your own sanity, don't ask or think about it
-export type Transaction = Parameters<
-  Parameters<DBHandler['transaction']>[0]
->[0];
 
 /**********************************************************************************/
 
@@ -64,12 +66,30 @@ export default class DatabaseHandler {
       logger
     } = params;
 
+    // Note about transactions, postgres.js and drizzle:
+    // Postgres.js create prepared statements per connection which lasts 60 minutes
+    // (according to the settings we've supplied). Using drizzle with prepared
+    // statements (which is a lie, see below) make an additional query before
+    // and after the transaction for something we could not understand.
+    // However, since every transaction use a connection, that means that the
+    // number of transactions which can occur concurrently is at the very least
+    // the number of transaction * 2. We suggest also allowing a couple of
+    // additional connections (just to be sure). In addition to that, the max
+    // default number of concurrent postgres connection is 100. When this number
+    // is reached postgres will throw an exception.
+    // When the number of connections is not enough (at least transaction * 2)
+    // the database will get stuck since no one frees any connections and the
+    // server will get stuck as a result. Currently we have no good way to
+    // resolve this
     this._conn = pg(url, {
       connect_timeout: 30, // in secs
       idle_timeout: 180, // in secs
-      max: 10, // The default is fine, unless we discover something else
+      // When using transaction connections are reserved since all queries have
+      // to be done on the the same connection (transaction), therefore multiple
+      // requests will open up a new transaction so basically this is a hard
+      // limit for 2048 transaction concurrently
+      max: 2_048,
       max_lifetime: 3_600, // in secs
-      prepare: true,
       connection: {
         application_name: name
       }
@@ -77,9 +97,10 @@ export default class DatabaseHandler {
 
     this._handler = drizzle(this._conn, {
       schema: schema,
-      logger: isDevelopmentMode(mode)
-        ? new DatabaseLogger(healthCheckQuery, logger)
-        : false
+      logger:
+        isDevelopmentMode(mode) || process.env.DEBUG
+          ? new DatabaseLogger(healthCheckQuery, logger)
+          : false
     });
 
     this._models = {
@@ -114,13 +135,19 @@ export default class DatabaseHandler {
   /********************************************************************************/
 
   private generatePreparedQueries() {
-    // In regards to using handler and transaction, see this:
-    // https://www.answeroverflow.com/m/1164318289674125392
-    // In short, it does not matter, handler and transaction are same except
-    // for a rollback method, which occurs if an error is thrown
     const {
-      user: { userInfoModel, userCredentialsModel }
+      user: { userInfoModel, userCredentialsModel, userSettingsModel }
     } = this._models;
+
+    // This is a LIE, drizzle does not do any form of prepared statements on the
+    // database level. What drizzle refers to as prepared statements is an
+    // optimization on drizzle level, not the database. One may say only the
+    // terminology is wrong, but you should not use prepared statements
+    // terminology when not referring to actual database level prepared statements.
+    // What drizzle refers to as prepared statements is skipping the repeating
+    // compilation on drizzle level, not on the database level. On the database
+    // level, no prepared statement happens (we've checked, nothing is logged on
+    // the highest log level)
 
     return {
       readUserQuery: this._handler
@@ -131,9 +158,7 @@ export default class DatabaseHandler {
           lastName: userInfoModel.lastName,
           phone: userInfoModel.phone,
           gender: userInfoModel.gender,
-          address: userInfoModel.address,
-          createdAt: userInfoModel.createdAt,
-          isActive: userCredentialsModel.isActive
+          address: userInfoModel.address
         })
         .from(userInfoModel)
         .where(eq(userInfoModel.id, sql.placeholder('userId')))
@@ -141,7 +166,54 @@ export default class DatabaseHandler {
           userCredentialsModel,
           eq(userCredentialsModel.userId, sql.placeholder('userId'))
         )
-        .prepare('readUserQuery')
+        .prepare('readUserQuery'),
+      checkUserIsArchivedQuery: this._handler
+        .select({ archivedAt: userCredentialsModel.archivedAt })
+        .from(userCredentialsModel)
+        .where(eq(userCredentialsModel.userId, sql.placeholder('userId')))
+        .limit(1)
+        .prepare('checkUserIsArchivedQuery'),
+
+      createUserInfoQuery: this._handler
+        .insert(userInfoModel)
+        .values({
+          email: sql.placeholder('email'),
+          firstName: sql.placeholder('firstName'),
+          lastName: sql.placeholder('lastName'),
+          phone: sql.placeholder('phone'),
+          gender: sql.placeholder('gender'),
+          address: sql.placeholder('address'),
+          createdAt: sql.placeholder('createdAt')
+        })
+        .returning({ userId: userInfoModel.id })
+        .prepare('createUserInfoQuery'),
+      createUserCredentialsQuery: this._handler
+        .insert(userCredentialsModel)
+        .values({
+          userId: sql.placeholder('userId'),
+          email: sql.placeholder('email'),
+          password: sql.placeholder('password'),
+          createdAt: sql.placeholder('createdAt')
+        })
+        .prepare('createUserCredentialsQuery'),
+      createUserDefaultSettingsQuery: this._handler
+        .insert(userSettingsModel)
+        .values({
+          userId: sql.placeholder('userId'),
+          createdAt: sql.placeholder('createdAt')
+        })
+        .prepare('createUserDefaultSettingsQuery'),
+
+      deleteUser: this._handler
+        .delete(userInfoModel)
+        .where(eq(userInfoModel.id, sql.placeholder('userId')))
+        .prepare('deleteUser'),
+      deactivateUser: this._handler
+        .update(userCredentialsModel)
+        // @ts-expect-error bamba
+        .set({ archivedAt: sql.placeholder('archivedAt') })
+        .where(eq(userCredentialsModel.userId, sql.placeholder('userId')))
+        .prepare('deactivateUser')
     } as const;
   }
 }

@@ -1,5 +1,5 @@
 {
-  "id": "d4751c74-c5d2-44f2-bc13-8e0a634b366e",
+  "id": "2ad9f9af-8aea-42e2-80dc-23709f2101f2",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -16,22 +16,21 @@
         },
         "email": {
           "name": "email",
-          "type": "varchar(512)",
+          "type": "varchar(256)",
           "primaryKey": false,
           "notNull": true
         },
         "password": {
           "name": "password",
-          "type": "varchar(256)",
+          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true
         },
-        "is_active": {
-          "name": "is_active",
-          "type": "boolean",
+        "archived_at": {
+          "name": "archived_at",
+          "type": "timestamp(6) with time zone",
           "primaryKey": false,
-          "notNull": true,
-          "default": true
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -104,13 +103,13 @@
         },
         "email": {
           "name": "email",
-          "type": "varchar(512)",
+          "type": "varchar(256)",
           "primaryKey": false,
           "notNull": true
         },
         "first_name": {
           "name": "first_name",
-          "type": "varchar(256)",
+          "type": "varchar(128)",
           "primaryKey": false,
           "notNull": true
         },
@@ -122,7 +121,7 @@
         },
         "phone": {
           "name": "phone",
-          "type": "varchar(64)",
+          "type": "varchar(16)",
           "primaryKey": false,
           "notNull": true
         },
@@ -130,7 +129,8 @@
           "name": "gender",
           "type": "gender",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "'other'"
         },
         "address": {
           "name": "address",

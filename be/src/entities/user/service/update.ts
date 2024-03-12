@@ -1,4 +1,4 @@
-import type { DBModels, Transaction } from '../../../db/index.js';
+import type { DBHandler, DBModels } from '../../../db/index.js';
 import {
   eq,
   userDebug,
@@ -7,15 +7,16 @@ import {
 } from '../../../types/index.js';
 import { objHasValues } from '../../../utils/index.js';
 
+import { executePreparedQuery } from '../../utils/index.js';
+
+import type { updateOne as updateOneValidation } from '../validator.js';
+
 import {
-  executePreparedQuery,
   userNotAllowedToBeUpdated,
   userNotFoundError,
   userUpdateError,
-  userUpdatedButReadFailed
-} from '../../utils/index.js';
-
-import type { updateOne as updateOneValidation } from '../validator.js';
+  userUpdatedReadFailed
+} from './utils.js';
 
 /**********************************************************************************/
 
@@ -23,11 +24,15 @@ type UserUpdateOneValidationData = ReturnType<typeof updateOneValidation>;
 
 /**********************************************************************************/
 
-export async function updateOne(
-  ctx: RequestContext,
-  updates: UserUpdateOneValidationData
-): Promise<User> {
-  const { db, logger } = ctx;
+export async function updateOne(params: {
+  ctx: RequestContext;
+  updates: UserUpdateOneValidationData;
+}): Promise<User> {
+  const {
+    ctx: { db, logger },
+    updates
+  } = params;
+
   const handler = db.getHandler();
   const {
     user: { userInfoModel, userCredentialsModel }
@@ -40,19 +45,19 @@ export async function updateOne(
     try {
       const results = await Promise.allSettled([
         isAllowedToUpdate({
-          transaction: transaction,
+          handler: transaction,
           models: { userCredentialsModel: userCredentialsModel },
           userId: userId
         }),
         updateUserInfo({
-          transaction: transaction,
+          handler: transaction,
           models: { userInfoModel: userInfoModel },
           userInfo: userInfo,
           userId: userId,
           updatedAt: updatedAt
         }),
         updateUserCredentials({
-          transaction: transaction,
+          handler: transaction,
           models: { userCredentialsModel: userCredentialsModel },
           credentials: {
             email: userInfo.email,
@@ -82,7 +87,7 @@ export async function updateOne(
       })
     )[0];
   } catch (err) {
-    throw userUpdatedButReadFailed({
+    throw userUpdatedReadFailed({
       err: err,
       userId: userId,
       logger: logger
@@ -93,36 +98,36 @@ export async function updateOne(
 /**********************************************************************************/
 
 async function isAllowedToUpdate(params: {
-  transaction: Transaction;
+  handler: DBHandler;
   models: { userCredentialsModel: DBModels['user']['userCredentialsModel'] };
   userId: string;
 }) {
   const {
-    transaction,
+    handler,
     models: { userCredentialsModel },
     userId
   } = params;
-  const usersStatus = await transaction
-    .select({ isActive: userCredentialsModel.isActive })
+  const usersStatus = await handler
+    .select({ archivedAt: userCredentialsModel.archivedAt })
     .from(userCredentialsModel)
     .where(eq(userCredentialsModel.userId, userId));
   if (!usersStatus.length) {
     throw userNotFoundError(userId);
   }
-  if (!usersStatus[0].isActive) {
+  if (usersStatus[0].archivedAt) {
     throw userNotAllowedToBeUpdated(userId);
   }
 }
 
 async function updateUserInfo(params: {
-  transaction: Transaction;
+  handler: DBHandler;
   models: { userInfoModel: DBModels['user']['userInfoModel'] };
   userInfo: Omit<UserUpdateOneValidationData, 'password' | 'userId'>;
   userId: string;
   updatedAt: string;
 }) {
   const {
-    transaction,
+    handler,
     models: { userInfoModel },
     userInfo,
     userId,
@@ -134,7 +139,7 @@ async function updateUserInfo(params: {
   }
 
   userDebug('Updating user info entry');
-  const updates = await transaction
+  const updates = await handler
     .update(userInfoModel)
     .set({ ...userInfo, updatedAt: updatedAt })
     .where(eq(userInfoModel.id, userId))
@@ -146,14 +151,14 @@ async function updateUserInfo(params: {
 }
 
 async function updateUserCredentials(params: {
-  transaction: Transaction;
+  handler: DBHandler;
   models: { userCredentialsModel: DBModels['user']['userCredentialsModel'] };
   credentials: Pick<UserUpdateOneValidationData, 'email' | 'password'>;
   userId: string;
   updatedAt: string;
 }) {
   const {
-    transaction,
+    handler,
     models: { userCredentialsModel },
     credentials,
     userId,
@@ -165,7 +170,7 @@ async function updateUserCredentials(params: {
   }
 
   userDebug('Updating user credentials entry');
-  const updates = await transaction
+  const updates = await handler
     .update(userCredentialsModel)
     .set({
       ...credentials,

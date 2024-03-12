@@ -44,9 +44,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
           json: userData
         });
         expect(statusCode).toBe(StatusCodes.CREATED);
-        expect(omit(data, 'id', 'createdAt', 'isActive')).toStrictEqual(
-          omit(userData, 'password')
-        );
+        expect(omit(data, 'id')).toStrictEqual(omit(userData, 'password'));
       });
       it('Multiple', async () => {
         const usersData: CreateUser[] = [...Array(10)].map(() => {
@@ -85,13 +83,11 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
           const userData = usersData.find((user) => {
             return user.email === data.email;
           })!;
-          expect(omit(data, 'id', 'createdAt', 'isActive')).toStrictEqual(
-            omit(userData, 'password')
-          );
+          expect(omit(data, 'id')).toStrictEqual(omit(userData, 'password'));
         });
       });
       it('A lot', async () => {
-        const usersData: CreateUser[] = [...Array(1_000)].map(() => {
+        const usersData: CreateUser[] = [...Array(1_024)].map(() => {
           return {
             email: `${randStr()}@bla.com`,
             password: 'Bla123!@#',
@@ -127,9 +123,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
           const userData = usersData.find((user) => {
             return user.email === data.email;
           })!;
-          expect(omit(data, 'id', 'createdAt', 'isActive')).toStrictEqual(
-            omit(userData, 'password')
-          );
+          expect(omit(data, 'id')).toStrictEqual(omit(userData, 'password'));
         });
       });
     });
@@ -682,9 +676,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
           json: userData
         });
         expect(res.statusCode).toBe(StatusCodes.CREATED);
-        expect(omit(res.data, 'id', 'createdAt', 'isActive')).toStrictEqual(
-          omit(userData, 'password')
-        );
+        expect(omit(res.data, 'id')).toStrictEqual(omit(userData, 'password'));
 
         res = await sendHttpRequest<User>(userURL, {
           method: 'post',
@@ -709,9 +701,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
           json: userData
         });
         expect(res.statusCode).toBe(StatusCodes.CREATED);
-        expect(omit(res.data, 'id', 'createdAt', 'isActive')).toStrictEqual(
-          omit(userData, 'password')
-        );
+        expect(omit(res.data, 'id')).toStrictEqual(omit(userData, 'password'));
 
         await deactivateUser(globalThis.db, res.data.id);
 
@@ -772,7 +762,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
           { method: 'get' }
         );
         expect(statusCode).toBe(StatusCodes.SUCCESS);
-        expect(data).toStrictEqual({ ...usersData[1], isActive: false });
+        expect(data).toStrictEqual(usersData[1]);
       });
     });
     describe('Invalid', () => {

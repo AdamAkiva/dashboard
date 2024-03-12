@@ -20,9 +20,6 @@ export interface User {
   phone: string;
   gender: 'male' | 'female' | 'other';
   address: string;
-  /** @format date-time */
-  createdAt: string;
-  isActive: boolean;
 }
 
 export interface CreateUser {

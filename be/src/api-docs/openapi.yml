@@ -201,8 +201,6 @@ components:
         - phone
         - gender
         - address
-        - createdAt
-        - isActive
       properties:
         id:
           type: string
@@ -222,11 +220,6 @@ components:
           enum: [male, female, other]
         address:
           type: string
-        createdAt:
-          type: string
-          format: date-time
-        isActive:
-          type: boolean
     CreateUser:
       type: object
       required:

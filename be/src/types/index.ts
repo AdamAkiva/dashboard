@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { EventEmitter } from 'node:events';
 import { createServer, type IncomingHttpHeaders, type Server } from 'node:http';
 import { relative, resolve } from 'node:path';
@@ -7,7 +8,13 @@ import { URL } from 'node:url';
 import compress from 'compression';
 import cors from 'cors';
 import Debug from 'debug';
-import { and, eq, sql, type Logger as DrizzleLogger } from 'drizzle-orm';
+import {
+  and,
+  eq,
+  isNull,
+  sql,
+  type Logger as DrizzleLogger
+} from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import express, {
   json,
@@ -87,11 +94,13 @@ export {
   EventEmitter,
   express,
   helmet,
+  isNull,
   isValidPhoneNumber,
   json,
   pg,
   pid,
   pinoHttp,
+  randomUUID,
   relative,
   resolve,
   Router,

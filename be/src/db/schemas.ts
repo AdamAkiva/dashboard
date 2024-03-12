@@ -57,11 +57,11 @@ export const userInfoModel = pgTable(
   'users',
   {
     id: uuid('id').primaryKey().notNull().unique().defaultRandom(),
-    email: varchar('email', { length: 512 }).unique().notNull(),
-    firstName: varchar('first_name', { length: 256 }).notNull(),
+    email: varchar('email', { length: 256 }).unique().notNull(),
+    firstName: varchar('first_name', { length: 128 }).notNull(),
     lastName: varchar('last_name', { length: 256 }).notNull(),
-    phone: varchar('phone', { length: 64 }).notNull(),
-    gender: genderEnum('gender').notNull(),
+    phone: varchar('phone', { length: 16 }).notNull(),
+    gender: genderEnum('gender').notNull().default('other'),
     address: varchar('address', { length: 256 }).notNull(),
     ...timestamps
   },
@@ -83,14 +83,18 @@ export const userCredentialsModel = pgTable(
         },
         { onDelete: 'cascade', onUpdate: 'no action' }
       ),
-    email: varchar('email', { length: 512 }).unique().notNull(),
-    password: varchar('password', { length: 256 }).notNull(),
+    email: varchar('email', { length: 256 }).unique().notNull(),
+    password: varchar('password', { length: 64 }).notNull(),
     // First delete of a user will be a soft-delete. Second delete will be a hard
     // delete of that user.
     // A read of soft-deleted user will work.
     // A creation of a soft-deleted user will reactivate it.
     // An update will be of a soft-deleted user will be forbidden.
-    isActive: boolean('is_active').default(true).notNull(),
+    archivedAt: timestamp('archived_at', {
+      mode: 'string',
+      precision: 6,
+      withTimezone: true
+    }),
     ...timestamps
   },
   (table) => {

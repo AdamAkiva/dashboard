@@ -225,9 +225,7 @@ export async function createUsers(usersData: CreateUser[]) {
       json: userData
     });
     expect(statusCode).toBe(StatusCodes.CREATED);
-    expect(omit(data, 'id', 'createdAt', 'isActive')).toStrictEqual(
-      omit(userData, 'password')
-    );
+    expect(omit(data, 'id')).toStrictEqual(omit(userData, 'password'));
 
     users.push(data);
   }
@@ -246,7 +244,7 @@ export async function deactivateUser(db: DatabaseHandler, userId: string) {
 
   await handler
     .update(userCredentialsModel)
-    .set({ isActive: false })
+    .set({ archivedAt: new Date().toISOString() })
     .where(eq(userCredentialsModel.userId, userId));
 }
 
