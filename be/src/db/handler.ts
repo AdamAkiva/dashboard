@@ -87,8 +87,8 @@ export default class DatabaseHandler {
       // When using transaction connections are reserved since all queries have
       // to be done on the the same connection (transaction), therefore multiple
       // requests will open up a new transaction so basically this is a hard
-      // limit for 2048 transaction concurrently
-      max: 2_048,
+      // limit for 100 transaction concurrently (matching postgres max clients)
+      max: 100,
       max_lifetime: 3_600, // in secs
       connection: {
         application_name: name
@@ -148,7 +148,6 @@ export default class DatabaseHandler {
     // compilation on drizzle level, not on the database level. On the database
     // level, no prepared statement happens (we've checked, nothing is logged on
     // the highest log level)
-
     return {
       readUserQuery: this._handler
         .select({

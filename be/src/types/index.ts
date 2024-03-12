@@ -60,7 +60,7 @@ export const userDebug = Debug('dashboard:user');
 
 export type Response = ExpressResponse<unknown, { ctx: RequestContext }>;
 
-/********************************** Http ******************************************/
+/********************************** HTTP ******************************************/
 /**********************************************************************************/
 
 export type Mode = 'development' | 'production' | 'test';

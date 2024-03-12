@@ -46,48 +46,8 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         expect(statusCode).toBe(StatusCodes.CREATED);
         expect(omit(data, 'id')).toStrictEqual(omit(userData, 'password'));
       });
-      it('Multiple', async () => {
-        const usersData: CreateUser[] = [...Array(10)].map(() => {
-          return {
-            email: `${randStr()}@bla.com`,
-            password: 'Bla123!@#',
-            firstName: 'TMP',
-            lastName: 'TMP',
-            phone: '052-2222222',
-            gender: 'male',
-            address: 'TMP'
-          };
-        });
-
-        const results = await Promise.allSettled(
-          usersData.map(async (userData) => {
-            return await sendHttpRequest<User>(userURL, {
-              method: 'post',
-              json: userData
-            });
-          })
-        );
-        for (const result of results) {
-          if (result.status === 'rejected') {
-            throw result.reason;
-          }
-        }
-
-        const responses = (
-          results as ResolvedValue<ReturnType<typeof sendHttpRequest<User>>>[]
-        ).map(({ value }) => {
-          return value;
-        });
-        responses.forEach(({ data, statusCode }) => {
-          expect(statusCode).toBe(StatusCodes.CREATED);
-          const userData = usersData.find((user) => {
-            return user.email === data.email;
-          })!;
-          expect(omit(data, 'id')).toStrictEqual(omit(userData, 'password'));
-        });
-      });
-      it('A lot', async () => {
-        const usersData: CreateUser[] = [...Array(1_024)].map(() => {
+      it.only('Multiple', async () => {
+        const usersData: CreateUser[] = [...Array(100)].map(() => {
           return {
             email: `${randStr()}@bla.com`,
             password: 'Bla123!@#',

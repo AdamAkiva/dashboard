@@ -1,5 +1,6 @@
 import type { DBPreparedQueries, DatabaseHandler } from '../../db/index.js';
-import type { Debug, UnknownObject } from '../../types/index.js';
+import { pg, type Debug, type UnknownObject } from '../../types/index.js';
+import { ERR_CODES } from '../../utils/constants.js';
 
 /**********************************************************************************/
 
@@ -26,4 +27,35 @@ export async function executePreparedQuery<
   debugInstance(`Done ${msg.charAt(0).toLowerCase() + msg.slice(1)}`);
 
   return res;
+}
+
+export async function safeTransaction<T = unknown>(fn: () => Promise<T>) {
+  try {
+    return await fn();
+  } catch (err) {
+    if (
+      err instanceof pg.PostgresError &&
+      err.code === ERR_CODES.PG.TOO_MANY_CONNECTIONS
+    ) {
+      return await new Promise<T>((resolve, reject) => {
+        const interval = setInterval(async () => {
+          try {
+            resolve(await fn());
+          } catch (err) {
+            if (
+              err instanceof pg.PostgresError &&
+              err.code === ERR_CODES.PG.TOO_MANY_CONNECTIONS
+            ) {
+              return;
+            } else {
+              clearInterval(interval);
+              reject(err);
+            }
+          }
+        }, 0);
+      });
+    }
+
+    throw err;
+  }
 }
