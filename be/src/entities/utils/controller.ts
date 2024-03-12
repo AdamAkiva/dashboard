@@ -2,29 +2,27 @@ import type { Debug } from '../../types/index.js';
 
 /**********************************************************************************/
 
-export function debugWrapper<T = unknown, P = unknown>(
-  cb: { fn: (args: P) => T; args: P },
+export function logWrapper<T>(
+  fn: () => T,
   debug: { instance: ReturnType<typeof Debug>; msg: string }
-): T {
-  const { fn, args } = cb;
+) {
   const { instance: debugInstance, msg } = debug;
 
   debugInstance(msg);
-  const res = fn(args);
+  const res = fn();
   debugInstance(parseDebugResponseMessage(msg));
 
   return res;
 }
 
-export async function asyncDebugWrapper<T = unknown, P = unknown>(
-  cb: { fn: (args: P) => Promise<T>; args: P },
+export async function asyncLogWrapper<T>(
+  fn: () => Promise<T>,
   debug: { instance: ReturnType<typeof Debug>; msg: string }
-): Promise<T> {
-  const { fn, args } = cb;
+) {
   const { instance: debugInstance, msg } = debug;
 
   debugInstance(msg);
-  const res = await fn(args);
+  const res = await fn();
   debugInstance(parseDebugResponseMessage(msg));
 
   return res;

@@ -6,7 +6,7 @@ import {
 } from '../../types/index.js';
 import { StatusCodes } from '../../utils/index.js';
 
-import { asyncDebugWrapper, debugWrapper } from '../utils/index.js';
+import { asyncLogWrapper, logWrapper } from '../utils/index.js';
 
 import * as Service from './service/index.js';
 import * as Validator from './validator.js';
@@ -15,13 +15,17 @@ import * as Validator from './validator.js';
 
 export async function readOne(req: Request, res: Response, next: NextFunction) {
   try {
-    const userId = debugWrapper(
-      { fn: Validator.readOne, args: req },
+    const userId = logWrapper(
+      function validator() {
+        return Validator.readOne(req);
+      },
       { instance: userDebug, msg: 'readOne validation' }
     );
 
-    const user = await asyncDebugWrapper(
-      { fn: Service.readOne, args: { ctx: res.locals.ctx, userId: userId } },
+    const user = await asyncLogWrapper(
+      async function service() {
+        return await Service.readOne(res.locals.ctx, userId);
+      },
       { instance: userDebug, msg: 'readOne service' }
     );
 
@@ -37,15 +41,16 @@ export async function createOne(
   next: NextFunction
 ) {
   try {
-    const userData = debugWrapper(
-      { fn: Validator.createOne, args: req },
+    const userData = logWrapper(
+      function validator() {
+        return Validator.createOne(req);
+      },
       { instance: userDebug, msg: 'createOne validation' }
     );
 
-    const createdUser = await asyncDebugWrapper(
-      {
-        fn: Service.createOne,
-        args: { ctx: res.locals.ctx, userData: userData }
+    const createdUser = await asyncLogWrapper(
+      async function service() {
+        return await Service.createOne(res.locals.ctx, userData);
       },
       { instance: userDebug, msg: 'createOne service' }
     );
@@ -62,15 +67,16 @@ export async function updateOne(
   next: NextFunction
 ) {
   try {
-    const userUpdates = debugWrapper(
-      { fn: Validator.updateOne, args: req },
+    const userUpdates = logWrapper(
+      function validator() {
+        return Validator.updateOne(req);
+      },
       { instance: userDebug, msg: 'updateOne validation' }
     );
 
-    const updatedUser = await asyncDebugWrapper(
-      {
-        fn: Service.updateOne,
-        args: { ctx: res.locals.ctx, updates: userUpdates }
+    const updatedUser = await asyncLogWrapper(
+      async function service() {
+        return await Service.updateOne(res.locals.ctx, userUpdates);
       },
       { instance: userDebug, msg: 'updateOne service' }
     );
@@ -87,15 +93,16 @@ export async function reactivateOne(
   next: NextFunction
 ) {
   try {
-    const userId = debugWrapper(
-      { fn: Validator.reactivateOne, args: req },
+    const userId = logWrapper(
+      function validator() {
+        return Validator.reactivateOne(req);
+      },
       { instance: userDebug, msg: 'reactivateOne validation' }
     );
 
-    const reactivatedUser = await asyncDebugWrapper(
-      {
-        fn: Service.reactivateOne,
-        args: { ctx: res.locals.ctx, userId: userId }
+    const reactivatedUser = await asyncLogWrapper(
+      async function service() {
+        return await Service.reactivateOne(res.locals.ctx, userId);
       },
       { instance: userDebug, msg: 'reactivateOne service' }
     );
@@ -112,13 +119,17 @@ export async function deleteOne(
   next: NextFunction
 ) {
   try {
-    const userId = debugWrapper(
-      { fn: Validator.deleteOne, args: req },
+    const userId = logWrapper(
+      function validator() {
+        return Validator.deleteOne(req);
+      },
       { instance: userDebug, msg: 'deleteOne validation' }
     );
 
-    const deletedUserId = await asyncDebugWrapper(
-      { fn: Service.deleteOne, args: { ctx: res.locals.ctx, userId: userId } },
+    const deletedUserId = await asyncLogWrapper(
+      async function service() {
+        return await Service.deleteOne(res.locals.ctx, userId);
+      },
       { instance: userDebug, msg: 'deleteOne service' }
     );
 

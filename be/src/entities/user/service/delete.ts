@@ -1,7 +1,7 @@
 import type { DatabaseHandler } from '../../../db/index.js';
 import { userDebug, type RequestContext } from '../../../types/index.js';
 
-import { executePreparedQuery } from '../../utils/service.js';
+import { executePreparedQuery } from '../../utils/index.js';
 
 import type { deleteOne as deleteOneValidation } from '../validator.js';
 
@@ -11,14 +11,12 @@ type UserDeleteOneValidationData = ReturnType<typeof deleteOneValidation>;
 
 /**********************************************************************************/
 
-export async function deleteOne(params: {
-  ctx: RequestContext;
-  userId: UserDeleteOneValidationData;
-}): Promise<string> {
-  const {
-    ctx: { db },
-    userId
-  } = params;
+export async function deleteOne(
+  ctx: RequestContext,
+  userId: UserDeleteOneValidationData
+): Promise<string> {
+  const { db } = ctx;
+
   const userStatus = await getUserStatus(db, userId);
   if (userStatus === '') {
     return '';

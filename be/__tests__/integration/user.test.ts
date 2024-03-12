@@ -46,8 +46,8 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         expect(statusCode).toBe(StatusCodes.CREATED);
         expect(omit(data, 'id')).toStrictEqual(omit(userData, 'password'));
       });
-      it.only('Multiple', async () => {
-        const usersData: CreateUser[] = [...Array(100)].map(() => {
+      it('Multiple', async () => {
+        const usersData: CreateUser[] = [...Array(1_024)].map(() => {
           return {
             email: `${randStr()}@bla.com`,
             password: 'Bla123!@#',

@@ -16,14 +16,11 @@ type UserReadOneValidationData = ReturnType<typeof readOneValidation>;
 
 /**********************************************************************************/
 
-export async function readOne(params: {
-  ctx: RequestContext;
-  userId: UserReadOneValidationData;
-}): Promise<User> {
-  const {
-    ctx: { db },
-    userId
-  } = params;
+export async function readOne(
+  ctx: RequestContext,
+  userId: UserReadOneValidationData
+): Promise<User> {
+  const { db } = ctx;
 
   const users = await executePreparedQuery({
     db: db,

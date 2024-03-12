@@ -88,7 +88,7 @@ export default class DatabaseHandler {
       // to be done on the the same connection (transaction), therefore multiple
       // requests will open up a new transaction so basically this is a hard
       // limit for 100 transaction concurrently (matching postgres max clients)
-      max: 100,
+      max: 10,
       max_lifetime: 3_600, // in secs
       connection: {
         application_name: name
@@ -136,7 +136,7 @@ export default class DatabaseHandler {
 
   private generatePreparedQueries() {
     const {
-      user: { userInfoModel, userCredentialsModel, userSettingsModel }
+      user: { userInfoModel, userCredentialsModel }
     } = this._models;
 
     // This is a LIE, drizzle does not do any form of prepared statements on the
@@ -173,43 +173,13 @@ export default class DatabaseHandler {
         .limit(1)
         .prepare('checkUserIsArchivedQuery'),
 
-      createUserInfoQuery: this._handler
-        .insert(userInfoModel)
-        .values({
-          email: sql.placeholder('email'),
-          firstName: sql.placeholder('firstName'),
-          lastName: sql.placeholder('lastName'),
-          phone: sql.placeholder('phone'),
-          gender: sql.placeholder('gender'),
-          address: sql.placeholder('address'),
-          createdAt: sql.placeholder('createdAt')
-        })
-        .returning({ userId: userInfoModel.id })
-        .prepare('createUserInfoQuery'),
-      createUserCredentialsQuery: this._handler
-        .insert(userCredentialsModel)
-        .values({
-          userId: sql.placeholder('userId'),
-          email: sql.placeholder('email'),
-          password: sql.placeholder('password'),
-          createdAt: sql.placeholder('createdAt')
-        })
-        .prepare('createUserCredentialsQuery'),
-      createUserDefaultSettingsQuery: this._handler
-        .insert(userSettingsModel)
-        .values({
-          userId: sql.placeholder('userId'),
-          createdAt: sql.placeholder('createdAt')
-        })
-        .prepare('createUserDefaultSettingsQuery'),
-
       deleteUser: this._handler
         .delete(userInfoModel)
         .where(eq(userInfoModel.id, sql.placeholder('userId')))
         .prepare('deleteUser'),
       deactivateUser: this._handler
         .update(userCredentialsModel)
-        // @ts-expect-error bamba
+        // @ts-expect-error This works, drizzle marks it as a type error however
         .set({ archivedAt: sql.placeholder('archivedAt') })
         .where(eq(userCredentialsModel.userId, sql.placeholder('userId')))
         .prepare('deactivateUser')

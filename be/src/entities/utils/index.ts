@@ -1,4 +1,4 @@
-import { asyncDebugWrapper, debugWrapper } from './controller.js';
+import { asyncLogWrapper, logWrapper } from './controller.js';
 import { executePreparedQuery } from './service.js';
 import {
   VALIDATION,
@@ -20,8 +20,7 @@ import {
 
 export {
   VALIDATION,
-  asyncDebugWrapper,
-  debugWrapper,
+  asyncLogWrapper,
   emptyErr,
   executePreparedQuery,
   invalidArrayErr,
@@ -30,6 +29,7 @@ export {
   invalidStringErr,
   invalidStructure,
   invalidUuid,
+  logWrapper,
   maxErr,
   minErr,
   requiredErr,

@@ -18,14 +18,11 @@ type UserReactivateOneValidationData = ReturnType<
 
 /**********************************************************************************/
 
-export async function reactivateOne(params: {
-  ctx: RequestContext;
-  userId: UserReactivateOneValidationData;
-}): Promise<User> {
-  const {
-    ctx: { db },
-    userId
-  } = params;
+export async function reactivateOne(
+  ctx: RequestContext,
+  userId: UserReactivateOneValidationData
+): Promise<User> {
+  const { db } = ctx;
 
   const handler = db.getHandler();
   const {
@@ -48,7 +45,7 @@ export async function reactivateOne(params: {
   }
 
   await reactivateUser({
-    transaction: handler,
+    handler: handler,
     models: { userCredentialsModel: userCredentialsModel },
     userId: userId
   });
@@ -96,18 +93,18 @@ async function checkUserStatus(params: {
 }
 
 async function reactivateUser(params: {
-  transaction: DBHandler;
+  handler: DBHandler;
   models: { userCredentialsModel: DBModels['user']['userCredentialsModel'] };
   userId: string;
 }) {
   const {
-    transaction,
+    handler,
     models: { userCredentialsModel },
     userId
   } = params;
 
   userDebug('Reactivating user');
-  await transaction
+  await handler
     .update(userCredentialsModel)
     .set({ archivedAt: null })
     .where(eq(userCredentialsModel.userId, userId));

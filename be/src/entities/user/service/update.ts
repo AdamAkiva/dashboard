@@ -24,15 +24,11 @@ type UserUpdateOneValidationData = ReturnType<typeof updateOneValidation>;
 
 /**********************************************************************************/
 
-export async function updateOne(params: {
-  ctx: RequestContext;
-  updates: UserUpdateOneValidationData;
-}): Promise<User> {
-  const {
-    ctx: { db, logger },
-    updates
-  } = params;
-
+export async function updateOne(
+  ctx: RequestContext,
+  updates: UserUpdateOneValidationData
+): Promise<User> {
+  const { db, logger } = ctx;
   const handler = db.getHandler();
   const {
     user: { userInfoModel, userCredentialsModel }
@@ -107,10 +103,13 @@ async function isAllowedToUpdate(params: {
     models: { userCredentialsModel },
     userId
   } = params;
+
+  userDebug('Checking whether the user can be updated');
   const usersStatus = await handler
     .select({ archivedAt: userCredentialsModel.archivedAt })
     .from(userCredentialsModel)
     .where(eq(userCredentialsModel.userId, userId));
+  userDebug('Done checking whether the user can be updated');
   if (!usersStatus.length) {
     throw userNotFoundError(userId);
   }
