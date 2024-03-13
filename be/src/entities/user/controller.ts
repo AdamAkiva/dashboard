@@ -11,6 +11,26 @@ import * as Validator from './validator.js';
 
 /**********************************************************************************/
 
+export async function readMany(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    userDebug('readMany validation');
+    const queryParams = Validator.readMany(req);
+    userDebug('Done readMany validation');
+
+    userDebug('readMany service');
+    const users = await Service.readMany(res.locals.ctx, queryParams);
+    userDebug('Done readMany service');
+
+    return res.status(StatusCodes.SUCCESS).json(users);
+  } catch (err) {
+    return next(err);
+  }
+}
+
 export async function readOne(req: Request, res: Response, next: NextFunction) {
   try {
     userDebug('readOne validation');

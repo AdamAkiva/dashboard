@@ -45,6 +45,33 @@ paths:
         '504':
           $ref: '#/components/responses/GatewayTimeoutError'
   /users:
+    get:
+      tags:
+        - user
+      summary: Find users
+      description: Find users by query params
+      parameters:
+        - name: archive
+          in: query
+          description: Indicates whether to fetch **only** archived users
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          $ref: '#/components/responses/Users'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '413':
+          $ref: '#/components/responses/PayloadTooLargeError'
+        '500':
+          $ref: '#/components/responses/ServerError'
     post:
       tags:
         - user

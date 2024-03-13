@@ -9,6 +9,7 @@ import {
 import {
   VALIDATION,
   checkAndParseErrors,
+  invalidBoolean,
   invalidObjectErr,
   invalidStringErr,
   invalidUuid,
@@ -50,6 +51,38 @@ const passwordRegex = new RegExp(
 );
 
 /**********************************************************************************/
+
+export function readMany(req: Request) {
+  const { body, params, query } = req;
+
+  const querySchema = Zod.object(
+    {
+      archive: Zod.boolean({
+        invalid_type_error: invalidBoolean('boolean')
+      }).optional()
+    },
+    {
+      invalid_type_error: invalidObjectErr('query params'),
+      required_error: requiredErr('query params')
+    }
+  )
+    .strict(invalidObjectErr('query params'))
+    .optional();
+
+  const queryRes = querySchema.safeParse(query);
+  const err = checkAndParseErrors(
+    queryRes,
+    validateEmptyObject('Expected body body and params', {
+      ...body,
+      ...params
+    })
+  );
+  if (err) {
+    throw err;
+  }
+
+  return (queryRes as ValidatedType<typeof querySchema>).data;
+}
 
 export function readOne(req: Request) {
   const { body, params, query } = req;

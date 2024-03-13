@@ -11,9 +11,11 @@ import Debug from 'debug';
 import {
   and,
   eq,
+  isNotNull,
   isNull,
   sql,
-  type Logger as DrizzleLogger
+  type Logger as DrizzleLogger,
+  type SQL
 } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import express, {
@@ -94,6 +96,7 @@ export {
   EventEmitter,
   express,
   helmet,
+  isNotNull,
   isNull,
   isValidPhoneNumber,
   json,
@@ -115,6 +118,7 @@ export {
   type NextFunction,
   type Request,
   type Server,
+  type SQL,
   type UpdateUser,
   type User
 };

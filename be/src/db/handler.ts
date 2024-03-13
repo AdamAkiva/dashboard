@@ -149,6 +149,22 @@ export default class DatabaseHandler {
     // level, no prepared statement happens (we've checked, nothing is logged on
     // the highest log level)
     return {
+      readUsersQuery: this._handler
+        .select({
+          id: userInfoModel.id,
+          email: userInfoModel.email,
+          firstName: userInfoModel.firstName,
+          lastName: userInfoModel.lastName,
+          phone: userInfoModel.phone,
+          gender: userInfoModel.gender,
+          address: userInfoModel.address
+        })
+        .from(userInfoModel)
+        .innerJoin(
+          userCredentialsModel,
+          eq(userCredentialsModel.userId, userInfoModel.id)
+        )
+        .prepare('readUsersQuery'),
       readUserQuery: this._handler
         .select({
           id: userInfoModel.id,
