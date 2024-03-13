@@ -71,7 +71,7 @@ async function checkUserStatus(params: {
     userId
   } = params;
 
-  userDebug('Checking whether the user is active');
+  userDebug('Checking whether the user is archived');
   const users = await handler
     .select({
       id: userInfoModel.id,
@@ -87,7 +87,7 @@ async function checkUserStatus(params: {
     .from(userInfoModel)
     .where(eq(userInfoModel.id, userId))
     .innerJoin(userCredentialsModel, eq(userCredentialsModel.userId, userId));
-  userDebug('Done checking whether the user is active');
+  userDebug('Done checking whether the user is archived');
 
   return users;
 }

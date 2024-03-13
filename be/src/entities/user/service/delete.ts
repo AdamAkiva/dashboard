@@ -23,19 +23,21 @@ export async function deleteOne(
   }
 
   if (userStatus) {
+    userDebug('Deleting user');
     await executePreparedQuery({
       db: db,
       queryName: 'deleteUser',
-      phValues: { userId: userId },
-      debug: { instance: userDebug, msg: 'Deleting user' }
+      phValues: { userId: userId }
     });
+    userDebug('Done deleting user');
   } else {
+    userDebug('Archiving user');
     await executePreparedQuery({
       db: db,
       queryName: 'deactivateUser',
-      phValues: { archivedAt: new Date().toISOString(), userId: userId },
-      debug: { instance: userDebug, msg: 'Deactivating user' }
+      phValues: { archivedAt: new Date().toISOString(), userId: userId }
     });
+    userDebug('Done archiving user');
   }
 
   return userId;
@@ -44,12 +46,13 @@ export async function deleteOne(
 /**********************************************************************************/
 
 async function getUserStatus(db: DatabaseHandler, userId: string) {
+  userDebug('Checking whether the user is archived');
   const isArchived = await executePreparedQuery({
     db: db,
     queryName: 'checkUserIsArchivedQuery',
-    phValues: { userId: userId },
-    debug: { instance: userDebug, msg: 'Checking whether the user is active' }
+    phValues: { userId: userId }
   });
+  userDebug('Done checking whether the user is archived');
 
   // User not found, meaning the result is fine, they no longer exists by proxy,
   // hence, return an empty string indicating a success

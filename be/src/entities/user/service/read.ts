@@ -22,12 +22,13 @@ export async function readOne(
 ): Promise<User> {
   const { db } = ctx;
 
+  userDebug('Fetching user');
   const users = await executePreparedQuery({
     db: db,
     queryName: 'readUserQuery',
-    phValues: { userId: userId },
-    debug: { instance: userDebug, msg: 'Fetching user' }
+    phValues: { userId: userId }
   });
+  userDebug('Done fetching user');
   if (!users.length) {
     throw userNotFoundError(userId);
   }

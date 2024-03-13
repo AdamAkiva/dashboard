@@ -74,14 +74,15 @@ export async function updateOne(
   });
 
   try {
-    return (
-      await executePreparedQuery({
-        db: db,
-        queryName: 'readUserQuery',
-        phValues: { userId: userId },
-        debug: { instance: userDebug, msg: 'Fetching user after update' }
-      })
-    )[0];
+    userDebug('Fetching user after update');
+    const [user] = await executePreparedQuery({
+      db: db,
+      queryName: 'readUserQuery',
+      phValues: { userId: userId }
+    });
+    userDebug('Done fetching user after update');
+
+    return user;
   } catch (err) {
     throw userUpdatedReadFailed({
       err: err,
@@ -104,12 +105,12 @@ async function isAllowedToUpdate(params: {
     userId
   } = params;
 
-  userDebug('Checking whether the user can be updated');
+  userDebug('Checking whether the user is archived');
   const usersStatus = await handler
     .select({ archivedAt: userCredentialsModel.archivedAt })
     .from(userCredentialsModel)
     .where(eq(userCredentialsModel.userId, userId));
-  userDebug('Done checking whether the user can be updated');
+  userDebug('Done checking whether the user is archived');
   if (!usersStatus.length) {
     throw userNotFoundError(userId);
   }

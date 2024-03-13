@@ -87,7 +87,7 @@ export default class DatabaseHandler {
       // When using transaction connections are reserved since all queries have
       // to be done on the the same connection (transaction), therefore multiple
       // requests will open up a new transaction so basically this is a hard
-      // limit for 100 transaction concurrently (matching postgres max clients)
+      // limit for 10 transaction concurrently
       max: 10,
       max_lifetime: 3_600, // in secs
       connection: {
