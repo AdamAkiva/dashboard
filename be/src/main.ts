@@ -65,9 +65,6 @@ async function startServer() {
     .once('SIGQUIT', () => {
       server.close();
     })
-    .once('SIGKILL', () => {
-      server.close();
-    })
     .once('SIGTERM', () => {
       server.close();
     })
