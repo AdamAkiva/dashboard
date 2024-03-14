@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 
-import LoginSection from './login/LoginSection';
-import SignUpSection from './login/SignUpSection';
+import { LoginSection, SignUpSection } from './login';
 
 /******************************************************************************/
 

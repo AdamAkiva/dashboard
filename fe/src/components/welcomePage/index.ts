@@ -1,11 +1,8 @@
 /******************************************************************************/
 
-import { WelcomePage } from '@/views';
+import Login from './Login';
+import Welcome from './Welcome';
 
 /******************************************************************************/
 
-const App = () => {
-  return <WelcomePage />;
-};
-
-export default App;
+export { Login, Welcome };

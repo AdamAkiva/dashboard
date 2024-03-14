@@ -9,7 +9,7 @@ import Fields from './Fields';
 
 /******************************************************************************/
 
-const LoginSectionStyle = styled.div`
+const GenericSectionStyle = styled.div`
   background-color: white;
   color: rgba(55, 61, 122, 0.8);
   font-size: 2rem;
@@ -19,21 +19,23 @@ const LoginSectionStyle = styled.div`
 
 /******************************************************************************/
 
-const LoginSection = (params: { toggle: () => void }) => {
-  const { toggle } = params;
+const GenericSection = (params: {
+  titleText: string;
+  buttonText: string;
+  switchText: string;
+  toggleCb: () => void;
+}) => {
+  const { titleText, buttonText, switchText, toggleCb } = params;
   return (
-    <LoginSectionStyle>
+    <GenericSectionStyle>
       <div>
-        <Title text={'USER LOGIN'} />
+        <Title text={titleText} />
         <Fields />
-        <Button text={'LOGIN'} />
-        <Switch
-          text={'New to Dashboard? click here to sign up'}
-          toggle={toggle}
-        />
+        <Button text={buttonText} />
+        <Switch text={switchText} toggle={toggleCb} />
       </div>
-    </LoginSectionStyle>
+    </GenericSectionStyle>
   );
 };
 
-export default LoginSection;
+export default GenericSection;
