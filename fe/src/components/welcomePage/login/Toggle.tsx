@@ -4,25 +4,28 @@ import styled from 'styled-components';
 
 /******************************************************************************/
 
-const SwitchStyle = styled.div`
+const ToggleStyle = styled.div`
   margin-top: 1.5rem;
   font-size: 1.1rem;
   color: #9e60b6;
+  
+  &:hover {
+    cursor: pointer;
+  }
 }`;
-
 /******************************************************************************/
 
-const Switch = (params: { text: string; toggle: () => void }) => {
-  const { text, toggle } = params;
+const Toggle = (params: { text: string; toggleCb: () => void }) => {
+  const { text, toggleCb } = params;
   return (
-    <SwitchStyle
+    <ToggleStyle
       onClick={() => {
-        return toggle();
+        return toggleCb();
       }}
     >
       <span>{text}</span>
-    </SwitchStyle>
+    </ToggleStyle>
   );
 };
 
-export default Switch;
+export default Toggle;

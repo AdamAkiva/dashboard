@@ -1,3 +1,5 @@
+/******************************************************************************/
+
 import { React, ReactDOM } from '@/types';
 
 import App from './App.tsx';

@@ -9,16 +9,16 @@ import { LoginSection, SignUpSection } from './login';
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
 
-  const toggle = () => {
+  const handleToggle = () => {
     setIsLogin(!isLogin);
   };
 
   return (
     <>
       {isLogin ? (
-        <LoginSection toggle={toggle} />
+        <LoginSection toggleCb={handleToggle} />
       ) : (
-        <SignUpSection toggle={toggle} />
+        <SignUpSection toggleCb={handleToggle} />
       )}
     </>
   );

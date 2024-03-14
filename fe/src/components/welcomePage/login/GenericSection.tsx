@@ -3,7 +3,7 @@
 import styled from 'styled-components';
 
 import Title from './Title';
-import Switch from './Switch';
+import Toggle from './Toggle';
 import Button from './Button';
 import Fields from './Fields';
 
@@ -22,17 +22,17 @@ const GenericSectionStyle = styled.div`
 const GenericSection = (params: {
   titleText: string;
   buttonText: string;
-  switchText: string;
+  ToggleText: string;
   toggleCb: () => void;
 }) => {
-  const { titleText, buttonText, switchText, toggleCb } = params;
+  const { titleText, buttonText, ToggleText, toggleCb } = params;
   return (
     <GenericSectionStyle>
       <div>
         <Title text={titleText} />
         <Fields />
         <Button text={buttonText} />
-        <Switch text={switchText} toggle={toggleCb} />
+        <Toggle text={ToggleText} toggleCb={toggleCb} />
       </div>
     </GenericSectionStyle>
   );
