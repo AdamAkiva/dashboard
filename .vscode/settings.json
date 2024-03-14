@@ -1,0 +1,15 @@
+// Project related override settings
+// Use this only to override settings set by developers which are a must for
+// standard work
+
+{
+  "eslint.experimental.useFlatConfig": true,
+  "eslint.workingDirectories": [
+    {
+      "pattern": "./be"
+    },
+    {
+      "pattern": "./fe"
+    }
+  ]
+}

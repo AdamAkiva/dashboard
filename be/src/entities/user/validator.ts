@@ -44,7 +44,7 @@ const ALLOWED_GENDER_VALUES = new Set<
 // At least 1 digit, 1 upper case letter, 1 special character (!@#$%^&*),
 // no spaces and be between 6 to 64 characters
 // The non literal values are constants defined by the server
-// eslint-disable-next-line security/detect-non-literal-regexp
+// eslint-disable-next-line @security/detect-non-literal-regexp
 const passwordRegex = new RegExp(
   `^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[^\\s]{${USER_PASSWORD_MIN_LENGTH},${USER_PASSWORD_MAX_LENGTH}}$`
 );
