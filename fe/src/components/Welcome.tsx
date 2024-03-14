@@ -6,13 +6,13 @@ import bgImage from '@/assets/img/left-bg.jpg';
 
 /******************************************************************************/
 
-const Greeting = styled.div`
+const GreetingStyle = styled.div`
   font-size: 3.5rem;
   margin-top: 7rem;
   margin-bottom: 1rem;
 `;
 
-const WelcomeSection = styled.div`
+const WelcomeStyle = styled.div`
   background-image: url(${bgImage});
   background-repeat: no-repeat;
   background-size: cover;
@@ -23,10 +23,10 @@ const WelcomeSection = styled.div`
 
 const Welcome = () => {
   return (
-    <WelcomeSection>
-      <Greeting>Welcome to Dashboard</Greeting>
+    <WelcomeStyle>
+      <GreetingStyle>Welcome to Dashboard</GreetingStyle>
       <div> Here will be a description of the website.</div>
-    </WelcomeSection>
+    </WelcomeStyle>
   );
 };
 
