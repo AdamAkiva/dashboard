@@ -1,4 +1,10 @@
 /* eslint-disable max-classes-per-file */
+/**
+ * The database logger class is used only by this module. There's no point to
+ * separate it to another file since it is extremely coupled with the database
+ * by definition, so we ignore the rule instead
+ */
+
 import {
   and,
   drizzle,
@@ -15,21 +21,22 @@ import {
   type Logger
 } from '../utils/index.js';
 
-// The default import is on purpose. See: https://orm.drizzle.team/docs/sql-schema-declaration
+/* The default import is on purpose. See: https://orm.drizzle.team/docs/sql-schema-declaration */
 import * as schema from './schemas.js';
 
 /**********************************************************************************/
 
-// In regards to using handler and transaction, see this:
-// https://www.answeroverflow.com/m/1164318289674125392
-// In short, it does not matter, handler and transaction are same except
-// for a rollback method, which occurs if an error is thrown
+/**
+ * In regards to using handler and transaction, see this:
+ * https://www.answeroverflow.com/m/1164318289674125392
+ * In short, it does not matter, handler and transaction are same except
+ * for a rollback method, which occurs if an error is thrown
+ */
 export type DBHandler =
   | DatabaseHandler['_handler']
   // For your own sanity, don't ask or think about it
   | Parameters<Parameters<DatabaseHandler['_handler']['transaction']>[0]>[0];
 export type DBModels = DatabaseHandler['_models'];
-export type DBPreparedQueries = DatabaseHandler['_preparedQueries'];
 
 /**********************************************************************************/
 
