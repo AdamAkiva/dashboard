@@ -82,14 +82,6 @@ function parseErrorMessages(issues: Zod.ZodIssue[], delimiter: string): string {
 
 /**********************************************************************************/
 
-export function invalidStructure(fieldName: string) {
-  return `'${fieldName}' has invalid structure`;
-}
-
-export function invalidArrayErr(fieldName: string) {
-  return `'${fieldName}' is not a valid array`;
-}
-
 export function invalidObjectErr(fieldName: string) {
   return `'${fieldName}' is not a valid object`;
 }
@@ -108,10 +100,6 @@ export function invalidBoolean(fieldName: string) {
 
 export function requiredErr(fieldName: string) {
   return `'${fieldName}' is required`;
-}
-
-export function emptyErr(fieldName: string) {
-  return `'${fieldName}' must contain one or more element(s)`;
 }
 
 export function minErr(fieldName: string, minAmount: number) {

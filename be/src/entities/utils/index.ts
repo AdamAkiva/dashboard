@@ -1,12 +1,9 @@
 import { executePreparedQuery } from './service.js';
 import {
   VALIDATION,
-  emptyErr,
-  invalidArrayErr,
   invalidBoolean,
   invalidObjectErr,
   invalidStringErr,
-  invalidStructure,
   invalidUuid,
   maxErr,
   minErr,
@@ -19,13 +16,10 @@ import {
 
 export {
   VALIDATION,
-  emptyErr,
   executePreparedQuery,
-  invalidArrayErr,
   invalidBoolean,
   invalidObjectErr,
   invalidStringErr,
-  invalidStructure,
   invalidUuid,
   maxErr,
   minErr,
