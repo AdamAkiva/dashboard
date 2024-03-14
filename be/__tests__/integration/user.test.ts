@@ -5,7 +5,7 @@ import {
   checkUserExists,
   checkUserPasswordMatch,
   createUsers,
-  deactivateUser,
+  deactivateUsers,
   describe,
   expect,
   getRoutes,
@@ -663,7 +663,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         expect(res.statusCode).toBe(StatusCodes.CREATED);
         expect(omit(res.data, 'id')).toStrictEqual(omit(userData, 'password'));
 
-        await deactivateUser(globalThis.db, res.data.id);
+        await deactivateUsers(globalThis.db, res.data.id);
 
         res = await sendHttpRequest<User>(userURL, {
           method: 'post',
@@ -686,7 +686,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
   describe('Read', () => {
     // Match this number to the amount of tests needing a unique user
     // database entry
-    const USERS_AMOUNT = 2;
+    const USERS_AMOUNT = 4;
     let usersData: User[] = [];
 
     beforeAll(async () => {
@@ -706,59 +706,133 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
     });
 
     describe('Valid', () => {
-      it('Single active', async () => {
-        const { data, statusCode } = await sendHttpRequest<User>(
-          `${userURL}/${usersData[0].id}`,
-          { method: 'get' }
-        );
-        expect(statusCode).toBe(StatusCodes.SUCCESS);
-        expect(data).toStrictEqual(usersData[0]);
-      });
-      it('Single inactive', async () => {
-        await deactivateUser(globalThis.db, usersData[1].id);
+      describe('Single', () => {
+        it('Single active', async () => {
+          const { data, statusCode } = await sendHttpRequest<User>(
+            `${userURL}/${usersData[0].id}`,
+            { method: 'get' }
+          );
+          expect(statusCode).toBe(StatusCodes.SUCCESS);
+          expect(data).toStrictEqual(usersData[0]);
+        });
+        it('Single inactive', async () => {
+          await deactivateUsers(globalThis.db, usersData[1].id);
 
-        const { data, statusCode } = await sendHttpRequest<User>(
-          `${userURL}/${usersData[1].id}`,
-          { method: 'get' }
-        );
-        expect(statusCode).toBe(StatusCodes.SUCCESS);
-        expect(data).toStrictEqual(usersData[1]);
+          const { data, statusCode } = await sendHttpRequest<User>(
+            `${userURL}/${usersData[1].id}`,
+            { method: 'get' }
+          );
+          expect(statusCode).toBe(StatusCodes.SUCCESS);
+          expect(data).toStrictEqual(usersData[1]);
+        });
+      });
+      describe('Multiple', () => {
+        it('Multiple active', async () => {
+          const { data, statusCode } = await sendHttpRequest<User[]>(userURL, {
+            method: 'get'
+          });
+          expect(statusCode).toBe(StatusCodes.SUCCESS);
+          // Can't trust the insertion order is equal to the read order
+          usersData.forEach((userData) => {
+            const user = data.find((user) => {
+              return userData.email === user.email;
+            });
+            expect(user).toStrictEqual(userData);
+          });
+        });
+        it('Multiple inactive', async () => {
+          await deactivateUsers(
+            globalThis.db,
+            usersData[0].id,
+            usersData[1].id,
+            usersData[2].id,
+            usersData[3].id
+          );
+
+          const { data, statusCode } = await sendHttpRequest<User[]>(
+            `${userURL}?archive=true`,
+            { method: 'get' }
+          );
+          expect(statusCode).toBe(StatusCodes.SUCCESS);
+          // Can't trust the insertion order is equal to the read order
+          usersData.forEach((userData) => {
+            const user = data.find((user) => {
+              return userData.email === user.email;
+            });
+            expect(user).toStrictEqual(userData);
+          });
+        });
       });
     });
     describe('Invalid', () => {
-      describe('User id', () => {
-        it('Without', async () => {
+      describe('Single', () => {
+        describe('User id', () => {
+          it('Empty', async () => {
+            const { data, statusCode } = await sendHttpRequest<unknown>(
+              `${userURL}/''`,
+              { method: 'get' }
+            );
+            expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+            expect(typeof data === 'string').toBe(true);
+          });
+          it('Invalid format', async () => {
+            const { data, statusCode } = await sendHttpRequest<unknown>(
+              `${userURL}/abcdefg12345`,
+              { method: 'get' }
+            );
+            expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+            expect(typeof data === 'string').toBe(true);
+          });
+        });
+        it('Non-existent user', async () => {
           const { data, statusCode } = await sendHttpRequest<unknown>(
-            `${userURL}/`,
+            `${userURL}/${randomUUID()}`,
             { method: 'get' }
           );
           expect(statusCode).toBe(StatusCodes.NOT_FOUND);
           expect(typeof data === 'string').toBe(true);
         });
-        it('Empty', async () => {
-          const { data, statusCode } = await sendHttpRequest<unknown>(
-            `${userURL}/''`,
-            { method: 'get' }
-          );
-          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof data === 'string').toBe(true);
-        });
-        it('Invalid format', async () => {
-          const { data, statusCode } = await sendHttpRequest<unknown>(
-            `${userURL}/abcdefg12345`,
-            { method: 'get' }
-          );
-          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
-          expect(typeof data === 'string').toBe(true);
-        });
       });
-      it('Non-existent user', async () => {
-        const { data, statusCode } = await sendHttpRequest<unknown>(
-          `${userURL}/${randomUUID()}`,
-          { method: 'get' }
-        );
-        expect(statusCode).toBe(StatusCodes.NOT_FOUND);
-        expect(typeof data === 'string').toBe(true);
+      describe('Multiple', () => {
+        describe('Filter', () => {
+          it('Non-existent', async () => {
+            const { data, statusCode } = await sendHttpRequest<unknown>(
+              `${userURL}?tmp=123`,
+              { method: 'get' }
+            );
+            expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+            expect(typeof data === 'string').toBe(true);
+          });
+          describe('Archive', () => {
+            it('No value', async () => {
+              const { data, statusCode } = await sendHttpRequest<unknown>(
+                `${userURL}?archive=`,
+                { method: 'get' }
+              );
+              await new Promise<void>((resolve) => {
+                setTimeout(resolve, 1000);
+              });
+              expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+              expect(typeof data === 'string').toBe(true);
+            });
+            it('Empty value', async () => {
+              const { data, statusCode } = await sendHttpRequest<unknown>(
+                `${userURL}?archive=''`,
+                { method: 'get' }
+              );
+              expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+              expect(typeof data === 'string').toBe(true);
+            });
+            it('Wrong type', async () => {
+              const { data, statusCode } = await sendHttpRequest<unknown>(
+                `${userURL}?archive=[]`,
+                { method: 'get' }
+              );
+              expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+              expect(typeof data === 'string').toBe(true);
+            });
+          });
+        });
       });
     });
   });
@@ -1282,7 +1356,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         expect(typeof data === 'string').toBe(true);
       });
       it('Duplicate with inactive user', async () => {
-        await deactivateUser(globalThis.db, usersData[10].id);
+        await deactivateUsers(globalThis.db, usersData[10].id);
 
         const { data, statusCode } = await sendHttpRequest<string>(
           `${userURL}/${usersData[9].id}`,
@@ -1333,7 +1407,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         expect(data).toStrictEqual(usersData[0].id);
       });
       it('Delete user', async () => {
-        await deactivateUser(globalThis.db, usersData[1].id);
+        await deactivateUsers(globalThis.db, usersData[1].id);
 
         const { data, statusCode } = await sendHttpRequest<string>(
           `${userURL}/${usersData[1].id}`,

@@ -9,7 +9,7 @@
     "test": "NODE_ENV=test npx vitest run --config ./__tests__/config/vite.config.ts",
     "test:logs": "NODE_ENV=test DEBUG=dashboard:* npx vitest --run --config ./__tests__/config/vite.config.ts",
     "test:stress": "NODE_ENV=test STRESS=1 npx vitest --run --config ./__tests__/config/vite.config.ts",
-    "lint": "npx tsc --project ./tsconfig.json --noEmit && npx eslint",
+    "lint": "npx tsc --project ./tsconfig.json --noEmit && npx eslint '{src,__tests__}/**/*.ts'",
     "generate:migrations-dev": "npx drizzle-kit drop --config=./db-migrations/drizzle.config.ts && npx drizzle-kit generate:pg --config=./db-migrations/drizzle.config.ts",
     "generate:migrations-prod": "printf 'NYI\n'",
     "generate:types": "npx swagger-typescript-api --modular --no-client -o ./src/types -p ./src/api-docs/openapi.yml && mv ./src/types/data-contracts.ts ./src/types/api.ts && cp ./src/types/api.ts ./__tests__/apiTypes.ts",
@@ -22,7 +22,7 @@
     "check-cir-deps": "npx dpdm --no-tree --transform --exit-code circular:1 \"src/**/*.ts\"",
     "_start": "npm i && npm run start:dev",
     "_test:ci": "npm run lint && npm run test",
-    "_build": "npx eslint && npx tsc --build --verbose ./tsconfig.prod.json"
+    "_build": "npx eslint '{src,__tests__}/**/*.ts' && npx tsc --build --verbose ./tsconfig.prod.json"
   },
   "dependencies": {
     "compression": "~1.7.4",

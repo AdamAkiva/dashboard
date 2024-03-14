@@ -1,13 +1,19 @@
 /* eslint-disable max-classes-per-file */
 import {
+  and,
   drizzle,
   eq,
+  isNull,
   pg,
   sql,
   type DrizzleLogger,
   type Mode
 } from '../types/index.js';
-import { isDevelopmentMode, type Logger } from '../utils/index.js';
+import {
+  debugEnabled,
+  isDevelopmentMode,
+  type Logger
+} from '../utils/index.js';
 
 // The default import is on purpose. See: https://orm.drizzle.team/docs/sql-schema-declaration
 import * as schema from './schemas.js';
@@ -98,7 +104,7 @@ export default class DatabaseHandler {
     this._handler = drizzle(this._conn, {
       schema: schema,
       logger:
-        isDevelopmentMode(mode) || process.env.DEBUG
+        isDevelopmentMode(mode) || debugEnabled()
           ? new DatabaseLogger(healthCheckQuery, logger)
           : false
     });
@@ -162,7 +168,10 @@ export default class DatabaseHandler {
         .from(userInfoModel)
         .innerJoin(
           userCredentialsModel,
-          eq(userCredentialsModel.userId, userInfoModel.id)
+          and(
+            eq(userCredentialsModel.userId, userInfoModel.id),
+            isNull(userCredentialsModel.archivedAt)
+          )
         )
         .prepare('readUsersQuery'),
       readUserQuery: this._handler

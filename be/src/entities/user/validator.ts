@@ -57,13 +57,28 @@ export function readMany(req: Request) {
 
   const querySchema = Zod.object(
     {
-      archive: Zod.boolean({
-        invalid_type_error: invalidBoolean('boolean')
-      }).optional()
+      archive: Zod.string({
+        invalid_type_error: invalidStringErr('archive')
+      })
+        .toLowerCase()
+        .transform((archive) => {
+          if (archive === 'true') {
+            return true;
+          } else if (archive === 'false') {
+            return false;
+          }
+
+          return null;
+        })
+        .pipe(
+          Zod.boolean({
+            invalid_type_error: invalidBoolean('archive')
+          }).optional()
+        )
+        .optional()
     },
     {
-      invalid_type_error: invalidObjectErr('query params'),
-      required_error: requiredErr('query params')
+      invalid_type_error: invalidObjectErr('query params')
     }
   )
     .strict(invalidObjectErr('query params'))

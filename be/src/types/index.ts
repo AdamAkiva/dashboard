@@ -11,6 +11,7 @@ import Debug from 'debug';
 import {
   and,
   eq,
+  inArray,
   isNotNull,
   isNull,
   sql,
@@ -41,7 +42,8 @@ import type { CreateUser, UpdateUser, User } from './api.js';
 /**********************************************************************************/
 
 export type UnknownObject = { [key: string]: unknown };
-export type MaybeArray<T> = T | T[];
+export type MaybeArray<T = unknown> = T | T[];
+export type ArrayWithAtLeastOneValue<T = unknown> = [T, ...T[]];
 
 export type AddRequired<T, K extends keyof T> = Required<Pick<T, K>> & T;
 export type AddOptional<T, K extends keyof T> = Omit<T, K> &
@@ -50,7 +52,7 @@ export type SwapKeysValue<T, K extends keyof T, V> = Omit<T, K> & {
   [P in K]: V;
 };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ResolvedValue<T> = T extends (...args: any) => any
+export type ResolvedValue<T = any> = T extends (...args: any) => any
   ? PromiseFulfilledResult<Awaited<ReturnType<T>>>
   : PromiseFulfilledResult<Awaited<T>>;
 
@@ -96,6 +98,7 @@ export {
   EventEmitter,
   express,
   helmet,
+  inArray,
   isNotNull,
   isNull,
   isValidPhoneNumber,

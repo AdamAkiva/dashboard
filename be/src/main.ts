@@ -12,7 +12,7 @@ async function startServer() {
   const { mode, server: serverEnv, db: dbUri } = getEnv();
 
   const logger = new Logger();
-  const { handler, logMiddleware } = logger;
+  const { handler: loggerHandler, logMiddleware } = logger;
 
   const db = new DatabaseHandler({
     mode: mode,
@@ -21,9 +21,9 @@ async function startServer() {
       url: dbUri,
       healthCheckQuery: DatabaseHandler.HEALTH_CHECK_QUERY
     },
-    logger: handler
+    logger: loggerHandler
   });
-  const server = new HttpServer({ mode: mode, db: db, logger: handler });
+  const server = new HttpServer({ mode: mode, db: db, logger: loggerHandler });
 
   // The order matters!
   // These calls setup express middleware, and the configuration middleware
@@ -38,7 +38,7 @@ async function startServer() {
           .getHandler()
           .execute(sql.raw(DatabaseHandler.HEALTH_CHECK_QUERY));
       } catch (err) {
-        handler.error(err, 'Database error');
+        loggerHandler.error(err, 'Database error');
         notReadyMsg += '\nDatabase is unavailable';
       }
 
@@ -58,8 +58,14 @@ async function startServer() {
   // if something failed (partially true since the database is ready before
   // the server, but again, that goes more into the first point)
   process
-    .on('warning', handler.warn)
+    .on('warning', loggerHandler.warn)
     .once('SIGINT', () => {
+      server.close();
+    })
+    .once('SIGQUIT', () => {
+      server.close();
+    })
+    .once('SIGKILL', () => {
       server.close();
     })
     .once('SIGTERM', () => {
@@ -69,7 +75,7 @@ async function startServer() {
     .once('uncaughtException', globalErrorHandler(server, 'exception'));
 
   server.listen(serverEnv.port, () => {
-    handler.info(
+    loggerHandler.info(
       `Server is running in '${mode}' mode on:` +
         ` ${serverEnv.url}:${serverEnv.port}/${serverEnv.apiRoute}`
     );
