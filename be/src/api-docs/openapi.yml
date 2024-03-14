@@ -342,7 +342,7 @@ components:
     NotFoundError:
       description: The requested entity does not exist
     PayloadTooLargeError:
-      description: The request size was too large
+      description: The request size is too large
     ServerError:
       description: Server related error
     GatewayTimeoutError:
