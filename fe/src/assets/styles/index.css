@@ -9,7 +9,6 @@
   font-family: 'Poppins';
   line-height: 1.5;
   font-weight: 400;
-  width: 100%;
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
@@ -56,6 +55,11 @@ button {
   cursor: pointer;
 }
 
+#root {
+  width: 100%;
+  height: 100%;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
@@ -67,4 +71,17 @@ button {
   button {
     background-color: #f9f9f9;
   }
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  background-color: white;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(114, 130, 214, 0.46);
 }

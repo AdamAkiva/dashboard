@@ -7,7 +7,6 @@ import { Welcome, Login } from '@/components/welcomePage';
 /******************************************************************************/
 
 const WelcomePageBackground = styled.div`
-  height: 70vh;
   font-size: 1.5rem;
   padding: 10rem 10rem;
   overflow: auto;

@@ -18,6 +18,7 @@ const GenericSectionStyle = styled.div`
   font-size: 2rem;
   display: flex;
   justify-content: center;
+  padding-bottom: 3em;
 `;
 
 const Form = styled.form`

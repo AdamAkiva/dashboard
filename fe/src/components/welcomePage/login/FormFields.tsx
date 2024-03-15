@@ -12,8 +12,13 @@ const FieldsStyle = styled.div`
   margin-bottom: 1.5rem;
   color: black;
   justify-content: center;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   max-height: 6em;
+`;
+
+const FieldStyle = styled.div`
+  padding: 0 0.5em;
 `;
 
 const FieldCss = css`
@@ -36,6 +41,7 @@ const Input = styled.input`
 const Select = styled.select`
   ${FieldCss};
   width: 19rem;
+  color: #827675;
 `;
 
 /******************************************************************************/
@@ -46,7 +52,7 @@ const Fields = (params: { inputFields: FormField[] }) => {
     <FieldsStyle>
       {inputFields.map((field) => {
         return (
-          <div key={field.name}>
+          <FieldStyle key={field.name}>
             {field.type !== 'dropdown' ? (
               <Input
                 required={field.required}
@@ -55,7 +61,14 @@ const Fields = (params: { inputFields: FormField[] }) => {
                 type={field.type}
               />
             ) : (
-              <Select key={field.name}>
+              <Select
+                defaultValue={field.name}
+                name={field.name}
+                key={field.name}
+              >
+                <option value={field.name} disabled={true}>
+                  {field.name}
+                </option>
                 {field.options.map((option) => {
                   return (
                     <option value={option} key={option}>
@@ -65,7 +78,7 @@ const Fields = (params: { inputFields: FormField[] }) => {
                 })}
               </Select>
             )}
-          </div>
+          </FieldStyle>
         );
       })}
     </FieldsStyle>
