@@ -5,7 +5,7 @@ import styled from 'styled-components';
 /******************************************************************************/
 
 const ToggleStyle = styled.div`
-  margin-top: 1.5rem;
+  margin-top: 2rem;
   font-size: 1.1rem;
   color: #9e60b6;
   display: flex;
