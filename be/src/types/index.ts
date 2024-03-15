@@ -36,7 +36,14 @@ import { z as Zod } from 'zod';
 import type { DatabaseHandler } from '../db/index.js';
 import type { Logger } from '../utils/index.js';
 
-import type { CreateUser, UpdateUser, User } from './api.js';
+import type {
+  CreatedUser,
+  DeletedUser,
+  ReactivatedUser,
+  UpdatedUser,
+  User,
+  Users
+} from './api.js';
 
 /******************************** General *****************************************/
 /**********************************************************************************/
@@ -113,14 +120,17 @@ export {
   URL,
   Zod,
   type Application,
-  type CreateUser,
+  type CreatedUser,
+  type DeletedUser,
   type DrizzleLogger,
   type HttpLogger,
   type IncomingHttpHeaders,
   type NextFunction,
+  type ReactivatedUser,
   type Request,
   type Server,
   type SQL,
-  type UpdateUser,
-  type User
+  type UpdatedUser,
+  type User,
+  type Users
 };
