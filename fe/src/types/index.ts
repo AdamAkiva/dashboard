@@ -16,10 +16,19 @@ export type ResolvedValue<T> = T extends (...args: any) => any
 
 /******************************************************************************/
 
-type inputField = {
+type InputField = {
   name: string;
   required: boolean;
-  isPassword?: boolean;
+  type: 'password' | 'text';
 };
 
-export type { inputField };
+type DropdownField = {
+  name: string;
+  required: boolean;
+  type: 'dropdown';
+  options: string[];
+};
+
+type FormField = DropdownField | InputField;
+
+export type { FormField };

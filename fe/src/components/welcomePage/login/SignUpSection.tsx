@@ -1,6 +1,6 @@
 /******************************************************************************/
 
-import type { inputField } from '@/types';
+import type { FormField } from '@/types';
 
 import GenericSection from './GenericSection';
 
@@ -14,15 +14,20 @@ const handleSubmit = (formData: FormData) => {
 const SignUpSection = (params: { toggleCb: () => void }) => {
   const { toggleCb } = params;
 
-  const inputFields: inputField[] = [
-    { name: 'First Name', required: true },
-    { name: 'Last Name', required: true },
-    { name: 'Email', required: true },
-    { name: 'Password', required: true, isPassword: true },
-    { name: 'Confirm Password', required: true, isPassword: true },
-    { name: 'Phone', required: false },
-    { name: 'Address', required: false },
-    { name: 'Gender', required: false }
+  const inputFields: FormField[] = [
+    { name: 'First Name', required: true, type: 'text' },
+    { name: 'Last Name', required: true, type: 'text' },
+    { name: 'Email', required: true, type: 'text' },
+    { name: 'Password', required: true, type: 'password' },
+    { name: 'Confirm Password', required: true, type: 'password' },
+    { name: 'Phone', required: false, type: 'text' },
+    { name: 'Address', required: false, type: 'text' },
+    {
+      name: 'Gender',
+      required: false,
+      type: 'dropdown',
+      options: ['Male', 'Female', 'Other']
+    }
   ];
 
   return (

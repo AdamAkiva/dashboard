@@ -1,6 +1,6 @@
 /******************************************************************************/
 
-import type { inputField } from '@/types';
+import type { FormField } from '@/types';
 
 import GenericSection from './GenericSection';
 
@@ -14,9 +14,9 @@ const handleSubmit = (formData: FormData) => {
 const LoginSection = (params: { toggleCb: () => void }) => {
   const { toggleCb } = params;
 
-  const inputFields: inputField[] = [
-    { name: 'Email', required: true },
-    { name: 'Password', required: true }
+  const inputFields: FormField[] = [
+    { name: 'Email', required: true, type: 'text' },
+    { name: 'Password', required: true, type: 'text' }
   ];
   return (
     <GenericSection

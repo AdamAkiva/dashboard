@@ -2,7 +2,7 @@
 
 import styled, { css } from 'styled-components';
 
-import type { inputField } from '@/types';
+import type { FormField } from '@/types';
 
 /******************************************************************************/
 
@@ -40,25 +40,29 @@ const Select = styled.select`
 
 /******************************************************************************/
 
-const Fields = (params: { inputFields: inputField[] }) => {
+const Fields = (params: { inputFields: FormField[] }) => {
   const { inputFields } = params;
   return (
     <FieldsStyle>
       {inputFields.map((field) => {
         return (
           <div key={field.name}>
-            {field.name !== 'Gender' ? (
+            {field.type !== 'dropdown' ? (
               <Input
                 required={field.required}
                 name={field.name}
                 placeholder={field.name}
-                type={field.isPassword ? 'password' : 'text'}
+                type={field.type}
               />
             ) : (
               <Select key={field.name}>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
+                {field.options.map((option) => {
+                  return (
+                    <option value={option} key={option}>
+                      {option}
+                    </option>
+                  );
+                })}
               </Select>
             )}
           </div>

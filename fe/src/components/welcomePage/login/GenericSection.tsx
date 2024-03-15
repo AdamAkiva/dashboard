@@ -3,12 +3,12 @@
 import type { FormEvent } from 'react';
 import styled from 'styled-components';
 
-import type { inputField } from '@/types';
+import type { FormField } from '@/types';
 
 import Title from './Title';
 import Toggle from './Toggle';
 import Button from './Button';
-import Fields from './Fields';
+import FormFields from './FormFields';
 
 /******************************************************************************/
 
@@ -18,6 +18,10 @@ const GenericSectionStyle = styled.div`
   font-size: 2rem;
   display: flex;
   justify-content: center;
+`;
+
+const Form = styled.form`
+  padding: 0 1em;
 `;
 
 /******************************************************************************/
@@ -37,7 +41,7 @@ const GenericSection = (params: {
   titleText: string;
   buttonText: string;
   toggleText: string;
-  inputFields: inputField[];
+  inputFields: FormField[];
   toggleCb: () => void;
   submitCb: (formData: FormData) => void;
 }) => {
@@ -47,15 +51,15 @@ const GenericSection = (params: {
     <GenericSectionStyle>
       <div>
         <Title text={titleText} />
-        <form
+        <Form
           method="post"
           onSubmit={(e) => {
             handleSubmit(e, submitCb);
           }}
         >
-          <Fields inputFields={inputFields} />
+          <FormFields inputFields={inputFields} />
           <Button text={buttonText} />
-        </form>
+        </Form>
         <Toggle text={toggleText} toggleCb={toggleCb} />
       </div>
     </GenericSectionStyle>
