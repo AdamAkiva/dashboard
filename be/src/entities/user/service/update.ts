@@ -2,20 +2,20 @@ import type { DBHandler, DBModels } from '../../../db/index.js';
 import {
   eq,
   userDebug,
+  type ReactivatedUser,
   type RequestContext,
-  type User
+  type UpdatedUser
 } from '../../../types/index.js';
 import { objHasValues } from '../../../utils/index.js';
 
 import { executePreparedQuery } from '../../utils/index.js';
 
 import type {
-  reactivateOne as reactivateOneValidation,
-  updateOne as updateOneValidation
+  reactivateUser as reactivateUserValidation,
+  updateUser as updateUserValidation
 } from '../validator.js';
 
 import {
-  userAlreadyActive,
   userNotAllowedToBeUpdated,
   userNotFoundError,
   userUpdateError,
@@ -24,17 +24,15 @@ import {
 
 /**********************************************************************************/
 
-type UserUpdateOneValidationData = ReturnType<typeof updateOneValidation>;
-type UserReactivateOneValidationData = ReturnType<
-  typeof reactivateOneValidation
->;
+type UpdateUserValidationData = ReturnType<typeof updateUserValidation>;
+type ReactivateUserValidationData = ReturnType<typeof reactivateUserValidation>;
 
 /**********************************************************************************/
 
-export async function updateOne(
+export async function updateUser(
   ctx: RequestContext,
-  updates: UserUpdateOneValidationData
-): Promise<User> {
+  updates: UpdateUserValidationData
+): Promise<UpdatedUser> {
   const { db, logger } = ctx;
   const handler = db.getHandler();
   const {
@@ -99,41 +97,24 @@ export async function updateOne(
   }
 }
 
-export async function reactivateOne(
+export async function reactivateUser(
   ctx: RequestContext,
-  userId: UserReactivateOneValidationData
-): Promise<User> {
+  userId: ReactivateUserValidationData
+): Promise<ReactivatedUser> {
   const { db } = ctx;
 
-  const handler = db.getHandler();
-  const {
-    user: { userInfoModel, userCredentialsModel }
-  } = db.getModels();
-
-  const users = await checkUserStatus({
-    handler: handler,
-    models: {
-      userInfoModel: userInfoModel,
-      userCredentialsModel: userCredentialsModel
-    },
-    userId: userId
+  userDebug('Reactivating user');
+  const userIds = await executePreparedQuery({
+    db: db,
+    queryName: 'reactivateUser',
+    phValues: { userId: userId }
   });
-  if (!users.length) {
+  userDebug('Done reactivating user');
+  if (!userIds.length) {
     throw userNotFoundError(userId);
   }
-  if (!users[0].archivedAt) {
-    throw userAlreadyActive(userId);
-  }
 
-  await reactivateUser({
-    handler: handler,
-    models: { userCredentialsModel: userCredentialsModel },
-    userId: userId
-  });
-
-  return {
-    ...users[0]
-  };
+  return userIds[0].userId;
 }
 
 /**********************************************************************************/
@@ -166,7 +147,7 @@ async function isAllowedToUpdate(params: {
 async function updateUserInfo(params: {
   handler: DBHandler;
   models: { userInfoModel: DBModels['user']['userInfoModel'] };
-  userInfo: Omit<UserUpdateOneValidationData, 'password' | 'userId'>;
+  userInfo: Omit<UpdateUserValidationData, 'password' | 'userId'>;
   userId: string;
   updatedAt: string;
 }) {
@@ -197,7 +178,7 @@ async function updateUserInfo(params: {
 async function updateUserCredentials(params: {
   handler: DBHandler;
   models: { userCredentialsModel: DBModels['user']['userCredentialsModel'] };
-  credentials: Pick<UserUpdateOneValidationData, 'email' | 'password'>;
+  credentials: Pick<UpdateUserValidationData, 'email' | 'password'>;
   userId: string;
   updatedAt: string;
 }) {
@@ -226,58 +207,4 @@ async function updateUserCredentials(params: {
   if (!updates.length) {
     throw userNotFoundError(userId);
   }
-}
-
-async function checkUserStatus(params: {
-  handler: DBHandler;
-  models: {
-    userInfoModel: DBModels['user']['userInfoModel'];
-    userCredentialsModel: DBModels['user']['userCredentialsModel'];
-  };
-  userId: string;
-}) {
-  const {
-    handler,
-    models: { userInfoModel, userCredentialsModel },
-    userId
-  } = params;
-
-  userDebug('Checking whether the user is archived');
-  const users = await handler
-    .select({
-      id: userInfoModel.id,
-      email: userInfoModel.email,
-      firstName: userInfoModel.firstName,
-      lastName: userInfoModel.lastName,
-      phone: userInfoModel.phone,
-      gender: userInfoModel.gender,
-      address: userInfoModel.address,
-      createdAt: userInfoModel.createdAt,
-      archivedAt: userCredentialsModel.archivedAt
-    })
-    .from(userInfoModel)
-    .where(eq(userInfoModel.id, userId))
-    .innerJoin(userCredentialsModel, eq(userCredentialsModel.userId, userId));
-  userDebug('Done checking whether the user is archived');
-
-  return users;
-}
-
-async function reactivateUser(params: {
-  handler: DBHandler;
-  models: { userCredentialsModel: DBModels['user']['userCredentialsModel'] };
-  userId: string;
-}) {
-  const {
-    handler,
-    models: { userCredentialsModel },
-    userId
-  } = params;
-
-  userDebug('Reactivating user');
-  await handler
-    .update(userCredentialsModel)
-    .set({ archivedAt: null })
-    .where(eq(userCredentialsModel.userId, userId));
-  userDebug('Done reactivating user');
 }

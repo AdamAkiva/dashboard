@@ -5,36 +5,37 @@ import {
   userDebug,
   type RequestContext,
   type SQL,
-  type User
+  type User,
+  type Users
 } from '../../../types/index.js';
 
 import { executePreparedQuery } from '../../utils/index.js';
 
 import type {
-  readMany as readManyValidation,
-  readOne as readOneValidation
+  readUsers as readUsersValidation,
+  readUser as readUserValidation
 } from '../validator.js';
 
 import { userNotFoundError } from './utils.js';
 
 /**********************************************************************************/
 
-type UserReadManyValidationData = ReturnType<typeof readManyValidation>;
-type UserReadOneValidationData = ReturnType<typeof readOneValidation>;
+type ReadUsersValidationData = ReturnType<typeof readUsersValidation>;
+type ReadUserValidationData = ReturnType<typeof readUserValidation>;
 
 /**********************************************************************************/
 
-export async function readMany(
+export async function readUsers(
   ctx: RequestContext,
-  queryParams?: UserReadManyValidationData
-): Promise<User[]> {
+  queryParams?: ReadUsersValidationData
+): Promise<Users> {
   const { db } = ctx;
   const handler = db.getHandler();
   const {
     user: { userInfoModel, userCredentialsModel }
   } = db.getModels();
 
-  let users: User[] = [];
+  let users: Users = [];
   if (queryParams) {
     const filters: SQL[] = [eq(userCredentialsModel.userId, userInfoModel.id)];
     if (queryParams.archive) {
@@ -68,9 +69,9 @@ export async function readMany(
   return users;
 }
 
-export async function readOne(
+export async function readUser(
   ctx: RequestContext,
-  userId: UserReadOneValidationData
+  userId: ReadUserValidationData
 ): Promise<User> {
   const { db } = ctx;
 

@@ -1002,6 +1002,60 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
       });
     });
     describe('Invalid', () => {
+      it('Non-existent', async () => {
+        const updatedEmail = `${randStr()}@bla.com`;
+
+        const { data, statusCode } = await sendHttpRequest<unknown>(
+          `${userURL}/${randomUUID()}`,
+          {
+            method: 'patch',
+            json: { email: updatedEmail } satisfies UpdateUser
+          }
+        );
+        expect(statusCode).toBe(StatusCodes.NOT_FOUND);
+        expect(typeof data === 'string').toBe(true);
+      });
+      describe('User id', () => {
+        it('Without', async () => {
+          const updatedEmail = `${randStr()}@bla.com`;
+
+          const { data, statusCode } = await sendHttpRequest<unknown>(
+            `${userURL}/`,
+            {
+              method: 'patch',
+              json: { email: updatedEmail } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.NOT_FOUND);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Empty', async () => {
+          const updatedEmail = `${randStr()}@bla.com`;
+
+          const { data, statusCode } = await sendHttpRequest<unknown>(
+            `${userURL}/''`,
+            {
+              method: 'patch',
+              json: { email: updatedEmail } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Invalid format', async () => {
+          const updatedEmail = `${randStr()}@bla.com`;
+
+          const { data, statusCode } = await sendHttpRequest<unknown>(
+            `${userURL}/abcdefg12345`,
+            {
+              method: 'patch',
+              json: { email: updatedEmail } satisfies UpdateUser
+            }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+      });
       describe('Email', () => {
         it('Empty', async () => {
           const { data, statusCode } = await sendHttpRequest<string>(
@@ -1369,6 +1423,86 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         );
         expect(statusCode).toBe(StatusCodes.CONFLICT);
         expect(typeof data === 'string').toBe(true);
+      });
+    });
+  });
+
+  describe('Reactivate', () => {
+    // Match this number to the amount of tests needing a unique user
+    // database entry
+    const USERS_AMOUNT = 2;
+    let usersData: User[] = [];
+
+    beforeAll(async () => {
+      usersData = await createUsers(
+        [...Array(USERS_AMOUNT)].map(() => {
+          return {
+            email: `${randStr()}@bla.com`,
+            password: 'Bla123!@#',
+            firstName: 'TMP',
+            lastName: 'TMP',
+            phone: '052-2222222',
+            gender: 'male',
+            address: 'TMP'
+          };
+        })
+      );
+    });
+
+    describe('Valid', () => {
+      it('Reactivate deactivated user', async () => {
+        await deactivateUsers(globalThis.db, usersData[0].id);
+
+        const { data, statusCode } = await sendHttpRequest<string>(
+          `${userURL}/reactivate/${usersData[0].id}`,
+          { method: 'patch' }
+        );
+        expect(statusCode).toBe(StatusCodes.SUCCESS);
+        expect(data).toStrictEqual(usersData[0].id);
+      });
+      it('Reactivate active user', async () => {
+        const { data, statusCode } = await sendHttpRequest<string>(
+          `${userURL}/reactivate/${usersData[1].id}`,
+          { method: 'patch' }
+        );
+        expect(statusCode).toBe(StatusCodes.SUCCESS);
+        expect(data).toStrictEqual(usersData[1].id);
+      });
+    });
+    describe('Invalid', () => {
+      it('Non-existent', async () => {
+        const { data, statusCode } = await sendHttpRequest<unknown>(
+          `${userURL}/reactivate/${randomUUID()}`,
+          { method: 'patch' }
+        );
+        expect(statusCode).toBe(StatusCodes.NOT_FOUND);
+        expect(typeof data === 'string').toBe(true);
+      });
+      describe('User id', () => {
+        it('Without', async () => {
+          const { data, statusCode } = await sendHttpRequest<unknown>(
+            `${userURL}/reactivate/`,
+            { method: 'patch' }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Empty', async () => {
+          const { data, statusCode } = await sendHttpRequest<unknown>(
+            `${userURL}/reactivate/''`,
+            { method: 'patch' }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Invalid format', async () => {
+          const { data, statusCode } = await sendHttpRequest<unknown>(
+            `${userURL}/reactivate/abcdefg12345`,
+            { method: 'patch' }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
       });
     });
   });

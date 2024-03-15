@@ -44,7 +44,7 @@ const passwordRegex = new RegExp(
 
 /**********************************************************************************/
 
-export function readMany(req: Request) {
+export function readUsers(req: Request) {
   const { body, params, query } = req;
 
   const queryRes = readUsersSchema.safeParse(query);
@@ -62,7 +62,7 @@ export function readMany(req: Request) {
   return (queryRes as ValidatedType<typeof readUsersSchema>).data;
 }
 
-export function readOne(req: Request) {
+export function readUser(req: Request) {
   const { body, params, query } = req;
 
   const paramsRes = readUserSchema.safeParse(params);
@@ -80,7 +80,7 @@ export function readOne(req: Request) {
   return (paramsRes as ValidatedType<typeof readUserSchema>).data.userId;
 }
 
-export function createOne(req: Request) {
+export function createUser(req: Request) {
   const { body, params, query } = req;
 
   const paramsRes = createUsersSchema.safeParse(body);
@@ -98,7 +98,7 @@ export function createOne(req: Request) {
   return (paramsRes as ValidatedType<typeof createUsersSchema>).data;
 }
 
-export function updateOne(req: Request) {
+export function updateUser(req: Request) {
   const { body, params, query } = req;
 
   const paramsRes = userIdSchema.safeParse(params);
@@ -118,7 +118,7 @@ export function updateOne(req: Request) {
   };
 }
 
-export function reactivateOne(req: Request) {
+export function reactivateUser(req: Request) {
   const { body, params, query } = req;
 
   const paramsRes = reactivateUserSchema.safeParse(params);
@@ -136,7 +136,7 @@ export function reactivateOne(req: Request) {
   return (paramsRes as ValidatedType<typeof reactivateUserSchema>).data.userId;
 }
 
-export function deleteOne(req: Request) {
+export function deleteUser(req: Request) {
   const { body, params, query } = req;
 
   const paramsRes = deleteUserSchema.safeParse(params);

@@ -205,6 +205,12 @@ export default class DatabaseHandler {
         .limit(1)
         .prepare('checkUserIsArchivedQuery'),
 
+      reactivateUser: this._handler
+        .update(userCredentialsModel)
+        .set({ archivedAt: null })
+        .where(eq(userCredentialsModel.userId, sql.placeholder('userId')))
+        .returning({ userId: userCredentialsModel.userId }),
+
       deleteUser: this._handler
         .delete(userInfoModel)
         .where(eq(userInfoModel.id, sql.placeholder('userId')))

@@ -1,20 +1,24 @@
 import type { DatabaseHandler } from '../../../db/index.js';
-import { userDebug, type RequestContext } from '../../../types/index.js';
+import {
+  userDebug,
+  type DeletedUser,
+  type RequestContext
+} from '../../../types/index.js';
 
 import { executePreparedQuery } from '../../utils/index.js';
 
-import type { deleteOne as deleteOneValidation } from '../validator.js';
+import type { deleteUser as deleteUserValidation } from '../validator.js';
 
 /**********************************************************************************/
 
-type UserDeleteOneValidationData = ReturnType<typeof deleteOneValidation>;
+type DeleteUserValidationData = ReturnType<typeof deleteUserValidation>;
 
 /**********************************************************************************/
 
-export async function deleteOne(
+export async function deleteUser(
   ctx: RequestContext,
-  userId: UserDeleteOneValidationData
-): Promise<string> {
+  userId: DeleteUserValidationData
+): Promise<DeletedUser> {
   const { db } = ctx;
 
   const userStatus = await getUserStatus(db, userId);
