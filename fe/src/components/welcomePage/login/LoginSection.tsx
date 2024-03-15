@@ -1,17 +1,31 @@
 /******************************************************************************/
 
-import Template from './GenericSection';
+import type { inputField } from '@/types';
+
+import GenericSection from './GenericSection';
 
 /******************************************************************************/
 
+const handleSubmit = (formData: FormData) => {
+  const formJson = Object.fromEntries(formData.entries());
+  console.log(formJson);
+};
+
 const LoginSection = (params: { toggleCb: () => void }) => {
   const { toggleCb } = params;
+
+  const inputFields: inputField[] = [
+    { name: 'Email', required: true },
+    { name: 'Password', required: true }
+  ];
   return (
-    <Template
+    <GenericSection
       titleText={'USER LOGIN'}
       buttonText={'LOGIN'}
-      ToggleText={'New to Dashboard? click here to sign up'}
+      toggleText={'New to Dashboard? click here to sign up'}
+      inputFields={inputFields}
       toggleCb={toggleCb}
+      submitCb={handleSubmit}
     />
   );
 };

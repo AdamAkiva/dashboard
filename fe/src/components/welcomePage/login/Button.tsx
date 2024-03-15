@@ -19,7 +19,7 @@ const Button = (params: { text: string }) => {
   const { text } = params;
   return (
     <ButtonStyleWrapper>
-      <ButtonStyle>{text}</ButtonStyle>
+      <ButtonStyle type="submit">{text}</ButtonStyle>
     </ButtonStyleWrapper>
   );
 };
