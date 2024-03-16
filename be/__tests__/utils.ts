@@ -36,7 +36,13 @@ import {
 } from '../src/types/index.js';
 import { DashboardError, StatusCodes } from '../src/utils/index.js';
 
-import type { CreateUser, UpdateUser, User } from './apiTypes.js';
+import type {
+  CreateUser,
+  UpdatedUserSettings,
+  UpdateUser,
+  UpdateUserSettings,
+  User
+} from './apiTypes.js';
 import { cleanupDatabase, isStressTest } from './config/utils.js';
 
 /**********************************************************************************/
@@ -320,6 +326,8 @@ export {
   vi,
   type CreateUser,
   type ResolvedValue,
+  type UpdatedUserSettings,
   type UpdateUser,
+  type UpdateUserSettings,
   type User
 };

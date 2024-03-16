@@ -40,6 +40,10 @@ export type DeletedUser = string;
  */
 export type ReactivatedUser = string;
 
+export interface UpdatedUserSettings {
+  darkMode: boolean;
+}
+
 export interface CreateUser {
   /** @format email */
   email: string;
@@ -64,4 +68,8 @@ export interface UpdateUser {
   phone?: string;
   gender?: 'male' | 'female' | 'other';
   address?: string;
+}
+
+export interface UpdateUserSettings {
+  darkMode?: boolean;
 }

@@ -12,7 +12,7 @@ import {
   requiredErr,
   validateEmptyObject,
   type ValidatedType
-} from '../utils/validator.js';
+} from '../utils/index.js';
 
 /**********************************************************************************/
 
@@ -136,6 +136,26 @@ export function reactivateUser(req: Request) {
   return (paramsRes as ValidatedType<typeof reactivateUserSchema>).data.userId;
 }
 
+export function updateUserSettings(req: Request) {
+  const { body, params, query } = req;
+
+  const paramsRes = userIdSchema.safeParse(params);
+  const bodyRes = updateUserSettingsSchema.safeParse(body);
+  const err = checkAndParseErrors(
+    paramsRes,
+    bodyRes,
+    validateEmptyObject('Expected empty request query params', query)
+  );
+  if (err) {
+    throw err;
+  }
+
+  return {
+    ...(paramsRes as ValidatedType<typeof userIdSchema>).data,
+    ...(bodyRes as ValidatedType<typeof updateUserSettingsSchema>).data
+  };
+}
+
 export function deleteUser(req: Request) {
   const { body, params, query } = req;
 
@@ -183,7 +203,7 @@ const readUsersSchema = Zod.object(
     invalid_type_error: invalidObjectErr('archive')
   }
 )
-  .strict(invalidObjectErr('archive'))
+  .strict(invalidObjectErr('user filters'))
   .optional();
 
 const readUserSchema = Zod.object(
@@ -276,10 +296,10 @@ const createUsersSchema = Zod.object(
       .max(USER_ADDRESS_MAX_LENGTH, maxErr('address', USER_ADDRESS_MAX_LENGTH))
   },
   {
-    invalid_type_error: invalidObjectErr('user'),
-    required_error: requiredErr('user')
+    invalid_type_error: invalidObjectErr('user data'),
+    required_error: requiredErr('user data')
   }
-).strict(invalidObjectErr('user'));
+).strict(invalidObjectErr('user data'));
 
 const userIdSchema = Zod.object(
   {
@@ -370,11 +390,11 @@ const updateUserSchema = Zod.object(
       .optional()
   },
   {
-    invalid_type_error: invalidObjectErr('user'),
-    required_error: requiredErr('user')
+    invalid_type_error: invalidObjectErr('user updates'),
+    required_error: requiredErr('user updates')
   }
 )
-  .strict(invalidObjectErr('user'))
+  .strict(invalidObjectErr('user updates'))
   .superRefine((val, ctx) => {
     if (!Object.keys(val).length) {
       ctx.addIssue({
@@ -399,6 +419,30 @@ const reactivateUserSchema = Zod.object(
     required_error: requiredErr('user id')
   }
 ).strict(invalidObjectErr('user id'));
+
+const updateUserSettingsSchema = Zod.object(
+  {
+    darkMode: Zod.boolean({
+      invalid_type_error: invalidBoolean('dark mode')
+    }).optional()
+  },
+  {
+    invalid_type_error: invalidObjectErr('user settings'),
+    required_error: requiredErr('user settings')
+  }
+)
+  .strict(invalidObjectErr('user settings'))
+  .superRefine((val, ctx) => {
+    if (!Object.keys(val).length) {
+      ctx.addIssue({
+        code: Zod.ZodIssueCode.custom,
+        message: 'Empty update is not allowed',
+        fatal: true
+      });
+
+      return Zod.NEVER;
+    }
+  });
 
 const deleteUserSchema = Zod.object(
   {

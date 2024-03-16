@@ -1,6 +1,7 @@
 import { executePreparedQuery } from './service.js';
 import {
   VALIDATION,
+  checkAndParseErrors,
   invalidBoolean,
   invalidObjectErr,
   invalidStringErr,
@@ -16,6 +17,7 @@ import {
 
 export {
   VALIDATION,
+  checkAndParseErrors,
   executePreparedQuery,
   invalidBoolean,
   invalidObjectErr,

@@ -1,7 +1,7 @@
 import { createUser } from './create.js';
 import { deleteUser } from './delete.js';
 import { readUser, readUsers } from './read.js';
-import { reactivateUser, updateUser } from './update.js';
+import { reactivateUser, updateUser, updateUserSettings } from './update.js';
 
 /**********************************************************************************/
 
@@ -11,5 +11,6 @@ export {
   reactivateUser,
   readUser,
   readUsers,
-  updateUser
+  updateUser,
+  updateUserSettings
 };

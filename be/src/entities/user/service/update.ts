@@ -4,7 +4,9 @@ import {
   userDebug,
   type ReactivatedUser,
   type RequestContext,
-  type UpdatedUser
+  type ResolvedValue,
+  type UpdatedUser,
+  type UpdatedUserSettings
 } from '../../../types/index.js';
 import { objHasValues } from '../../../utils/index.js';
 
@@ -12,6 +14,7 @@ import { executePreparedQuery } from '../../utils/index.js';
 
 import type {
   reactivateUser as reactivateUserValidation,
+  updateUserSettings as updateUserSettingsValidation,
   updateUser as updateUserValidation
 } from '../validator.js';
 
@@ -26,6 +29,9 @@ import {
 
 type UpdateUserValidationData = ReturnType<typeof updateUserValidation>;
 type ReactivateUserValidationData = ReturnType<typeof reactivateUserValidation>;
+type UpdateUserSettingsValidationData = ReturnType<
+  typeof updateUserSettingsValidation
+>;
 
 /**********************************************************************************/
 
@@ -47,19 +53,19 @@ export async function updateUser(
       const results = await Promise.allSettled([
         isAllowedToUpdate({
           handler: transaction,
-          models: { userCredentialsModel: userCredentialsModel },
+          userCredentialsModel: userCredentialsModel,
           userId: userId
         }),
         updateUserInfo({
           handler: transaction,
-          models: { userInfoModel: userInfoModel },
+          userInfoModel: userInfoModel,
           userInfo: userInfo,
           userId: userId,
           updatedAt: updatedAt
         }),
         updateUserCredentials({
           handler: transaction,
-          models: { userCredentialsModel: userCredentialsModel },
+          userCredentialsModel: userCredentialsModel,
           credentials: {
             email: userInfo.email,
             password: password
@@ -117,18 +123,47 @@ export async function reactivateUser(
   return userIds[0].userId;
 }
 
+export async function updateUserSettings(
+  ctx: RequestContext,
+  userSettingsUpdates: UpdateUserSettingsValidationData
+): Promise<UpdatedUserSettings> {
+  const { db } = ctx;
+  const handler = db.getHandler();
+  const {
+    user: { userCredentialsModel, userSettingsModel }
+  } = db.getModels();
+
+  const results = await Promise.allSettled([
+    isAllowedToUpdate({
+      handler: handler,
+      userCredentialsModel: userCredentialsModel,
+      userId: userSettingsUpdates.userId
+    }),
+    updateUserSettingsEntry({
+      handler: handler,
+      userSettingsModel: userSettingsModel,
+      userSettingsUpdates: userSettingsUpdates
+    })
+  ]);
+  for (const result of results) {
+    if (result.status === 'rejected') {
+      throw result.reason;
+    }
+  }
+
+  return (
+    results[1] as ResolvedValue<ReturnType<typeof updateUserSettingsEntry>>
+  ).value;
+}
+
 /**********************************************************************************/
 
 async function isAllowedToUpdate(params: {
   handler: DBHandler;
-  models: { userCredentialsModel: DBModels['user']['userCredentialsModel'] };
+  userCredentialsModel: DBModels['user']['userCredentialsModel'];
   userId: string;
 }) {
-  const {
-    handler,
-    models: { userCredentialsModel },
-    userId
-  } = params;
+  const { handler, userCredentialsModel, userId } = params;
 
   userDebug('Checking whether the user is archived');
   const usersStatus = await handler
@@ -146,18 +181,12 @@ async function isAllowedToUpdate(params: {
 
 async function updateUserInfo(params: {
   handler: DBHandler;
-  models: { userInfoModel: DBModels['user']['userInfoModel'] };
+  userInfoModel: DBModels['user']['userInfoModel'];
   userInfo: Omit<UpdateUserValidationData, 'password' | 'userId'>;
   userId: string;
   updatedAt: string;
 }) {
-  const {
-    handler,
-    models: { userInfoModel },
-    userInfo,
-    userId,
-    updatedAt
-  } = params;
+  const { handler, userInfoModel, userInfo, userId, updatedAt } = params;
 
   if (!objHasValues(userInfo)) {
     return;
@@ -177,18 +206,13 @@ async function updateUserInfo(params: {
 
 async function updateUserCredentials(params: {
   handler: DBHandler;
-  models: { userCredentialsModel: DBModels['user']['userCredentialsModel'] };
+  userCredentialsModel: DBModels['user']['userCredentialsModel'];
   credentials: Pick<UpdateUserValidationData, 'email' | 'password'>;
   userId: string;
   updatedAt: string;
 }) {
-  const {
-    handler,
-    models: { userCredentialsModel },
-    credentials,
-    userId,
-    updatedAt
-  } = params;
+  const { handler, userCredentialsModel, credentials, userId, updatedAt } =
+    params;
 
   if (!objHasValues(credentials)) {
     return;
@@ -207,4 +231,31 @@ async function updateUserCredentials(params: {
   if (!updates.length) {
     throw userNotFoundError(userId);
   }
+}
+
+async function updateUserSettingsEntry(params: {
+  handler: DBHandler;
+  userSettingsModel: DBModels['user']['userSettingsModel'];
+  userSettingsUpdates: UpdateUserSettingsValidationData;
+}) {
+  const {
+    handler,
+    userSettingsModel,
+    userSettingsUpdates: { userId, ...settingsUpdates }
+  } = params;
+
+  userDebug('Updating user settings entry');
+  const updatedUserSettings = await handler
+    .update(userSettingsModel)
+    .set(settingsUpdates)
+    .where(eq(userSettingsModel.userId, userId))
+    .returning({
+      darkMode: userSettingsModel.darkMode
+    });
+  userDebug('Done updating user settings entry');
+  if (!updatedUserSettings.length) {
+    throw userNotFoundError(userId);
+  }
+
+  return updatedUserSettings[0];
 }

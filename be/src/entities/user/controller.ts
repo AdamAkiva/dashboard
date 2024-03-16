@@ -114,6 +114,29 @@ export async function reactivateUser(
   }
 }
 
+export async function updateUserSettings(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    userDebug('updateUserSettings validation');
+    const userSettingsUpdates = Validator.updateUserSettings(req);
+    userDebug('Done updateUserSettings validation');
+
+    userDebug('updateUserSettings service');
+    const reactivatedUser = await Service.updateUserSettings(
+      res.locals.ctx,
+      userSettingsUpdates
+    );
+    userDebug('Done updateUserSettings service');
+
+    return res.status(StatusCodes.SUCCESS).json(reactivatedUser);
+  } catch (err) {
+    return next(err);
+  }
+}
+
 export async function deleteUser(
   req: Request,
   res: Response,

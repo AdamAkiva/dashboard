@@ -18,6 +18,8 @@ import {
   type CreateUser,
   type ResolvedValue,
   type UpdateUser,
+  type UpdateUserSettings,
+  type UpdatedUserSettings,
   type User
 } from '../utils.js';
 
@@ -842,7 +844,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
   describe('Update', () => {
     // Match this number to the amount of tests needing a unique user
     // database entry
-    const USERS_AMOUNT = 11;
+    const USERS_AMOUNT = 12;
     let usersData: User[] = [];
 
     beforeAll(async () => {
@@ -1013,6 +1015,14 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
           }
         );
         expect(statusCode).toBe(StatusCodes.NOT_FOUND);
+        expect(typeof data === 'string').toBe(true);
+      });
+      it('No updates', async () => {
+        const { data, statusCode } = await sendHttpRequest<unknown>(
+          `${userURL}/${usersData[8].id}`,
+          { method: 'patch' }
+        );
+        expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
         expect(typeof data === 'string').toBe(true);
       });
       describe('User id', () => {
@@ -1398,7 +1408,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
       });
       it('Duplicate with active user', async () => {
         const { data, statusCode } = await sendHttpRequest<string>(
-          `${userURL}/${usersData[8].id}`,
+          `${userURL}/${usersData[9].id}`,
           {
             method: 'patch',
             json: {
@@ -1410,14 +1420,14 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         expect(typeof data === 'string').toBe(true);
       });
       it('Duplicate with inactive user', async () => {
-        await deactivateUsers(globalThis.db, usersData[10].id);
+        await deactivateUsers(globalThis.db, usersData[11].id);
 
         const { data, statusCode } = await sendHttpRequest<string>(
-          `${userURL}/${usersData[9].id}`,
+          `${userURL}/${usersData[10].id}`,
           {
             method: 'patch',
             json: {
-              email: usersData[10].email
+              email: usersData[11].email
             } satisfies UpdateUser
           }
         );
@@ -1498,6 +1508,103 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         it('Invalid format', async () => {
           const { data, statusCode } = await sendHttpRequest<unknown>(
             `${userURL}/reactivate/abcdefg12345`,
+            { method: 'patch' }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+      });
+    });
+  });
+
+  describe('Settings', () => {
+    // Match this number to the amount of tests needing a unique user
+    // database entry
+    const USERS_AMOUNT = 3;
+    let usersData: User[] = [];
+
+    beforeAll(async () => {
+      usersData = await createUsers(
+        [...Array(USERS_AMOUNT)].map(() => {
+          return {
+            email: `${randStr()}@bla.com`,
+            password: 'Bla123!@#',
+            firstName: 'TMP',
+            lastName: 'TMP',
+            phone: '052-2222222',
+            gender: 'male',
+            address: 'TMP'
+          };
+        })
+      );
+    });
+
+    describe('Valid', () => {
+      it('Update user settings', async () => {
+        const userSettingsUpdate: UpdateUserSettings = { darkMode: true };
+
+        const { data, statusCode } = await sendHttpRequest<UpdatedUserSettings>(
+          `${userURL}/settings/${usersData[0].id}`,
+          {
+            method: 'patch',
+            json: userSettingsUpdate
+          }
+        );
+        expect(statusCode).toBe(StatusCodes.SUCCESS);
+        expect(data).toStrictEqual(userSettingsUpdate);
+      });
+      it('Update user settings to same values', async () => {
+        // darkMode default is false value, hence, the same value
+        const userSettingsUpdate: UpdateUserSettings = { darkMode: false };
+
+        const { data, statusCode } = await sendHttpRequest<UpdatedUserSettings>(
+          `${userURL}/settings/${usersData[1].id}`,
+          {
+            method: 'patch',
+            json: userSettingsUpdate
+          }
+        );
+        expect(statusCode).toBe(StatusCodes.SUCCESS);
+        expect(data).toStrictEqual(userSettingsUpdate);
+      });
+    });
+    describe('Invalid', () => {
+      it('Non-existent', async () => {
+        const { data, statusCode } = await sendHttpRequest<unknown>(
+          `${userURL}/settings/${randomUUID()}`,
+          { method: 'patch', json: { darkMode: true } }
+        );
+        expect(statusCode).toBe(StatusCodes.NOT_FOUND);
+        expect(typeof data === 'string').toBe(true);
+      });
+      it('No updates', async () => {
+        const { data, statusCode } = await sendHttpRequest<unknown>(
+          `${userURL}/${usersData[2].id}`,
+          { method: 'patch' }
+        );
+        expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+        expect(typeof data === 'string').toBe(true);
+      });
+      describe('User id', () => {
+        it('Without', async () => {
+          const { data, statusCode } = await sendHttpRequest<unknown>(
+            `${userURL}/settings/`,
+            { method: 'patch' }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Empty', async () => {
+          const { data, statusCode } = await sendHttpRequest<unknown>(
+            `${userURL}/settings/''`,
+            { method: 'patch' }
+          );
+          expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+          expect(typeof data === 'string').toBe(true);
+        });
+        it('Invalid format', async () => {
+          const { data, statusCode } = await sendHttpRequest<unknown>(
+            `${userURL}/settings/abcdefg12345`,
             { method: 'patch' }
           );
           expect(statusCode).toBe(StatusCodes.BAD_REQUEST);

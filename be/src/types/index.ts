@@ -41,6 +41,7 @@ import type {
   DeletedUser,
   ReactivatedUser,
   UpdatedUser,
+  UpdatedUserSettings,
   User,
   Users
 } from './api.js';
@@ -131,6 +132,7 @@ export {
   type Server,
   type SQL,
   type UpdatedUser,
+  type UpdatedUserSettings,
   type User,
   type Users
 };

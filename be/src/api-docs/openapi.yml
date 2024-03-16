@@ -249,6 +249,45 @@ paths:
           $ref: '#/components/responses/PayloadTooLargeError'
         '500':
           $ref: '#/components/responses/ServerError'
+  /users/settings/{userId}:
+    patch:
+      tags:
+        - user
+      summary: Update user settings
+      description: >
+        Update user settings specified by the given id. Unsent settings will
+        not be modified
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateUserSettings'
+      parameters:
+        - name: userId
+          in: path
+          description: The id of a user you wish to update settings for
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: adb3271f-94dc-4169-80e9-3d4c8a90201f
+      responses:
+        '200':
+          description: An object describing the updated user settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdatedUserSettings'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '413':
+          $ref: '#/components/responses/PayloadTooLargeError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
 components:
   schemas:
     Users:
@@ -296,6 +335,13 @@ components:
       type: string
       format: uuid
       example: adb3271f-94dc-4169-80e9-3d4c8a90201f
+    UpdatedUserSettings:
+      type: object
+      required:
+        - darkMode
+      properties:
+        darkMode:
+          type: boolean
 
     CreateUser:
       type: object
@@ -347,6 +393,12 @@ components:
           enum: [male, female, other]
         address:
           type: string
+    UpdateUserSettings:
+      type: object
+      properties:
+        darkMode:
+          type: boolean
+
   requestBodies:
     CreateUser:
       description: An object describing user creation data
@@ -362,6 +414,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/UpdateUser'
+    UpdateUserSettings:
+      description: 'An object describing user settings data'
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateUserSettings'
+
   responses:
     InvalidInputError:
       description: Invalid input
