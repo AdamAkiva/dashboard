@@ -39,7 +39,7 @@ const Input = styled.input`
 `;
 
 const Select = styled.select`
-  ${FieldCss};
+  ${FieldCss}
   width: 19rem;
   color: #827675;
 `;
