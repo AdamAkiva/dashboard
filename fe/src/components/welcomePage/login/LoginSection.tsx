@@ -11,13 +11,14 @@ const handleSubmit = (formData: FormData) => {
   console.log(formJson);
 };
 
+const inputFields: FormField[] = [
+  { name: 'Email', required: true, type: 'text' },
+  { name: 'Password', required: true, type: 'text' }
+];
+
 const LoginSection = (params: { toggleCb: () => void }) => {
   const { toggleCb } = params;
 
-  const inputFields: FormField[] = [
-    { name: 'Email', required: true, type: 'text' },
-    { name: 'Password', required: true, type: 'text' }
-  ];
   return (
     <GenericSection
       titleText={'USER LOGIN'}

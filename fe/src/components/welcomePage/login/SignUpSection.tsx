@@ -11,24 +11,24 @@ const handleSubmit = (formData: FormData) => {
   console.log(formJson);
 };
 
+const inputFields: FormField[] = [
+  { name: 'First Name', required: true, type: 'text' },
+  { name: 'Last Name', required: true, type: 'text' },
+  { name: 'Email', required: true, type: 'text' },
+  { name: 'Password', required: true, type: 'password' },
+  { name: 'Confirm Password', required: true, type: 'password' },
+  { name: 'Phone', required: false, type: 'text' },
+  { name: 'Address', required: false, type: 'text' },
+  {
+    name: 'Gender',
+    required: false,
+    type: 'dropdown',
+    options: ['Male', 'Female', 'Other']
+  }
+];
+
 const SignUpSection = (params: { toggleCb: () => void }) => {
   const { toggleCb } = params;
-
-  const inputFields: FormField[] = [
-    { name: 'First Name', required: true, type: 'text' },
-    { name: 'Last Name', required: true, type: 'text' },
-    { name: 'Email', required: true, type: 'text' },
-    { name: 'Password', required: true, type: 'password' },
-    { name: 'Confirm Password', required: true, type: 'password' },
-    { name: 'Phone', required: false, type: 'text' },
-    { name: 'Address', required: false, type: 'text' },
-    {
-      name: 'Gender',
-      required: false,
-      type: 'dropdown',
-      options: ['Male', 'Female', 'Other']
-    }
-  ];
 
   return (
     <GenericSection
