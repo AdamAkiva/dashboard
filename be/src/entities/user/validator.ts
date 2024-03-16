@@ -12,7 +12,7 @@ import {
   requiredErr,
   validateEmptyObject,
   type ValidatedType
-} from '../utils/index.js';
+} from '../utils.js';
 
 /**********************************************************************************/
 

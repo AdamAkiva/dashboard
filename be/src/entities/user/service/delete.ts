@@ -5,7 +5,7 @@ import {
   type RequestContext
 } from '../../../types/index.js';
 
-import { executePreparedQuery } from '../../utils/index.js';
+import { executePreparedQuery } from '../../utils.js';
 
 import type { deleteUser as deleteUserValidation } from '../validator.js';
 

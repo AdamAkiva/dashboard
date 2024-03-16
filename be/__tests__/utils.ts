@@ -21,7 +21,7 @@ import {
 } from 'vitest';
 
 import type { DatabaseHandler } from '../src/db/index.js';
-import { VALIDATION } from '../src/entities/utils/index.js';
+import { VALIDATION } from '../src/entities/utils.js';
 import * as Middlewares from '../src/server/middleware.js';
 import {
   and,
@@ -43,7 +43,7 @@ import type {
   UpdateUserSettings,
   User
 } from './apiTypes.js';
-import { cleanupDatabase, isStressTest } from './config/utils.js';
+import { cleanupDatabase, isStressTest, mockLogger } from './config/utils.js';
 
 /**********************************************************************************/
 
@@ -187,7 +187,12 @@ export function createHttpMocks(
 ) {
   return {
     request: createRequest<Request>(reqOptions),
-    response: createResponse<Response>(resOptions)
+    response: createResponse<Response>({
+      ...resOptions,
+      locals: {
+        ctx: { db: globalThis.db, logger: mockLogger().handler }
+      }
+    })
   };
 }
 

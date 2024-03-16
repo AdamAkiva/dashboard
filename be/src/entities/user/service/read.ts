@@ -9,7 +9,7 @@ import {
   type Users
 } from '../../../types/index.js';
 
-import { executePreparedQuery } from '../../utils/index.js';
+import { executePreparedQuery } from '../../utils.js';
 
 import type {
   readUsers as readUsersValidation,

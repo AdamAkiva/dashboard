@@ -26,8 +26,8 @@ export default class Logger {
               crlf: true,
               levelFirst: true,
               ignore: '',
-              // Used in test mode to print logs in a synchronous way, causing
-              // the tests to not quit until all logs are printed
+              // Used in test mode to print logs in a synchronous way.
+              // This forces the tests to not quit until all logs are printed
               sync: isTestMode(process.env.NODE_ENV)
             }
           }

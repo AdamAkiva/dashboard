@@ -33,18 +33,12 @@ export function mockLogger() {
       ? loggerHandler
       : {
           ...loggerHandler,
-          debug: () => {
-            // Disable logs
-          },
-          trace: () => {
-            // Disable logs
-          },
-          info: () => {
-            // Disable logs
-          },
-          warn: () => {
-            // Disable logs
-          }
+          debug: disableLog,
+          trace: disableLog,
+          info: disableLog,
+          warn: disableLog,
+          error: disableLog,
+          fatal: disableLog
         },
     logMiddleware: debugEnabled()
       ? logMiddleware
@@ -53,4 +47,10 @@ export function mockLogger() {
           next();
         }
   };
+}
+
+/**********************************************************************************/
+
+function disableLog() {
+  // Disable logs
 }

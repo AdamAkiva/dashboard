@@ -3,7 +3,7 @@ import type { UnknownObject } from '../types/index.js';
 /**********************************************************************************/
 
 /**
- * Generics allows for VSCode type completion
+ * The reason for generic use is that it allows for type completion
  * The compare disregard case (more formally known as case-insensitive compare)
  * @returns 0 if s1 and s2 are lexicographic equal.
  * A negative value if s1 is lexicographic less than s2.

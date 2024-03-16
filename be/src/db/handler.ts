@@ -4,7 +4,6 @@
  * separate it to another file since it is extremely coupled with the database
  * by definition, so we ignore the rule instead
  */
-
 import {
   and,
   drizzle,

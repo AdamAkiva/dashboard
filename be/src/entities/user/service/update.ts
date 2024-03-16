@@ -10,7 +10,7 @@ import {
 } from '../../../types/index.js';
 import { objHasValues } from '../../../utils/index.js';
 
-import { executePreparedQuery } from '../../utils/index.js';
+import { executePreparedQuery } from '../../utils.js';
 
 import type {
   reactivateUser as reactivateUserValidation,

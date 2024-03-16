@@ -4,7 +4,6 @@
  * which is not a part of the application. Any changes with the dependencies
  * must be included ONLY from external packages
  */
-
 import {
   boolean,
   pgEnum,
