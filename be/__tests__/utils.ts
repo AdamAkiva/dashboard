@@ -26,7 +26,9 @@ import * as Middlewares from '../src/server/middleware.js';
 import {
   and,
   eq,
+  inArray,
   type AddRequired,
+  type ArrayWithAtLeastOneValue,
   type Request,
   type ResolvedValue,
   type Response,
@@ -35,7 +37,7 @@ import {
 import { DashboardError, StatusCodes } from '../src/utils/index.js';
 
 import type { CreateUser, UpdateUser, User } from './apiTypes.js';
-import { isStressTest } from './config/utils.js';
+import { cleanupDatabase, isStressTest } from './config/utils.js';
 
 /**********************************************************************************/
 
@@ -236,7 +238,10 @@ export async function createUsers(usersData: CreateUser[]) {
 /******************************** Database ****************************************/
 /**********************************************************************************/
 
-export async function deactivateUser(db: DatabaseHandler, userId: string) {
+export async function deactivateUsers(
+  db: DatabaseHandler,
+  ...userIds: ArrayWithAtLeastOneValue<string>
+) {
   const handler = db.getHandler();
   const {
     user: { userCredentialsModel }
@@ -245,7 +250,11 @@ export async function deactivateUser(db: DatabaseHandler, userId: string) {
   await handler
     .update(userCredentialsModel)
     .set({ archivedAt: new Date().toISOString() })
-    .where(eq(userCredentialsModel.userId, userId));
+    .where(
+      userIds.length > 1
+        ? inArray(userCredentialsModel.userId, userIds)
+        : eq(userCredentialsModel.userId, userIds[0])
+    );
 }
 
 export async function checkUserExists(db: DatabaseHandler, userId: string) {
@@ -297,6 +306,7 @@ export {
   afterEach,
   beforeAll,
   beforeEach,
+  cleanupDatabase,
   DashboardError,
   describe,
   eq,

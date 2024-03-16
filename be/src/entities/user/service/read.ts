@@ -1,24 +1,77 @@
 import {
+  and,
+  eq,
+  isNotNull,
   userDebug,
   type RequestContext,
-  type User
+  type SQL,
+  type User,
+  type Users
 } from '../../../types/index.js';
 
 import { executePreparedQuery } from '../../utils/index.js';
 
-import type { readOne as readOneValidation } from '../validator.js';
+import type {
+  readUsers as readUsersValidation,
+  readUser as readUserValidation
+} from '../validator.js';
 
 import { userNotFoundError } from './utils.js';
 
 /**********************************************************************************/
 
-type UserReadOneValidationData = ReturnType<typeof readOneValidation>;
+type ReadUsersValidationData = ReturnType<typeof readUsersValidation>;
+type ReadUserValidationData = ReturnType<typeof readUserValidation>;
 
 /**********************************************************************************/
 
-export async function readOne(
+export async function readUsers(
   ctx: RequestContext,
-  userId: UserReadOneValidationData
+  queryParams?: ReadUsersValidationData
+): Promise<Users> {
+  const { db } = ctx;
+  const handler = db.getHandler();
+  const {
+    user: { userInfoModel, userCredentialsModel }
+  } = db.getModels();
+
+  let users: Users = [];
+  if (queryParams) {
+    const filters: SQL[] = [eq(userCredentialsModel.userId, userInfoModel.id)];
+    if (queryParams.archive) {
+      filters.push(isNotNull(userCredentialsModel.archivedAt));
+    }
+    const innerJoinQuery = filters.length === 1 ? filters[0] : and(...filters);
+
+    userDebug('Fetching archived users');
+    users = await handler
+      .select({
+        id: userInfoModel.id,
+        email: userInfoModel.email,
+        firstName: userInfoModel.firstName,
+        lastName: userInfoModel.lastName,
+        phone: userInfoModel.phone,
+        gender: userInfoModel.gender,
+        address: userInfoModel.address
+      })
+      .from(userInfoModel)
+      .innerJoin(userCredentialsModel, innerJoinQuery);
+    userDebug('Done fetching archived users');
+  } else {
+    userDebug('Fetching users');
+    users = await executePreparedQuery({
+      db: db,
+      queryName: 'readUsersQuery'
+    });
+    userDebug('Done fetching users');
+  }
+
+  return users;
+}
+
+export async function readUser(
+  ctx: RequestContext,
+  userId: ReadUserValidationData
 ): Promise<User> {
   const { db } = ctx;
 

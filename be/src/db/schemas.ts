@@ -1,7 +1,9 @@
-// The imports in this file MUST be external only (not local to the project)
-// The reason is that this file is used by the database migrations process,
-// which is not a part of the application. Any changes with the dependencies
-// must be included ONLY from external packages
+/**
+ * The imports in this file MUST be external only (not local to the project)
+ * The reason is that this file is used by the database migrations process,
+ * which is not a part of the application. Any changes with the dependencies
+ * must be included ONLY from external packages
+ */
 
 import {
   boolean,

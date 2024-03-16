@@ -27,7 +27,11 @@ export function objHasValues(obj: UnknownObject) {
 }
 
 export function filterNullAndUndefined<T>(value?: T | null): value is T {
-  return value !== undefined && value !== null;
+  return value != null;
+}
+
+export function debugEnabled() {
+  return process.env.DEBUG !== undefined;
 }
 
 export function isDevelopmentMode(mode?: string) {

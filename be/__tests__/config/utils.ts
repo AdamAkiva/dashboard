@@ -1,6 +1,6 @@
 import type { DatabaseHandler } from '../../src/db/index.js';
 import type { NextFunction, Request, Response } from '../../src/types/index.js';
-import { Logger } from '../../src/utils/index.js';
+import { Logger, debugEnabled } from '../../src/utils/index.js';
 
 /**********************************************************************************/
 
@@ -14,23 +14,25 @@ export function isStressTest() {
 
 export async function cleanupDatabase(db: DatabaseHandler) {
   const handler = db.getHandler();
-  const models = db.getModels();
-  /* eslint-disable drizzle/enforce-delete-with-where */
-  await handler.delete(models.user.userInfoModel);
-  await handler.delete(models.user.userCredentialsModel);
-  await handler.delete(models.user.userSettingsModel);
-  /* eslint-enable drizzle/enforce-delete-with-where */
+  const {
+    user: { userInfoModel, userCredentialsModel, userSettingsModel }
+  } = db.getModels();
+  /* eslint-disable @drizzle/enforce-delete-with-where */
+  await handler.delete(userInfoModel);
+  await handler.delete(userCredentialsModel);
+  await handler.delete(userSettingsModel);
+  /* eslint-enable @drizzle/enforce-delete-with-where */
 }
 
 export function mockLogger() {
   const logger = new Logger();
-  const { logMiddleware, handler } = logger;
+  const { handler: loggerHandler, logMiddleware } = logger;
 
   return {
-    handler: process.env.DEBUG
-      ? handler
+    handler: debugEnabled()
+      ? loggerHandler
       : {
-          ...handler,
+          ...loggerHandler,
           debug: () => {
             // Disable logs
           },
@@ -44,7 +46,7 @@ export function mockLogger() {
             // Disable logs
           }
         },
-    logMiddleware: process.env.DEBUG
+    logMiddleware: debugEnabled()
       ? logMiddleware
       : (_: Request, __: Response, next: NextFunction) => {
           // Disable logging middleware

@@ -1,29 +1,42 @@
 /* eslint-disable max-classes-per-file */
+/**
+ * The database logger class is used only by this module. There's no point to
+ * separate it to another file since it is extremely coupled with the database
+ * by definition, so we ignore the rule instead
+ */
+
 import {
+  and,
   drizzle,
   eq,
+  isNull,
   pg,
   sql,
   type DrizzleLogger,
   type Mode
 } from '../types/index.js';
-import { isDevelopmentMode, type Logger } from '../utils/index.js';
+import {
+  debugEnabled,
+  isDevelopmentMode,
+  type Logger
+} from '../utils/index.js';
 
-// The default import is on purpose. See: https://orm.drizzle.team/docs/sql-schema-declaration
+/* The default import is on purpose. See: https://orm.drizzle.team/docs/sql-schema-declaration */
 import * as schema from './schemas.js';
 
 /**********************************************************************************/
 
-// In regards to using handler and transaction, see this:
-// https://www.answeroverflow.com/m/1164318289674125392
-// In short, it does not matter, handler and transaction are same except
-// for a rollback method, which occurs if an error is thrown
+/**
+ * In regards to using handler and transaction, see this:
+ * https://www.answeroverflow.com/m/1164318289674125392
+ * In short, it does not matter, handler and transaction are same except
+ * for a rollback method, which occurs if an error is thrown
+ */
 export type DBHandler =
   | DatabaseHandler['_handler']
   // For your own sanity, don't ask or think about it
   | Parameters<Parameters<DatabaseHandler['_handler']['transaction']>[0]>[0];
 export type DBModels = DatabaseHandler['_models'];
-export type DBPreparedQueries = DatabaseHandler['_preparedQueries'];
 
 /**********************************************************************************/
 
@@ -98,7 +111,7 @@ export default class DatabaseHandler {
     this._handler = drizzle(this._conn, {
       schema: schema,
       logger:
-        isDevelopmentMode(mode) || process.env.DEBUG
+        isDevelopmentMode(mode) || debugEnabled()
           ? new DatabaseLogger(healthCheckQuery, logger)
           : false
     });
@@ -149,6 +162,25 @@ export default class DatabaseHandler {
     // level, no prepared statement happens (we've checked, nothing is logged on
     // the highest log level)
     return {
+      readUsersQuery: this._handler
+        .select({
+          id: userInfoModel.id,
+          email: userInfoModel.email,
+          firstName: userInfoModel.firstName,
+          lastName: userInfoModel.lastName,
+          phone: userInfoModel.phone,
+          gender: userInfoModel.gender,
+          address: userInfoModel.address
+        })
+        .from(userInfoModel)
+        .innerJoin(
+          userCredentialsModel,
+          and(
+            eq(userCredentialsModel.userId, userInfoModel.id),
+            isNull(userCredentialsModel.archivedAt)
+          )
+        )
+        .prepare('readUsersQuery'),
       readUserQuery: this._handler
         .select({
           id: userInfoModel.id,
@@ -172,6 +204,12 @@ export default class DatabaseHandler {
         .where(eq(userCredentialsModel.userId, sql.placeholder('userId')))
         .limit(1)
         .prepare('checkUserIsArchivedQuery'),
+
+      reactivateUser: this._handler
+        .update(userCredentialsModel)
+        .set({ archivedAt: null })
+        .where(eq(userCredentialsModel.userId, sql.placeholder('userId')))
+        .returning({ userId: userCredentialsModel.userId }),
 
       deleteUser: this._handler
         .delete(userInfoModel)

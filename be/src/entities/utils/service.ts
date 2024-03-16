@@ -1,5 +1,9 @@
-import type { DBPreparedQueries, DatabaseHandler } from '../../db/index.js';
+import type { DatabaseHandler } from '../../db/index.js';
 import type { UnknownObject } from '../../types/index.js';
+
+/**********************************************************************************/
+
+type DBPreparedQueries = ReturnType<DatabaseHandler['getPreparedQueries']>;
 
 /**********************************************************************************/
 

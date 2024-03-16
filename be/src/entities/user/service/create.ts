@@ -1,24 +1,24 @@
 import type { DBHandler, DBModels } from '../../../db/index.js';
 import {
   userDebug,
-  type RequestContext,
-  type User
+  type CreatedUser,
+  type RequestContext
 } from '../../../types/index.js';
 
-import type { createOne as createOneValidation } from '../validator.js';
+import type { createUser as createUserValidation } from '../validator.js';
 
 import { userCreationError } from './utils.js';
 
 /**********************************************************************************/
 
-type UserCreateOneValidationData = ReturnType<typeof createOneValidation>;
+type CreateUserValidationData = ReturnType<typeof createUserValidation>;
 
 /**********************************************************************************/
 
-export async function createOne(
+export async function createUser(
   ctx: RequestContext,
-  userData: UserCreateOneValidationData
-): Promise<User> {
+  userData: CreateUserValidationData
+): Promise<CreatedUser> {
   const { db } = ctx;
   const handler = db.getHandler();
   const {
@@ -77,7 +77,7 @@ export async function createOne(
 async function createUserInfoEntry(params: {
   handler: DBHandler;
   userInfoModel: DBModels['user']['userInfoModel'];
-  userInfo: Omit<UserCreateOneValidationData, 'password'>;
+  userInfo: Omit<CreateUserValidationData, 'password'>;
   creationDate: string;
 }) {
   const { handler, userInfoModel, userInfo, creationDate } = params;
@@ -101,7 +101,7 @@ async function createUserInfoEntry(params: {
 async function createUserCredentialsEntry(params: {
   handler: DBHandler;
   userCredentialsModel: DBModels['user']['userCredentialsModel'];
-  userCredentialsInfo: Pick<UserCreateOneValidationData, 'email' | 'password'>;
+  userCredentialsInfo: Pick<CreateUserValidationData, 'email' | 'password'>;
   userId: string;
   creationDate: string;
 }) {

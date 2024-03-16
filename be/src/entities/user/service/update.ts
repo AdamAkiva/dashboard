@@ -2,14 +2,18 @@ import type { DBHandler, DBModels } from '../../../db/index.js';
 import {
   eq,
   userDebug,
+  type ReactivatedUser,
   type RequestContext,
-  type User
+  type UpdatedUser
 } from '../../../types/index.js';
 import { objHasValues } from '../../../utils/index.js';
 
 import { executePreparedQuery } from '../../utils/index.js';
 
-import type { updateOne as updateOneValidation } from '../validator.js';
+import type {
+  reactivateUser as reactivateUserValidation,
+  updateUser as updateUserValidation
+} from '../validator.js';
 
 import {
   userNotAllowedToBeUpdated,
@@ -20,14 +24,15 @@ import {
 
 /**********************************************************************************/
 
-type UserUpdateOneValidationData = ReturnType<typeof updateOneValidation>;
+type UpdateUserValidationData = ReturnType<typeof updateUserValidation>;
+type ReactivateUserValidationData = ReturnType<typeof reactivateUserValidation>;
 
 /**********************************************************************************/
 
-export async function updateOne(
+export async function updateUser(
   ctx: RequestContext,
-  updates: UserUpdateOneValidationData
-): Promise<User> {
+  updates: UpdateUserValidationData
+): Promise<UpdatedUser> {
   const { db, logger } = ctx;
   const handler = db.getHandler();
   const {
@@ -92,6 +97,26 @@ export async function updateOne(
   }
 }
 
+export async function reactivateUser(
+  ctx: RequestContext,
+  userId: ReactivateUserValidationData
+): Promise<ReactivatedUser> {
+  const { db } = ctx;
+
+  userDebug('Reactivating user');
+  const userIds = await executePreparedQuery({
+    db: db,
+    queryName: 'reactivateUser',
+    phValues: { userId: userId }
+  });
+  userDebug('Done reactivating user');
+  if (!userIds.length) {
+    throw userNotFoundError(userId);
+  }
+
+  return userIds[0].userId;
+}
+
 /**********************************************************************************/
 
 async function isAllowedToUpdate(params: {
@@ -122,7 +147,7 @@ async function isAllowedToUpdate(params: {
 async function updateUserInfo(params: {
   handler: DBHandler;
   models: { userInfoModel: DBModels['user']['userInfoModel'] };
-  userInfo: Omit<UserUpdateOneValidationData, 'password' | 'userId'>;
+  userInfo: Omit<UpdateUserValidationData, 'password' | 'userId'>;
   userId: string;
   updatedAt: string;
 }) {
@@ -153,7 +178,7 @@ async function updateUserInfo(params: {
 async function updateUserCredentials(params: {
   handler: DBHandler;
   models: { userCredentialsModel: DBModels['user']['userCredentialsModel'] };
-  credentials: Pick<UserUpdateOneValidationData, 'email' | 'password'>;
+  credentials: Pick<UpdateUserValidationData, 'email' | 'password'>;
   userId: string;
   updatedAt: string;
 }) {

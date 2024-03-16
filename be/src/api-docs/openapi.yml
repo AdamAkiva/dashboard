@@ -45,16 +45,56 @@ paths:
         '504':
           $ref: '#/components/responses/GatewayTimeoutError'
   /users:
+    get:
+      tags:
+        - user
+      summary: Find users
+      description: >
+        Find users. Without any query params the request will return all active
+        users. If 'archive' query param is sent, **only** the archived users
+        will be returned.
+      parameters:
+        - name: archive
+          in: query
+          description: Indicates whether to fetch **only** archived users
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: An array describing the fetched users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Users'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '413':
+          $ref: '#/components/responses/PayloadTooLargeError'
+        '500':
+          $ref: '#/components/responses/ServerError'
     post:
       tags:
         - user
-      summary: Create new user(s)
-      description: Create new user(s)
+      summary: Create a new user
+      description: Create a new user
       requestBody:
-        $ref: '#/components/requestBodies/CreateUsers'
+        $ref: '#/components/requestBodies/CreateUser'
       responses:
-        '200':
-          $ref: '#/components/responses/Users'
+        '201':
+          description: An object describing the created user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CreatedUser'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '401':
@@ -82,7 +122,11 @@ paths:
             example: adb3271f-94dc-4169-80e9-3d4c8a90201f
       responses:
         '200':
-          $ref: '#/components/responses/User'
+          description: An object describing the fetched user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '401':
@@ -113,7 +157,11 @@ paths:
             example: adb3271f-94dc-4169-80e9-3d4c8a90201f
       responses:
         '200':
-          $ref: '#/components/responses/User'
+          description: An object describing the updated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdatedUser'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '401':
@@ -132,7 +180,9 @@ paths:
       summary: Deactivate/Delete a user
       description: >
         Deactivate a user by default. If the user is already deactivate,
-        it will be deleted instead
+        they will be deleted instead. If the user does not exist, an empty
+        string will be returned. The reasoning is that if a user does not exist,
+        the deletion was successful (by definition, at the very least)
       parameters:
         - name: userId
           in: path
@@ -147,6 +197,10 @@ paths:
           description: >
             The deactivate/deleted user id on success. If the user does not exist,
             an empty string will be returned instead
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletedUser'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '401':
@@ -162,9 +216,9 @@ paths:
       tags:
         - user
       summary: Reactivate a user
-      description: Reactivate a user specified by the given id
-      requestBody:
-        $ref: '#/components/requestBodies/ReactivateUser'
+      description: >
+        Reactivate a user specified by the given id. If the user is already
+        active, the user id will be returned and nothing will occur
       parameters:
         - name: userId
           in: path
@@ -176,7 +230,13 @@ paths:
             example: adb3271f-94dc-4169-80e9-3d4c8a90201f
       responses:
         '200':
-          $ref: '#/components/responses/User'
+          description: >
+            The deactivate/deleted user id on success. If the user does not exist,
+            an empty string will be returned instead
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReactivatedUser'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '401':
@@ -191,6 +251,10 @@ paths:
           $ref: '#/components/responses/ServerError'
 components:
   schemas:
+    Users:
+      type: array
+      items:
+        $ref: '#/components/schemas/User'
     User:
       type: object
       required:
@@ -220,6 +284,19 @@ components:
           enum: [male, female, other]
         address:
           type: string
+    CreatedUser:
+      $ref: '#/components/schemas/User'
+    UpdatedUser:
+      $ref: '#/components/schemas/User'
+    DeletedUser:
+      type: string
+      format: uuid
+      example: adb3271f-94dc-4169-80e9-3d4c8a90201f
+    ReactivatedUser:
+      type: string
+      format: uuid
+      example: adb3271f-94dc-4169-80e9-3d4c8a90201f
+
     CreateUser:
       type: object
       required:
@@ -270,40 +347,22 @@ components:
           enum: [male, female, other]
         address:
           type: string
-    ReactivateUser:
-      $ref: '#/components/schemas/CreateUser'
   requestBodies:
-    CreateUsers:
-      description: An array describing Users creation data
+    CreateUser:
+      description: An object describing user creation data
       required: true
       content:
         application/json:
           schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/CreateUser'
+            $ref: '#/components/schemas/CreateUser'
     UpdateUser:
-      description: An object describing User update data
+      description: An object describing user update data
       required: true
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/UpdateUser'
   responses:
-    User:
-      description: An array describing users response
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/User'
-    Users:
-      description: An object describing user response
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/User'
     InvalidInputError:
       description: Invalid input
     UnauthorizedError:
@@ -315,7 +374,7 @@ components:
     NotFoundError:
       description: The requested entity does not exist
     PayloadTooLargeError:
-      description: The request size was too large
+      description: The request size is too large
     ServerError:
       description: Server related error
     GatewayTimeoutError:

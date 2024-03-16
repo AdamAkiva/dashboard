@@ -11,9 +11,12 @@ import Debug from 'debug';
 import {
   and,
   eq,
+  inArray,
+  isNotNull,
   isNull,
   sql,
-  type Logger as DrizzleLogger
+  type Logger as DrizzleLogger,
+  type SQL
 } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import express, {
@@ -30,16 +33,24 @@ import { pinoHttp, type HttpLogger } from 'pino-http';
 import pg from 'postgres';
 import { z as Zod } from 'zod';
 
-import type { DatabaseHandler, DBPreparedQueries } from '../db/index.js';
+import type { DatabaseHandler } from '../db/index.js';
 import type { Logger } from '../utils/index.js';
 
-import type { CreateUser, UpdateUser, User } from './api.js';
+import type {
+  CreatedUser,
+  DeletedUser,
+  ReactivatedUser,
+  UpdatedUser,
+  User,
+  Users
+} from './api.js';
 
 /******************************** General *****************************************/
 /**********************************************************************************/
 
 export type UnknownObject = { [key: string]: unknown };
-export type MaybeArray<T> = T | T[];
+export type MaybeArray<T = unknown> = T | T[];
+export type ArrayWithAtLeastOneValue<T = unknown> = [T, ...T[]];
 
 export type AddRequired<T, K extends keyof T> = Required<Pick<T, K>> & T;
 export type AddOptional<T, K extends keyof T> = Omit<T, K> &
@@ -48,7 +59,7 @@ export type SwapKeysValue<T, K extends keyof T, V> = Omit<T, K> & {
   [P in K]: V;
 };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ResolvedValue<T> = T extends (...args: any) => any
+export type ResolvedValue<T = any> = T extends (...args: any) => any
   ? PromiseFulfilledResult<Awaited<ReturnType<T>>>
   : PromiseFulfilledResult<Awaited<T>>;
 
@@ -77,7 +88,6 @@ export type EnvironmentVariables = {
 };
 export type RequestContext = {
   db: DatabaseHandler;
-  preparedQueries: DBPreparedQueries;
   logger: Logger['handler'];
 };
 
@@ -94,6 +104,8 @@ export {
   EventEmitter,
   express,
   helmet,
+  inArray,
+  isNotNull,
   isNull,
   isValidPhoneNumber,
   json,
@@ -108,13 +120,17 @@ export {
   URL,
   Zod,
   type Application,
-  type CreateUser,
+  type CreatedUser,
+  type DeletedUser,
   type DrizzleLogger,
   type HttpLogger,
   type IncomingHttpHeaders,
   type NextFunction,
+  type ReactivatedUser,
   type Request,
   type Server,
-  type UpdateUser,
-  type User
+  type SQL,
+  type UpdatedUser,
+  type User,
+  type Users
 };
