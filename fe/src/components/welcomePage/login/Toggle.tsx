@@ -19,15 +19,7 @@ const ToggleStyle = styled.div`
 
 const Toggle = (params: { text: string; toggleCb: () => void }) => {
   const { text, toggleCb } = params;
-  return (
-    <ToggleStyle
-      onClick={() => {
-        return toggleCb();
-      }}
-    >
-      {text}
-    </ToggleStyle>
-  );
+  return <ToggleStyle onClick={toggleCb}>{text}</ToggleStyle>;
 };
 
 export default Toggle;
