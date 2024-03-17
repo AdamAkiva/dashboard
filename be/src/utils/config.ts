@@ -59,7 +59,7 @@ const checkEnvVariables = (mode: Mode) => {
 };
 
 const checkMissingEnvVariables = (mode: Mode) => {
-  const errMap = new Map<string, string>([
+  const errMap = new Map([
     ['SERVER_PORT', `Missing 'SERVER_PORT' environment variable`],
     ['SERVER_URL', `Missing 'SERVER_URL' environment variable`],
     ['API_ROUTE', `Missing 'API_ROUTE' environment variable`],

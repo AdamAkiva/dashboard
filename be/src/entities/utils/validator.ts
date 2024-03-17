@@ -1,3 +1,4 @@
+import type { SafeParseError } from 'zod';
 import { Zod } from '../../types/index.js';
 import { DashboardError, StatusCodes } from '../../utils/index.js';
 
@@ -44,12 +45,13 @@ export function validateEmptyObject(errMsg: string, obj: unknown) {
 export function checkAndParseErrors(
   ...results: Zod.SafeParseReturnType<unknown, unknown>[]
 ) {
-  const errs: Zod.ZodError<unknown>[] = [];
-  results.forEach((result) => {
-    if (!result.success) {
-      errs.push(result.error);
-    }
-  });
+  const errs = results
+    .filter((result): result is SafeParseError<unknown> => {
+      return !result.success;
+    })
+    .map((result) => {
+      return result.error;
+    });
   if (!errs.length) {
     return undefined;
   }

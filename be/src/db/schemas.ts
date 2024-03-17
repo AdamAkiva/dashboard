@@ -20,12 +20,12 @@ import {
 /**
  * Notes:
  * 1. All database related naming MUST be snake_case, this is the convention
- * for SQL based databases. Otherwise the database quires need to be in quotation
+ * for SQL based databases. Otherwise the database queries need to be in quotation
  * marks.
  * 2. Primary key is uuid and not serial for two reasons: The first being,
  * it will be must easier to replicate the database where every key is unique.
- * The second being, keeping with the convention of the company. The overhead and
- * data usage of 128 bits for uuid over the 32 of serial is ok for us.
+ * The second being the overhead and data usage of 128 bits for uuid over the 32
+ * of serial is ok for us.
  * 3. Indexes exist by default for primary keys and more are added on fields
  * frequently used for queries.
  * 4. Some of the settings exist by default, but we like to be verbose as long
