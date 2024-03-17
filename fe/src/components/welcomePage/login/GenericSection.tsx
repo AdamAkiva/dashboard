@@ -28,9 +28,11 @@ const Form = styled.form`
 
 /******************************************************************************/
 
+type submitFormCb = (formData: FormData) => void;
+
 const handleSubmit = (
   e: FormEvent<HTMLFormElement>,
-  submitCb: (formData: FormData) => void
+  submitCb: submitFormCb
 ) => {
   e.preventDefault();
 
@@ -45,7 +47,7 @@ const GenericSection = (params: {
   toggleText: string;
   inputFields: FormField[];
   toggleCb: () => void;
-  submitCb: (formData: FormData) => void;
+  submitCb: submitFormCb;
 }) => {
   const { titleText, buttonText, toggleText, inputFields, toggleCb, submitCb } =
     params;
