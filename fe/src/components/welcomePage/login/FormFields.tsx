@@ -1,5 +1,6 @@
 /******************************************************************************/
 
+import { useMemo } from 'react';
 import styled, { css } from 'styled-components';
 
 import type { FormField } from '@/types';
@@ -46,43 +47,44 @@ const Select = styled.select`
 
 /******************************************************************************/
 
+const renderField = (field: FormField) => {
+  if (field.type !== 'dropdown') {
+    return (
+      <Input
+        required={field.required}
+        name={field.name}
+        placeholder={field.name}
+        type={field.type}
+      />
+    );
+  } else {
+    return (
+      <Select defaultValue={field.name} name={field.name} key={field.name}>
+        <option value={field.name} disabled={true}>
+          {field.name}
+        </option>
+        {field.options.map((option) => {
+          return (
+            <option value={option} key={option}>
+              {option}
+            </option>
+          );
+        })}
+      </Select>
+    );
+  }
+};
+
 const Fields = (params: { inputFields: FormField[] }) => {
   const { inputFields } = params;
-  return (
-    <FieldsStyle>
-      {inputFields.map((field) => {
-        return (
-          <FieldStyle key={field.name}>
-            {field.type !== 'dropdown' ? (
-              <Input
-                required={field.required}
-                name={field.name}
-                placeholder={field.name}
-                type={field.type}
-              />
-            ) : (
-              <Select
-                defaultValue={field.name}
-                name={field.name}
-                key={field.name}
-              >
-                <option value={field.name} disabled={true}>
-                  {field.name}
-                </option>
-                {field.options.map((option) => {
-                  return (
-                    <option value={option} key={option}>
-                      {option}
-                    </option>
-                  );
-                })}
-              </Select>
-            )}
-          </FieldStyle>
-        );
-      })}
-    </FieldsStyle>
-  );
+
+  const renderedFields = useMemo(() => {
+    return inputFields.map((field) => {
+      return <FieldStyle key={field.name}>{renderField(field)}</FieldStyle>;
+    });
+  }, [inputFields]);
+
+  return <FieldsStyle>{renderedFields}</FieldsStyle>;
 };
 
 export default Fields;
