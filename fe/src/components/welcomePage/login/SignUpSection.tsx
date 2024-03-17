@@ -27,9 +27,11 @@ const inputFields: FormField[] = [
   }
 ];
 
-const SignUpSection = (params: { toggleCb: () => void }) => {
-  const { toggleCb } = params;
+/******************************************************************************/
 
+type SignUpSectionProps = { toggleCb: () => void };
+
+const SignUpSection = ({ toggleCb }: SignUpSectionProps) => {
   return (
     <GenericSection
       titleText={'USER SIGN UP'}

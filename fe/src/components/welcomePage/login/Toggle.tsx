@@ -17,8 +17,9 @@ const ToggleStyle = styled.div`
 }`;
 /******************************************************************************/
 
-const Toggle = (params: { text: string; toggleCb: () => void }) => {
-  const { text, toggleCb } = params;
+type ToggleProps = { text: string; toggleCb: () => void };
+
+const Toggle = ({ text, toggleCb }: ToggleProps) => {
   return <ToggleStyle onClick={toggleCb}>{text}</ToggleStyle>;
 };
 

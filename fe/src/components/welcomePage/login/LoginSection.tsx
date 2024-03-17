@@ -16,9 +16,11 @@ const inputFields: FormField[] = [
   { name: 'Password', required: true, type: 'password' }
 ];
 
-const LoginSection = (params: { toggleCb: () => void }) => {
-  const { toggleCb } = params;
+/******************************************************************************/
 
+type LoginSectionProps = { toggleCb: () => void };
+
+const LoginSection = ({ toggleCb }: LoginSectionProps) => {
   return (
     <GenericSection
       titleText={'USER LOGIN'}

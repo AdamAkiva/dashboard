@@ -30,6 +30,17 @@ const Form = styled.form`
 
 type submitFormCb = (formData: FormData) => void;
 
+type GenericSectionProps = {
+  titleText: string;
+  buttonText: string;
+  toggleText: string;
+  inputFields: FormField[];
+  toggleCb: () => void;
+  submitCb: submitFormCb;
+};
+
+/******************************************************************************/
+
 const handleSubmit = (
   e: FormEvent<HTMLFormElement>,
   submitCb: submitFormCb
@@ -41,16 +52,16 @@ const handleSubmit = (
   submitCb(new FormData(form));
 };
 
-const GenericSection = (params: {
-  titleText: string;
-  buttonText: string;
-  toggleText: string;
-  inputFields: FormField[];
-  toggleCb: () => void;
-  submitCb: submitFormCb;
-}) => {
-  const { titleText, buttonText, toggleText, inputFields, toggleCb, submitCb } =
-    params;
+/******************************************************************************/
+
+const GenericSection = ({
+  titleText,
+  buttonText,
+  toggleText,
+  inputFields,
+  toggleCb,
+  submitCb
+}: GenericSectionProps) => {
   return (
     <GenericSectionStyle>
       <div>

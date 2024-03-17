@@ -75,9 +75,11 @@ const renderField = (field: FormField) => {
   }
 };
 
-const Fields = (params: { inputFields: FormField[] }) => {
-  const { inputFields } = params;
+/******************************************************************************/
 
+type FieldsProps = { inputFields: FormField[] };
+
+const Fields = ({ inputFields }: FieldsProps) => {
   const renderedFields = useMemo(() => {
     return inputFields.map((field) => {
       return <FieldStyle key={field.name}>{renderField(field)}</FieldStyle>;

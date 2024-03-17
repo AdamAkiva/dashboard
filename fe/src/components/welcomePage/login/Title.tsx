@@ -12,8 +12,9 @@ const TitleStyle = styled.div`
 
 /******************************************************************************/
 
-const Title = (params: { text: string }) => {
-  const { text } = params;
+type TitleProps = { text: string };
+
+const Title = ({ text }: TitleProps) => {
   return <TitleStyle>{text}</TitleStyle>;
 };
 

@@ -15,8 +15,9 @@ const ButtonStyle = styled.button`
 
 /******************************************************************************/
 
-const Button = (params: { text: string }) => {
-  const { text } = params;
+type ButtonProps = { text: string };
+
+const Button = ({ text }: ButtonProps) => {
   return (
     <ButtonStyleWrapper>
       <ButtonStyle type="submit">{text}</ButtonStyle>
