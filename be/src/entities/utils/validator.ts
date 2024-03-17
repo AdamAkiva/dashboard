@@ -1,4 +1,3 @@
-import type { SafeParseError } from 'zod';
 import { Zod } from '../../types/index.js';
 import { DashboardError, StatusCodes } from '../../utils/index.js';
 
@@ -46,7 +45,7 @@ export function checkAndParseErrors(
   ...results: Zod.SafeParseReturnType<unknown, unknown>[]
 ) {
   const errs = results
-    .filter((result): result is SafeParseError<unknown> => {
+    .filter((result): result is Zod.SafeParseError<unknown> => {
       return !result.success;
     })
     .map((result) => {
