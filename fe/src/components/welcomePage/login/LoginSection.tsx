@@ -13,7 +13,7 @@ const handleSubmit = (formData: FormData) => {
 
 const inputFields: FormField[] = [
   { name: 'Email', required: true, type: 'text' },
-  { name: 'Password', required: true, type: 'text' }
+  { name: 'Password', required: true, type: 'password' }
 ];
 
 const LoginSection = (params: { toggleCb: () => void }) => {
