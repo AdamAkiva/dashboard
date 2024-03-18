@@ -139,7 +139,7 @@ export function debugWrapper<T>(
 
   debugInstance(`Begin --- ${msg}`);
   const res = fn();
-  debugInstance(`End --- ${msg}`);
+  debugInstance(`End   --- ${msg}`);
 
   return res;
 }
@@ -152,7 +152,7 @@ export async function asyncDebugWrapper<T>(
 
   debugInstance(`Begin --- ${msg}`);
   const res = await fn();
-  debugInstance(`End --- ${msg}`);
+  debugInstance(`End   --- ${msg}`);
 
   return res;
 }
