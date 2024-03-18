@@ -1,11 +1,8 @@
 /******************************************************************************/
 
-import { Router } from '@/router';
+import Login from './Login';
+import Welcome from './Welcome';
 
 /******************************************************************************/
 
-const App = () => {
-  return <Router />;
-};
-
-export default App;
+export { Login, Welcome };
