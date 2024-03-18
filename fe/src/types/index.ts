@@ -29,6 +29,8 @@ type DropdownField = {
   options: string[];
 };
 
+type OnToggleClickCb = () => void;
+
 type FormField = DropdownField | InputField;
 
-export type { FormField };
+export type { FormField, OnToggleClickCb };

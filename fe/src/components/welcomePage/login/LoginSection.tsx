@@ -1,6 +1,6 @@
 /******************************************************************************/
 
-import type { FormField } from '@/types';
+import type { FormField, OnToggleClickCb } from '@/types';
 
 import GenericSection from './GenericSection';
 
@@ -18,7 +18,7 @@ const inputFields: FormField[] = [
 
 /******************************************************************************/
 
-type LoginSectionProps = { toggleCb: () => void };
+type LoginSectionProps = { toggleCb: OnToggleClickCb };
 
 const LoginSection = ({ toggleCb }: LoginSectionProps) => {
   return (

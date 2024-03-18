@@ -2,6 +2,8 @@
 
 import styled from 'styled-components';
 
+import type { OnToggleClickCb } from '@/types';
+
 /******************************************************************************/
 
 const ToggleStyle = styled.div`
@@ -17,7 +19,7 @@ const ToggleStyle = styled.div`
 }`;
 /******************************************************************************/
 
-type ToggleProps = { text: string; toggleCb: () => void };
+type ToggleProps = { text: string; toggleCb: OnToggleClickCb };
 
 const Toggle = ({ text, toggleCb }: ToggleProps) => {
   return <ToggleStyle onClick={toggleCb}>{text}</ToggleStyle>;

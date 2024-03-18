@@ -1,6 +1,6 @@
 /******************************************************************************/
 
-import type { FormField } from '@/types';
+import type { FormField, OnToggleClickCb } from '@/types';
 
 import GenericSection from './GenericSection';
 
@@ -29,7 +29,7 @@ const inputFields: FormField[] = [
 
 /******************************************************************************/
 
-type SignUpSectionProps = { toggleCb: () => void };
+type SignUpSectionProps = { toggleCb: OnToggleClickCb };
 
 const SignUpSection = ({ toggleCb }: SignUpSectionProps) => {
   return (

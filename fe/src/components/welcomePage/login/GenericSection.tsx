@@ -3,7 +3,7 @@
 import type { FormEvent } from 'react';
 import styled from 'styled-components';
 
-import type { FormField } from '@/types';
+import type { FormField, OnToggleClickCb } from '@/types';
 
 import Title from './Title';
 import Toggle from './Toggle';
@@ -28,22 +28,22 @@ const Form = styled.form`
 
 /******************************************************************************/
 
-type submitFormCb = (formData: FormData) => void;
+type OnSubmitFormCb = (formData: FormData) => void;
 
 type GenericSectionProps = {
   titleText: string;
   buttonText: string;
   toggleText: string;
   inputFields: FormField[];
-  toggleCb: () => void;
-  submitCb: submitFormCb;
+  toggleCb: OnToggleClickCb;
+  submitCb: OnSubmitFormCb;
 };
 
 /******************************************************************************/
 
 const handleSubmit = (
   e: FormEvent<HTMLFormElement>,
-  submitCb: submitFormCb
+  submitCb: OnSubmitFormCb
 ) => {
   e.preventDefault();
 
