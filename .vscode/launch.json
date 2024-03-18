@@ -5,10 +5,10 @@
       "name": "Debug Server",
       "type": "node",
       "request": "attach",
-      "port": 9229,
+      "port": 2829,
       "restart": true,
       "address": "localhost",
-      "remoteRoot": "/home/node",
+      "remoteRoot": "/home/node/dashboard",
       "localRoot": "${workspaceFolder}/be",
       "sourceMaps": true,
       "smartStep": true

@@ -9,6 +9,8 @@ import {
 
 /**********************************************************************************/
 
+/**********************************************************************************/
+
 export const getEnv = (): EnvironmentVariables => {
   const mode = process.env.NODE_ENV as Mode;
 
@@ -46,9 +48,9 @@ const checkRuntimeEnv = (mode?: string): mode is Mode => {
 
 const checkEnvVariables = (mode: Mode) => {
   let missingValues = '';
-  checkMissingEnvVariables(mode).forEach((val, key) => {
-    if (!process.env[key]) {
-      missingValues += `* ${val}\n`;
+  mapEnvironmentVariables(mode).forEach((val) => {
+    if (!process.env[val]) {
+      missingValues += `* Missing ${val} environment variable\n`;
     }
   });
   if (missingValues) {
@@ -58,23 +60,19 @@ const checkEnvVariables = (mode: Mode) => {
   }
 };
 
-const checkMissingEnvVariables = (mode: Mode) => {
-  const errMap = new Map([
-    ['SERVER_PORT', `Missing 'SERVER_PORT' environment variable`],
-    ['SERVER_URL', `Missing 'SERVER_URL' environment variable`],
-    ['API_ROUTE', `Missing 'API_ROUTE' environment variable`],
-    ['HEALTH_CHECK_ROUTE', `Missing 'HEALTH_CHECK_ROUTE' environment variable`],
-    ['ALLOWED_HOSTS', `Missing 'ALLOWED_HOSTS' environment variable`],
-    ['ALLOWED_ORIGINS', `Missing 'ALLOWED_ORIGINS' environment variable`],
-    ['DB_URI', `Missing 'DB_URI' environment variable`]
-  ]);
-
+const mapEnvironmentVariables = (mode: Mode) => {
+  const environmentVariables = [
+    'SERVER_PORT',
+    'SERVER_URL',
+    'API_ROUTE',
+    'HEALTH_CHECK_ROUTE',
+    'ALLOWED_HOSTS',
+    'ALLOWED_ORIGINS',
+    'DB_URI'
+  ];
   if (mode === 'development') {
-    errMap.set(
-      'SERVER_DEBUG_PORT',
-      `Missing 'SERVER_DEBUG_PORT' environment variable`
-    );
+    environmentVariables.push('SERVER_DEBUG_PORT');
   }
 
-  return errMap;
+  return environmentVariables;
 };
