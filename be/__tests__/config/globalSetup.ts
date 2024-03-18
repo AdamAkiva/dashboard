@@ -115,18 +115,17 @@ function checkRuntimeEnv(mode?: string | undefined): mode is 'test' {
 
 function checkEnvVariables() {
   let missingValues = '';
-  new Map([
-    ['TEST_SERVER_PORT', `Missing 'TEST_SERVER_PORT' environment variable`],
-    ['API_ROUTE', `Missing 'API_ROUTE' environment variable`],
-    ['HEALTH_CHECK_ROUTE', `Missing 'HEALTH_CHECK_ROUTE' environment variable`],
-    ['ALLOWED_HOSTS', `Missing 'ALLOWED_HOSTS' environment variable`],
-    ['DB_TEST_URI', `Missing 'DB_TEST_URI' environment variable`]
-  ]).forEach((val, key) => {
-    if (!process.env[key]) {
-      missingValues += `* ${val}\n`;
+  [
+    'TEST_SERVER_PORT',
+    'API_ROUTE',
+    'HEALTH_CHECK_ROUTE',
+    'ALLOWED_HOSTS',
+    'DB_TEST_URI'
+  ].forEach((val) => {
+    if (!process.env[val]) {
+      missingValues += `* Missing ${val} environment variable\n`;
     }
   });
-
   if (missingValues) {
     console.error(
       `\nMissing the following environment vars:\n${missingValues}`
