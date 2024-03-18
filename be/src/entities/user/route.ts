@@ -1,17 +1,13 @@
 import { Router, json } from '../../types/index.js';
 
-import * as Controller from './controller.js';
-
-/**********************************************************************************/
-
-const {
-  readUsers,
+import {
   createUser,
-  readUser,
-  updateUser,
   deleteUser,
-  reactivateUser
-} = Controller;
+  reactivateUser,
+  readUser,
+  readUsers,
+  updateUser
+} from './controller.js';
 
 /**********************************************************************************/
 
