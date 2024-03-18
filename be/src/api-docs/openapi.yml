@@ -163,8 +163,6 @@ paths:
         - user
       summary: Reactivate a user
       description: Reactivate a user specified by the given id
-      requestBody:
-        $ref: '#/components/requestBodies/ReactivateUser'
       parameters:
         - name: userId
           in: path
@@ -277,8 +275,6 @@ components:
           enum: [male, female, other]
         address:
           type: string
-    ReactivateUser:
-      $ref: '#/components/schemas/CreateUser'
   requestBodies:
     CreateUsers:
       description: An array describing Users creation data
