@@ -5,7 +5,7 @@ import { Logger, debugEnabled } from '../../src/utils/index.js';
 /**********************************************************************************/
 
 export function withLogs() {
-  return process.env.DEBUG === 'dashboard:*';
+  return process.env.DEBUG && process.env.DEBUG.includes('dashboard:*');
 }
 
 export function isStressTest() {
@@ -17,6 +17,7 @@ export async function cleanupDatabase(db: DatabaseHandler) {
   const {
     user: { userInfoModel, userCredentialsModel, userSettingsModel }
   } = db.getModels();
+
   /* eslint-disable @drizzle/enforce-delete-with-where */
   await handler.delete(userInfoModel);
   await handler.delete(userCredentialsModel);
