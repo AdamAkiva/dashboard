@@ -76,13 +76,13 @@ export default class HttpServer {
     this._app.use(
       Middlewares.checkMethod(HttpServer.ALLOWED_METHODS),
       cors({
-        credentials: true,
         methods: Array.from(HttpServer.ALLOWED_METHODS),
         origin:
           allowedOrigins.size === 1
             ? Array.from(allowedOrigins)[0]
             : Array.from(allowedOrigins),
-        maxAge: 86400 // 1 day in secs
+        maxAge: 86400, // 1 day in secs
+        optionsSuccessStatus: 200 // last option here: https://github.com/expressjs/cors?tab=readme-ov-file#configuration-options
       }),
       compress()
     );
