@@ -27,7 +27,8 @@ const defaultConfig: UserConfig = {
   server: {
     sourcemap: 'inline' as const
   },
-  // default reporter override some logs for some reason. This is how we handle it
+  // default reporter causes formatting issues with stdout for some reason.
+  // This is how we chose to handle it
   reporters: withLogs()
     ? ['basic', 'hanging-process']
     : ['default', 'hanging-process']

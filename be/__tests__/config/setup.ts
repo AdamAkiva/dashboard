@@ -12,7 +12,8 @@ const { name, url } = inject('db');
 beforeAll(() => {
   // To avoid asserting non-null everywhere we depend on the init order of vitest
   // to assume this will always be defined since setupFiles are ran before each
-  // test
+  // test. If this ever changes (no reason to, but still) this will have to be
+  // changed as a result
   globalThis.db = new DatabaseHandler({
     mode: mode,
     conn: {

@@ -5,7 +5,7 @@ import { Logger } from '../../src/utils/index.js';
 /**********************************************************************************/
 
 export function withLogs() {
-  return process.env.DEBUG === 'dashboard:*';
+  return process.env.DEBUG && process.env.DEBUG.includes('dashboard:*');
 }
 
 export function isStressTest() {
@@ -15,6 +15,7 @@ export function isStressTest() {
 export async function cleanupDatabase(db: DatabaseHandler) {
   const handler = db.getHandler();
   const models = db.getModels();
+
   /* eslint-disable drizzle/enforce-delete-with-where */
   await handler.delete(models.user.userInfoModel);
   await handler.delete(models.user.userCredentialsModel);
@@ -27,7 +28,7 @@ export function mockLogger() {
   const { logMiddleware, handler } = logger;
 
   return {
-    handler: process.env.DEBUG
+    handler: withLogs()
       ? handler
       : {
           ...handler,
@@ -44,7 +45,7 @@ export function mockLogger() {
             // Disable logs
           }
         },
-    logMiddleware: process.env.DEBUG
+    logMiddleware: withLogs()
       ? logMiddleware
       : (_: Request, __: Response, next: NextFunction) => {
           // Disable logging middleware
