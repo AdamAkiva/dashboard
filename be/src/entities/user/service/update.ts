@@ -10,7 +10,7 @@ import {
 } from '../../../types/index.js';
 import { objHasValues } from '../../../utils/index.js';
 
-import { executePreparedQuery } from '../../utils.js';
+import { asyncDebugWrapper, executePreparedQuery } from '../../utils.js';
 
 import type {
   reactivateUser as reactivateUserValidation,
@@ -85,15 +85,18 @@ export async function updateUser(
   });
 
   try {
-    userDebug('Fetching user after update');
-    const [user] = await executePreparedQuery({
-      db: db,
-      queryName: 'readUserQuery',
-      phValues: { userId: userId }
-    });
-    userDebug('Done fetching user after update');
-
-    return user;
+    return (
+      await asyncDebugWrapper(
+        async () => {
+          return await executePreparedQuery({
+            db: db,
+            queryName: 'readUserQuery',
+            phValues: { userId: userId }
+          });
+        },
+        { instance: userDebug, msg: 'Fetching user after update' }
+      )
+    )[0];
   } catch (err) {
     throw userUpdatedReadFailed({
       err: err,
@@ -109,13 +112,16 @@ export async function reactivateUser(
 ): Promise<ReactivatedUser> {
   const { db } = ctx;
 
-  userDebug('Reactivating user');
-  const userIds = await executePreparedQuery({
-    db: db,
-    queryName: 'reactivateUser',
-    phValues: { userId: userId }
-  });
-  userDebug('Done reactivating user');
+  const userIds = await asyncDebugWrapper(
+    async () => {
+      return await executePreparedQuery({
+        db: db,
+        queryName: 'reactivateUser',
+        phValues: { userId: userId }
+      });
+    },
+    { instance: userDebug, msg: 'Reactivating user' }
+  );
   if (!userIds.length) {
     throw userNotFoundError(userId);
   }
@@ -165,16 +171,19 @@ async function isAllowedToUpdate(params: {
 }) {
   const { handler, userCredentialsModel, userId } = params;
 
-  userDebug('Checking whether the user is archived');
-  const usersStatus = await handler
-    .select({ archivedAt: userCredentialsModel.archivedAt })
-    .from(userCredentialsModel)
-    .where(eq(userCredentialsModel.userId, userId));
-  userDebug('Done checking whether the user is archived');
-  if (!usersStatus.length) {
+  const usersStatuses = await asyncDebugWrapper(
+    async () => {
+      return await handler
+        .select({ archivedAt: userCredentialsModel.archivedAt })
+        .from(userCredentialsModel)
+        .where(eq(userCredentialsModel.userId, userId));
+    },
+    { instance: userDebug, msg: 'Checking whether the user is archived' }
+  );
+  if (!usersStatuses.length) {
     throw userNotFoundError(userId);
   }
-  if (usersStatus[0].archivedAt) {
+  if (usersStatuses[0].archivedAt) {
     throw userNotAllowedToBeUpdated(userId);
   }
 }
@@ -192,13 +201,16 @@ async function updateUserInfo(params: {
     return;
   }
 
-  userDebug('Updating user info entry');
-  const updates = await handler
-    .update(userInfoModel)
-    .set({ ...userInfo, updatedAt: updatedAt })
-    .where(eq(userInfoModel.id, userId))
-    .returning({ userId: userInfoModel.id });
-  userDebug('Done updating user info entry');
+  const updates = await asyncDebugWrapper(
+    async () => {
+      return await handler
+        .update(userInfoModel)
+        .set({ ...userInfo, updatedAt: updatedAt })
+        .where(eq(userInfoModel.id, userId))
+        .returning({ userId: userInfoModel.id });
+    },
+    { instance: userDebug, msg: 'Updating user info entry' }
+  );
   if (!updates.length) {
     throw userNotFoundError(userId);
   }
@@ -218,16 +230,19 @@ async function updateUserCredentials(params: {
     return;
   }
 
-  userDebug('Updating user credentials entry');
-  const updates = await handler
-    .update(userCredentialsModel)
-    .set({
-      ...credentials,
-      updatedAt: updatedAt
-    })
-    .where(eq(userCredentialsModel.userId, userId))
-    .returning({ userId: userCredentialsModel.userId });
-  userDebug('Done updating user credentials entry');
+  const updates = await asyncDebugWrapper(
+    async () => {
+      return await handler
+        .update(userCredentialsModel)
+        .set({
+          ...credentials,
+          updatedAt: updatedAt
+        })
+        .where(eq(userCredentialsModel.userId, userId))
+        .returning({ userId: userCredentialsModel.userId });
+    },
+    { instance: userDebug, msg: 'Updating user credentials entry' }
+  );
   if (!updates.length) {
     throw userNotFoundError(userId);
   }
@@ -244,15 +259,18 @@ async function updateUserSettingsEntry(params: {
     userSettingsUpdates: { userId, ...settingsUpdates }
   } = params;
 
-  userDebug('Updating user settings entry');
-  const updatedUserSettings = await handler
-    .update(userSettingsModel)
-    .set(settingsUpdates)
-    .where(eq(userSettingsModel.userId, userId))
-    .returning({
-      darkMode: userSettingsModel.darkMode
-    });
-  userDebug('Done updating user settings entry');
+  const updatedUserSettings = await asyncDebugWrapper(
+    async () => {
+      return await handler
+        .update(userSettingsModel)
+        .set(settingsUpdates)
+        .where(eq(userSettingsModel.userId, userId))
+        .returning({
+          darkMode: userSettingsModel.darkMode
+        });
+    },
+    { instance: userDebug, msg: 'Updating user settings entry' }
+  );
   if (!updatedUserSettings.length) {
     throw userNotFoundError(userId);
   }

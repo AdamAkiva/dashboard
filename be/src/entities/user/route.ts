@@ -19,4 +19,4 @@ export default Router()
   .patch('/users/:userId', json({ limit: '16kb' }), updateUser)
   .delete('/users/:userId', json({ limit: '2kb' }), deleteUser)
   .patch('/users/reactivate/:userId', json({ limit: '2kb' }), reactivateUser)
-  .patch('/users/settings/:userId', json({ limit: '4kb' }), updateUserSettings);
+  .patch('/users/settings/:userId', json({ limit: '8kb' }), updateUserSettings);

@@ -9,7 +9,7 @@ import {
   type Users
 } from '../../../types/index.js';
 
-import { executePreparedQuery } from '../../utils.js';
+import { asyncDebugWrapper, executePreparedQuery } from '../../utils.js';
 
 import type {
   readUsers as readUsersValidation,
@@ -43,27 +43,33 @@ export async function readUsers(
     }
     const innerJoinQuery = filters.length === 1 ? filters[0] : and(...filters);
 
-    userDebug('Fetching archived users');
-    users = await handler
-      .select({
-        id: userInfoModel.id,
-        email: userInfoModel.email,
-        firstName: userInfoModel.firstName,
-        lastName: userInfoModel.lastName,
-        phone: userInfoModel.phone,
-        gender: userInfoModel.gender,
-        address: userInfoModel.address
-      })
-      .from(userInfoModel)
-      .innerJoin(userCredentialsModel, innerJoinQuery);
-    userDebug('Done fetching archived users');
+    users = await asyncDebugWrapper(
+      async () => {
+        return await handler
+          .select({
+            id: userInfoModel.id,
+            email: userInfoModel.email,
+            firstName: userInfoModel.firstName,
+            lastName: userInfoModel.lastName,
+            phone: userInfoModel.phone,
+            gender: userInfoModel.gender,
+            address: userInfoModel.address
+          })
+          .from(userInfoModel)
+          .innerJoin(userCredentialsModel, innerJoinQuery);
+      },
+      { instance: userDebug, msg: 'Fetching archived users' }
+    );
   } else {
-    userDebug('Fetching users');
-    users = await executePreparedQuery({
-      db: db,
-      queryName: 'readUsersQuery'
-    });
-    userDebug('Done fetching users');
+    users = await asyncDebugWrapper(
+      async () => {
+        return await executePreparedQuery({
+          db: db,
+          queryName: 'readUsersQuery'
+        });
+      },
+      { instance: userDebug, msg: 'Fetching users' }
+    );
   }
 
   return users;
@@ -75,13 +81,16 @@ export async function readUser(
 ): Promise<User> {
   const { db } = ctx;
 
-  userDebug('Fetching user');
-  const users = await executePreparedQuery({
-    db: db,
-    queryName: 'readUserQuery',
-    phValues: { userId: userId }
-  });
-  userDebug('Done fetching user');
+  const users = await asyncDebugWrapper(
+    async () => {
+      return await executePreparedQuery({
+        db: db,
+        queryName: 'readUserQuery',
+        phValues: { userId: userId }
+      });
+    },
+    { instance: userDebug, msg: 'Fetching user' }
+  );
   if (!users.length) {
     throw userNotFoundError(userId);
   }

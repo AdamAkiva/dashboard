@@ -5,6 +5,8 @@ import {
   type RequestContext
 } from '../../../types/index.js';
 
+import { asyncDebugWrapper } from '../../utils.js';
+
 import type { createUser as createUserValidation } from '../validator.js';
 
 import { userCreationError } from './utils.js';
@@ -82,20 +84,21 @@ async function createUserInfoEntry(params: {
 }) {
   const { handler, userInfoModel, userInfo, creationDate } = params;
 
-  userDebug('Creating user info entry');
-  const userId = (
-    await handler
-      .insert(userInfoModel)
-      .values({
-        ...userInfo,
-        createdAt: creationDate,
-        updatedAt: creationDate
-      })
-      .returning({ userId: userInfoModel.id })
-  )[0].userId;
-  userDebug('Done creating user info entry');
-
-  return userId;
+  return await asyncDebugWrapper(
+    async () => {
+      return (
+        await handler
+          .insert(userInfoModel)
+          .values({
+            ...userInfo,
+            createdAt: creationDate,
+            updatedAt: creationDate
+          })
+          .returning({ userId: userInfoModel.id })
+      )[0].userId;
+    },
+    { instance: userDebug, msg: 'Creating user info entry' }
+  );
 }
 
 async function createUserCredentialsEntry(params: {
@@ -113,14 +116,17 @@ async function createUserCredentialsEntry(params: {
     creationDate
   } = params;
 
-  userDebug('Creating user credentials entry');
-  await handler.insert(userCredentialsModel).values({
-    userId: userId,
-    ...userCredentialsInfo,
-    createdAt: creationDate,
-    updatedAt: creationDate
-  });
-  userDebug('Done creating user credentials entry');
+  return await asyncDebugWrapper(
+    async () => {
+      return await handler.insert(userCredentialsModel).values({
+        userId: userId,
+        ...userCredentialsInfo,
+        createdAt: creationDate,
+        updatedAt: creationDate
+      });
+    },
+    { instance: userDebug, msg: 'Creating user credentials entry' }
+  );
 }
 
 async function createDefaultUserSettingsEntry(params: {
@@ -131,11 +137,14 @@ async function createDefaultUserSettingsEntry(params: {
 }) {
   const { handler, userSettingsModel, userId, creationDate } = params;
 
-  userDebug('Creating default user settings entry');
-  await handler.insert(userSettingsModel).values({
-    userId: userId,
-    createdAt: creationDate,
-    updatedAt: creationDate
-  });
-  userDebug('Done creating default user settings entry');
+  return await asyncDebugWrapper(
+    async () => {
+      return await handler.insert(userSettingsModel).values({
+        userId: userId,
+        createdAt: creationDate,
+        updatedAt: creationDate
+      });
+    },
+    { instance: userDebug, msg: 'Creating default user settings entry' }
+  );
 }

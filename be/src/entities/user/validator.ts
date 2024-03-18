@@ -121,7 +121,7 @@ export function updateUser(req: Request) {
 export function reactivateUser(req: Request) {
   const { body, params, query } = req;
 
-  const paramsRes = reactivateUserSchema.safeParse(params);
+  const paramsRes = userIdSchema.safeParse(params);
   const err = checkAndParseErrors(
     paramsRes,
     validateEmptyObject('Expected empty request body and query params', {
@@ -133,7 +133,7 @@ export function reactivateUser(req: Request) {
     throw err;
   }
 
-  return (paramsRes as ValidatedType<typeof reactivateUserSchema>).data.userId;
+  return (paramsRes as ValidatedType<typeof userIdSchema>).data.userId;
 }
 
 export function updateUserSettings(req: Request) {
@@ -406,19 +406,6 @@ const updateUserSchema = Zod.object(
       return Zod.NEVER;
     }
   });
-
-const reactivateUserSchema = Zod.object(
-  {
-    userId: Zod.string({
-      invalid_type_error: invalidStringErr('user id'),
-      required_error: requiredErr('user id')
-    }).uuid({ message: invalidUuid('user id') })
-  },
-  {
-    invalid_type_error: invalidObjectErr('user id'),
-    required_error: requiredErr('user id')
-  }
-).strict(invalidObjectErr('user id'));
 
 const updateUserSettingsSchema = Zod.object(
   {

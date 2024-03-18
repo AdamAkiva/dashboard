@@ -5,7 +5,7 @@ import {
   type RequestContext
 } from '../../../types/index.js';
 
-import { executePreparedQuery } from '../../utils.js';
+import { asyncDebugWrapper, executePreparedQuery } from '../../utils.js';
 
 import type { deleteUser as deleteUserValidation } from '../validator.js';
 
@@ -27,21 +27,27 @@ export async function deleteUser(
   }
 
   if (userStatus) {
-    userDebug('Deleting user');
-    await executePreparedQuery({
-      db: db,
-      queryName: 'deleteUser',
-      phValues: { userId: userId }
-    });
-    userDebug('Done deleting user');
+    await asyncDebugWrapper(
+      async () => {
+        return await executePreparedQuery({
+          db: db,
+          queryName: 'deleteUser',
+          phValues: { userId: userId }
+        });
+      },
+      { instance: userDebug, msg: 'Deleting user' }
+    );
   } else {
-    userDebug('Archiving user');
-    await executePreparedQuery({
-      db: db,
-      queryName: 'deactivateUser',
-      phValues: { archivedAt: new Date().toISOString(), userId: userId }
-    });
-    userDebug('Done archiving user');
+    await asyncDebugWrapper(
+      async () => {
+        return await executePreparedQuery({
+          db: db,
+          queryName: 'deactivateUser',
+          phValues: { archivedAt: new Date().toISOString(), userId: userId }
+        });
+      },
+      { instance: userDebug, msg: 'Archiving user' }
+    );
   }
 
   return userId;
@@ -50,13 +56,16 @@ export async function deleteUser(
 /**********************************************************************************/
 
 async function getUserStatus(db: DatabaseHandler, userId: string) {
-  userDebug('Checking whether the user is archived');
-  const isArchived = await executePreparedQuery({
-    db: db,
-    queryName: 'checkUserIsArchivedQuery',
-    phValues: { userId: userId }
-  });
-  userDebug('Done checking whether the user is archived');
+  const isArchived = await asyncDebugWrapper(
+    async () => {
+      return await executePreparedQuery({
+        db: db,
+        queryName: 'checkUserIsArchivedQuery',
+        phValues: { userId: userId }
+      });
+    },
+    { instance: userDebug, msg: 'Checking whether the user is archived' }
+  );
 
   // User not found, meaning the result is fine, they no longer exists by proxy,
   // hence, return an empty string indicating a success

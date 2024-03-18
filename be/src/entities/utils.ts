@@ -1,5 +1,5 @@
 import type { DatabaseHandler } from '../db/index.js';
-import { Zod, type UnknownObject } from '../types/index.js';
+import { Zod, type Debug, type UnknownObject } from '../types/index.js';
 import { DashboardError, StatusCodes } from '../utils/index.js';
 
 /****************************** Service related ***********************************/
@@ -127,4 +127,32 @@ export function minErr(fieldName: string, minAmount: number) {
 
 export function maxErr(fieldName: string, maxAmount: number) {
   return `'${fieldName}' must contain at most ${String(maxAmount)} characters`;
+}
+
+/**********************************************************************************/
+
+export function debugWrapper<T>(
+  fn: () => T,
+  debug: { instance: ReturnType<typeof Debug>; msg: string }
+) {
+  const { instance: debugInstance, msg } = debug;
+
+  debugInstance(`Begin --- ${msg}`);
+  const res = fn();
+  debugInstance(`End --- ${msg}`);
+
+  return res;
+}
+
+export async function asyncDebugWrapper<T>(
+  fn: () => Promise<T>,
+  debug: { instance: ReturnType<typeof Debug>; msg: string }
+) {
+  const { instance: debugInstance, msg } = debug;
+
+  debugInstance(`Begin --- ${msg}`);
+  const res = await fn();
+  debugInstance(`End --- ${msg}`);
+
+  return res;
 }
