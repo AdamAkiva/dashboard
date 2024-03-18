@@ -112,6 +112,8 @@ services:
       target: fe-dev
       args:
         DOCKER_BUILDKIT: 1
+    environment:
+      - CLIENT_PORT=5173
     volumes:
       - ../fe:/home/node/dashboard:rw
       # Volume npm cache to speed up the npm install. This should allow cache reuse
