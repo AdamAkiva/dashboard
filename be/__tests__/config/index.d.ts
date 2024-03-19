@@ -1,7 +1,5 @@
 import 'vitest';
 
-import type { DatabaseHandler } from '../../src/db/index.js';
-
 /**********************************************************************************/
 
 declare module 'vitest' {
@@ -17,10 +15,4 @@ declare module 'vitest' {
       url: string;
     };
   }
-}
-
-declare global {
-  // This is the syntax to extend globalThis (using var)
-  // eslint-disable-next-line no-var
-  var db: DatabaseHandler;
 }

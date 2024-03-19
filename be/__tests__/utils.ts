@@ -8,17 +8,7 @@ import {
   type RequestOptions,
   type ResponseOptions
 } from 'node-mocks-http';
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  inject,
-  it,
-  vi
-} from 'vitest';
+import { afterAll, beforeAll, describe, expect, inject, it, vi } from 'vitest';
 
 import type { DatabaseHandler } from '../src/db/index.js';
 import { VALIDATION } from '../src/entities/utils.js';
@@ -43,7 +33,12 @@ import type {
   UpdateUserSettings,
   User
 } from './apiTypes.js';
-import { cleanupDatabase, isStressTest, mockLogger } from './config/utils.js';
+import {
+  databaseSetup,
+  databaseTeardown,
+  isStressTest,
+  mockLogger
+} from './config/utils.js';
 
 /**********************************************************************************/
 
@@ -181,16 +176,19 @@ export async function sendHttpRequest<ReturnType = unknown>(
   throw new Error('Unsupported content type');
 }
 
-export function createHttpMocks(
-  reqOptions?: RequestOptions,
-  resOptions?: ResponseOptions
-) {
+export function createHttpMocks(params: {
+  reqOptions?: RequestOptions;
+  resOptions?: ResponseOptions;
+  db: DatabaseHandler;
+}) {
+  const { reqOptions, resOptions, db } = params;
+
   return {
     request: createRequest<Request>(reqOptions),
     response: createResponse<Response>({
       ...resOptions,
       locals: {
-        ctx: { db: globalThis.db, logger: mockLogger().handler }
+        ctx: { db: db, logger: mockLogger().handler }
       }
     })
   };
@@ -314,13 +312,11 @@ export async function checkUserPasswordMatch(params: {
 
 export {
   afterAll,
-  afterEach,
   beforeAll,
-  beforeEach,
-  cleanupDatabase,
   DashboardError,
+  databaseSetup,
+  databaseTeardown,
   describe,
-  eq,
   expect,
   isStressTest,
   it,

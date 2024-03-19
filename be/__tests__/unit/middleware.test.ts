@@ -2,7 +2,10 @@ import {
   DashboardError,
   Middlewares,
   StatusCodes,
+  afterAll,
   createHttpMocks,
+  databaseSetup,
+  databaseTeardown,
   describe,
   expect,
   isStressTest,
@@ -11,6 +14,11 @@ import {
 } from '../utils.js';
 
 /**********************************************************************************/
+
+const db = databaseSetup();
+afterAll(async () => {
+  await databaseTeardown(db);
+});
 
 describe.skipIf(isStressTest()).concurrent('General tests', () => {
   describe('Health check', () => {
