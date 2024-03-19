@@ -24,7 +24,7 @@ describe.skipIf(isStressTest()).concurrent('General tests', () => {
   describe('Health check', () => {
     describe('Method', () => {
       it('Valid method', () => {
-        const { request, response } = createHttpMocks({
+        const { request, response } = createHttpMocks(db, {
           method: 'GET'
         });
         const callbackMock = vi.fn();
@@ -45,7 +45,7 @@ describe.skipIf(isStressTest()).concurrent('General tests', () => {
       });
       it('Invalid method', () => {
         const reqMethod = 'GET';
-        const { request, response } = createHttpMocks({
+        const { request, response } = createHttpMocks(db, {
           method: reqMethod
         });
         const callbackMock = vi.fn();
@@ -71,7 +71,7 @@ describe.skipIf(isStressTest()).concurrent('General tests', () => {
     describe('Host', () => {
       it('Invalid method', async () => {
         const callbackMock = vi.fn();
-        const { request, response } = createHttpMocks({ method: 'POST' });
+        const { request, response } = createHttpMocks(db, { method: 'POST' });
 
         const healthCheckMiddleware = Middlewares.healthCheck(
           new Set('localhost'),
@@ -88,7 +88,7 @@ describe.skipIf(isStressTest()).concurrent('General tests', () => {
         // Since ky does not allow to change the 'hosts' header programmatically,
         // we test it using mocks instead
         const callbackMock = vi.fn();
-        const { request, response } = createHttpMocks({
+        const { request, response } = createHttpMocks(db, {
           method: 'GET',
           headers: { host: '142.250.81.238' }
         });
@@ -108,7 +108,7 @@ describe.skipIf(isStressTest()).concurrent('General tests', () => {
   });
   describe('Error handler', () => {
     it('Headers sent', () => {
-      const { request, response } = createHttpMocks({
+      const { request, response } = createHttpMocks(db, {
         method: 'GET'
       });
       response.headersSent = true;
@@ -120,7 +120,7 @@ describe.skipIf(isStressTest()).concurrent('General tests', () => {
       expect(callbackMock).toHaveBeenLastCalledWith(errObj);
     });
     it('Payload too large', () => {
-      const { request, response } = createHttpMocks({
+      const { request, response } = createHttpMocks(db, {
         method: 'GET'
       });
       const callbackMock = vi.fn();
@@ -133,7 +133,7 @@ describe.skipIf(isStressTest()).concurrent('General tests', () => {
       expect(response._getJSONData()).toStrictEqual('Request is too large');
     });
     it('Dashboard error', () => {
-      const { request, response } = createHttpMocks({
+      const { request, response } = createHttpMocks(db, {
         method: 'GET'
       });
       const callbackMock = vi.fn();
@@ -145,7 +145,7 @@ describe.skipIf(isStressTest()).concurrent('General tests', () => {
       expect(response._getJSONData()).toStrictEqual(errObj.getMessage());
     });
     it('Unexpected error', () => {
-      const { request, response } = createHttpMocks({
+      const { request, response } = createHttpMocks(db, {
         method: 'GET'
       });
       const callbackMock = vi.fn();

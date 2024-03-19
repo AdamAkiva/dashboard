@@ -1,6 +1,19 @@
+/**
+ * Making sure the first thing the code does is changing the captureRejections
+ * option to true to account for all new instances of EventEmitter. If every
+ * module only exports functions and has no global variables, then, in theory
+ * you could do it in a later stage. With that said we don't want to trust the
+ * initialization order, so we make sure it is the first thing that is being done
+ * When the server runs
+ */
+import { EventEmitter } from 'node:events';
+
+// See: https://nodejs.org/api/events.html#capture-rejections-of-promises
+EventEmitter.captureRejections = true;
+
 import { DatabaseHandler } from '../../src/db/index.js';
 import { HttpServer } from '../../src/server/index.js';
-import { EventEmitter, sql } from '../../src/types/index.js';
+import { sql } from '../../src/types/index.js';
 
 import { cleanupDatabase, getTestEnv, mockLogger } from './utils.js';
 
@@ -12,8 +25,6 @@ type Provide = { provide: (key: string, value: unknown) => void };
 /**********************************************************************************/
 
 export async function setup({ provide }: Provide) {
-  EventEmitter.captureRejections = true;
-
   const { mode, server: serverEnv, db: dbUrl } = getTestEnv();
   const { logMiddleware, handler } = mockLogger();
 

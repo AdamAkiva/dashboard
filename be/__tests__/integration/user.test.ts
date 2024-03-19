@@ -1031,7 +1031,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
         expect(typeof data === 'string').toBe(true);
       });
-      it.only('Inactive user', async () => {
+      it('Inactive user', async () => {
         await deactivateUsers(db, usersData[9].id);
 
         const updatedFirstName = 'BLA';
@@ -1443,7 +1443,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         expect(typeof data === 'string').toBe(true);
       });
       it('Duplicate with inactive user', async () => {
-        await deactivateUsers(db, usersData[10].id);
+        await deactivateUsers(db, usersData[12].id);
 
         const { data, statusCode } = await sendHttpRequest<string>(
           `${userURL}/${usersData[11].id}`,

@@ -176,13 +176,11 @@ export async function sendHttpRequest<ReturnType = unknown>(
   throw new Error('Unsupported content type');
 }
 
-export function createHttpMocks(params: {
-  reqOptions?: RequestOptions;
-  resOptions?: ResponseOptions;
-  db: DatabaseHandler;
-}) {
-  const { reqOptions, resOptions, db } = params;
-
+export function createHttpMocks(
+  db: DatabaseHandler,
+  reqOptions?: RequestOptions,
+  resOptions?: ResponseOptions
+) {
   return {
     request: createRequest<Request>(reqOptions),
     response: createResponse<Response>({
