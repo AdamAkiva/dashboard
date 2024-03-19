@@ -1,5 +1,8 @@
 import {
+  afterAll,
   createUsers,
+  databaseSetup,
+  databaseTeardown,
   describe,
   getRoutes,
   isStressTest,
@@ -9,6 +12,11 @@ import {
 } from '../utils.js';
 
 /**********************************************************************************/
+
+const db = databaseSetup();
+afterAll(async () => {
+  await databaseTeardown(db);
+});
 
 describe.skipIf(!isStressTest()).concurrent('User stress tests', () => {
   const userURL = getRoutes().user;

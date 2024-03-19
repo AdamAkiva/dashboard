@@ -1,10 +1,13 @@
 import {
   StatusCodes,
   VALIDATION,
+  afterAll,
   beforeAll,
   checkUserExists,
   checkUserPasswordMatch,
   createUsers,
+  databaseSetup,
+  databaseTeardown,
   deactivateUser,
   describe,
   expect,
@@ -22,6 +25,11 @@ import {
 } from '../utils.js';
 
 /**********************************************************************************/
+
+const db = databaseSetup();
+afterAll(async () => {
+  await databaseTeardown(db);
+});
 
 describe.skipIf(isStressTest()).concurrent('User tests', () => {
   const userURL = getRoutes().user;
@@ -713,7 +721,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
           omit(userData, 'password')
         );
 
-        await deactivateUser(globalThis.db, res.data.id);
+        await deactivateUser(db, res.data.id);
 
         res = await sendHttpRequest<User>(userURL, {
           method: 'post',
@@ -765,7 +773,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         expect(data).toStrictEqual(usersData[0]);
       });
       it('Single inactive', async () => {
-        await deactivateUser(globalThis.db, usersData[1].id);
+        await deactivateUser(db, usersData[1].id);
 
         const { data, statusCode } = await sendHttpRequest<User>(
           `${userURL}/${usersData[1].id}`,
@@ -866,7 +874,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         // never be one, so we check directly against the database
         expect(
           await checkUserPasswordMatch({
-            db: globalThis.db,
+            db: db,
             userId: usersData[1].id,
             expectedPassword: updatedPassword
           })
@@ -970,7 +978,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         // never be one, so we check directly against the database
         expect(
           await checkUserPasswordMatch({
-            db: globalThis.db,
+            db: db,
             userId: usersData[7].id,
             expectedPassword: updatedData.password!
           })
@@ -1332,7 +1340,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         expect(typeof data === 'string').toBe(true);
       });
       it('Duplicate with inactive user', async () => {
-        await deactivateUser(globalThis.db, usersData[10].id);
+        await deactivateUser(db, usersData[10].id);
 
         const { data, statusCode } = await sendHttpRequest<string>(
           `${userURL}/${usersData[9].id}`,
@@ -1383,7 +1391,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         expect(data).toStrictEqual(usersData[0].id);
       });
       it('Delete user', async () => {
-        await deactivateUser(globalThis.db, usersData[1].id);
+        await deactivateUser(db, usersData[1].id);
 
         const { data, statusCode } = await sendHttpRequest<string>(
           `${userURL}/${usersData[1].id}`,
@@ -1391,9 +1399,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         );
         expect(statusCode).toBe(StatusCodes.SUCCESS);
         expect(data).toStrictEqual(usersData[1].id);
-        expect(await checkUserExists(globalThis.db, usersData[1].id)).toBe(
-          false
-        );
+        expect(await checkUserExists(db, usersData[1].id)).toBe(false);
       });
       it('Delete non-existent user', async () => {
         const { data, statusCode } = await sendHttpRequest<string>(
