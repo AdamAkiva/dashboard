@@ -844,7 +844,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
   describe('Update', () => {
     // Match this number to the amount of tests needing a unique user
     // database entry
-    const USERS_AMOUNT = 12;
+    const USERS_AMOUNT = 13;
     let usersData: User[] = [];
 
     beforeAll(async () => {
@@ -1021,6 +1021,23 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         const { data, statusCode } = await sendHttpRequest<unknown>(
           `${userURL}/${usersData[8].id}`,
           { method: 'patch' }
+        );
+        expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+        expect(typeof data === 'string').toBe(true);
+      });
+      it.only('Inactive user', async () => {
+        await deactivateUsers(globalThis.db, usersData[9].id);
+
+        const updatedFirstName = 'BLA';
+
+        const { data, statusCode } = await sendHttpRequest<string>(
+          `${userURL}/${usersData[9].id}`,
+          {
+            method: 'patch',
+            json: {
+              firstName: updatedFirstName
+            } satisfies UpdateUser
+          }
         );
         expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
         expect(typeof data === 'string').toBe(true);
@@ -1408,7 +1425,7 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
       });
       it('Duplicate with active user', async () => {
         const { data, statusCode } = await sendHttpRequest<string>(
-          `${userURL}/${usersData[9].id}`,
+          `${userURL}/${usersData[10].id}`,
           {
             method: 'patch',
             json: {
@@ -1420,14 +1437,14 @@ describe.skipIf(isStressTest()).concurrent('User tests', () => {
         expect(typeof data === 'string').toBe(true);
       });
       it('Duplicate with inactive user', async () => {
-        await deactivateUsers(globalThis.db, usersData[11].id);
+        await deactivateUsers(globalThis.db, usersData[12].id);
 
         const { data, statusCode } = await sendHttpRequest<string>(
-          `${userURL}/${usersData[10].id}`,
+          `${userURL}/${usersData[11].id}`,
           {
             method: 'patch',
             json: {
-              email: usersData[11].email
+              email: usersData[12].email
             } satisfies UpdateUser
           }
         );

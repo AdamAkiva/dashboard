@@ -4,6 +4,7 @@
  * separate it to another file since it is extremely coupled with the database
  * by definition, so we ignore the rule instead
  */
+
 import {
   and,
   drizzle,
@@ -216,7 +217,7 @@ export default class DatabaseHandler {
         .prepare('deleteUser'),
       deactivateUser: this._handler
         .update(userCredentialsModel)
-        // @ts-expect-error This works, drizzle marks it as a type error however
+        // @ts-expect-error This works, however, drizzle marks it as a type error
         .set({ archivedAt: sql.placeholder('archivedAt') })
         .where(eq(userCredentialsModel.userId, sql.placeholder('userId')))
         .prepare('deactivateUser')

@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import { EventEmitter } from 'node:events';
 import { createServer, type IncomingHttpHeaders, type Server } from 'node:http';
 import { relative, resolve } from 'node:path';
 import { pid } from 'node:process';
@@ -102,7 +101,6 @@ export {
   Debug,
   drizzle,
   eq,
-  EventEmitter,
   express,
   helmet,
   inArray,

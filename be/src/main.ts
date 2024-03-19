@@ -1,13 +1,27 @@
+/**
+ * Making sure the first thing the code does is changing the captureRejections
+ * option to true to account for all new instances of EventEmitter. If every
+ * module only exports functions and has no global variables, then, in theory
+ * you could do it in a later stage. With that said we don't want to trust the
+ * initialization order, so we make sure it is the first thing that is being done
+ * When the server runs
+ */
+import { EventEmitter } from 'node:events';
+
+// See: https://nodejs.org/api/events.html#capture-rejections-of-promises
+EventEmitter.captureRejections = true;
+
+/**********************************************************************************/
+
 import { DatabaseHandler } from './db/index.js';
 import { HttpServer } from './server/index.js';
-import { EventEmitter, generalDebug, sql } from './types/index.js';
+import { generalDebug, sql } from './types/index.js';
 import { Logger, getEnv } from './utils/index.js';
 
 /**********************************************************************************/
 
 async function startServer() {
   generalDebug('Application starting...');
-  EventEmitter.captureRejections = true;
 
   const { mode, server: serverEnv, db: dbUri } = getEnv();
 
@@ -31,6 +45,7 @@ async function startServer() {
   await server.attachConfigurationMiddlewares(serverEnv.allowedOrigins);
   server.attachRoutesMiddlewares({
     allowedHosts: serverEnv.healthCheck.allowedHosts,
+    // The reason for it being a callback it the ability to unit test it
     readyCheck: async () => {
       let notReadyMsg = '';
       try {
@@ -51,7 +66,7 @@ async function startServer() {
     }
   });
 
-  // Attaching the handlers after the server initialization for two reasons.
+  // Attaching the event handlers after the server initialization for two reasons.
   // Firstly, if an error occurred before this part, it is 98.7% a developer
   // mistake with the initialization of the server
   // Secondly, this is the first point where there are resources to cleanup
