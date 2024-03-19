@@ -11,7 +11,6 @@ const defaultConfig: UserConfig = {
   teardownTimeout: 4_000,
   bail: 1,
   globalSetup: './__tests__/config/globalSetup.ts',
-  setupFiles: './__tests__/config/setup.ts',
   restoreMocks: true,
   logHeapUsage: true,
   fileParallelism: true,

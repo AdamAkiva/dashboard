@@ -8,17 +8,7 @@ import {
   type RequestOptions,
   type ResponseOptions
 } from 'node-mocks-http';
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  inject,
-  it,
-  vi
-} from 'vitest';
+import { afterAll, beforeAll, describe, expect, inject, it, vi } from 'vitest';
 
 import type { DatabaseHandler } from '../src/db/index.js';
 import { VALIDATION } from '../src/entities/utils/index.js';
@@ -37,7 +27,11 @@ import {
 import { DashboardError, StatusCodes } from '../src/utils/index.js';
 
 import type { CreateUser, UpdateUser, User } from './apiTypes.js';
-import { cleanupDatabase, isStressTest } from './config/utils.js';
+import {
+  databaseSetup,
+  databaseTeardown,
+  isStressTest
+} from './config/utils.js';
 
 /**********************************************************************************/
 
@@ -303,13 +297,11 @@ export async function checkUserPasswordMatch(params: {
 
 export {
   afterAll,
-  afterEach,
   beforeAll,
-  beforeEach,
-  cleanupDatabase,
   DashboardError,
+  databaseSetup,
+  databaseTeardown,
   describe,
-  eq,
   expect,
   isStressTest,
   it,
