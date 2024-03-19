@@ -70,9 +70,7 @@ export default class HttpServer {
     this._server.close();
   }
 
-  public async attachConfigurationMiddlewares(
-    allowedOrigins: Set<string> = new Set<string>()
-  ) {
+  public async attachConfigurationMiddlewares(allowedOrigins: Set<string>) {
     this._app.use(
       Middlewares.checkMethod(HttpServer.ALLOWED_METHODS),
       cors({

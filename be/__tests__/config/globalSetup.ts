@@ -57,7 +57,7 @@ export async function setup({ provide }: Provide) {
   // The order matters!
   // These calls setup express middleware, and the configuration middleware
   // must be used BEFORE the routes
-  await server.attachConfigurationMiddlewares();
+  await server.attachConfigurationMiddlewares(new Set());
   server.attachRoutesMiddlewares({
     allowedHosts: serverEnv.healthCheck.allowedHosts,
     async readyCheck() {

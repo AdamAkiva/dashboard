@@ -40,23 +40,18 @@ export const VALIDATION = {
   USER_ADDRESS_MAX_LENGTH: 256
 } as const;
 
+export const emptyObjectSchema = Zod.object({}).strict();
+
 /**********************************************************************************/
 
-export function validateEmptyObject(errMsg: string, obj: unknown) {
-  return Zod.object(
-    {},
-    {
-      errorMap: (issue, ctx) => {
-        if (issue.code === Zod.ZodIssueCode.unrecognized_keys) {
-          return { message: errMsg };
-        }
-
-        return { message: ctx.defaultError };
-      }
+export function emptyObjectErrMap(errMsg: string) {
+  return ((issue, ctx) => {
+    if (issue.code === Zod.ZodIssueCode.unrecognized_keys) {
+      return { message: errMsg };
     }
-  )
-    .strict()
-    .safeParse(obj);
+
+    return { message: ctx.defaultError };
+  }) satisfies Zod.ZodErrorMap;
 }
 
 export function checkAndParseErrors(

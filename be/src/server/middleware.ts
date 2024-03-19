@@ -99,7 +99,7 @@ export function errorHandler(
 
   // The order is based on two things, type fallback and the chances of each error
   // happening. For example, Dashboard error should be the most common error reason,
-  // and it can be the first from a type perspective
+  // and it should be the first from that perspective
   if (err instanceof DashboardError) {
     return res.status(err.getCode()).json(err.getMessage());
   }

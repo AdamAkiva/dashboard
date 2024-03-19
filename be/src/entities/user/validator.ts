@@ -3,6 +3,8 @@ import { Zod, isValidPhoneNumber, type Request } from '../../types/index.js';
 import {
   VALIDATION,
   checkAndParseErrors,
+  emptyObjectErrMap,
+  emptyObjectSchema,
   invalidBoolean,
   invalidObjectErr,
   invalidStringErr,
@@ -10,7 +12,6 @@ import {
   maxErr,
   minErr,
   requiredErr,
-  validateEmptyObject,
   type ValidatedType
 } from '../utils.js';
 
@@ -48,13 +49,11 @@ export function readUsers(req: Request) {
   const { body, params, query } = req;
 
   const queryRes = readUsersSchema.safeParse(query);
-  const err = checkAndParseErrors(
-    queryRes,
-    validateEmptyObject('Expected empty request body and params', {
-      ...body,
-      ...params
-    })
+  const emptyObjectRes = emptyObjectSchema.safeParse(
+    { ...body, ...params },
+    { errorMap: emptyObjectErrMap('Expected empty request body and params') }
   );
+  const err = checkAndParseErrors(queryRes, emptyObjectRes);
   if (err) {
     throw err;
   }
@@ -66,13 +65,15 @@ export function readUser(req: Request) {
   const { body, params, query } = req;
 
   const paramsRes = readUserSchema.safeParse(params);
-  const err = checkAndParseErrors(
-    paramsRes,
-    validateEmptyObject('Expected empty request body and query params', {
-      ...body,
-      ...query
-    })
+  const emptyObjectRes = emptyObjectSchema.safeParse(
+    { ...body, ...query },
+    {
+      errorMap: emptyObjectErrMap(
+        'Expected empty request body and query params'
+      )
+    }
   );
+  const err = checkAndParseErrors(paramsRes, emptyObjectRes);
   if (err) {
     throw err;
   }
@@ -84,13 +85,11 @@ export function createUser(req: Request) {
   const { body, params, query } = req;
 
   const paramsRes = createUsersSchema.safeParse(body);
-  const err = checkAndParseErrors(
-    paramsRes,
-    validateEmptyObject('Expected empty request params and query', {
-      ...params,
-      ...query
-    })
+  const emptyObjectRes = emptyObjectSchema.safeParse(
+    { ...params, ...query },
+    { errorMap: emptyObjectErrMap('Expected empty request params and query') }
   );
+  const err = checkAndParseErrors(paramsRes, emptyObjectRes);
   if (err) {
     throw err;
   }
@@ -103,11 +102,10 @@ export function updateUser(req: Request) {
 
   const paramsRes = userIdSchema.safeParse(params);
   const bodyRes = updateUserSchema.safeParse(body);
-  const err = checkAndParseErrors(
-    paramsRes,
-    bodyRes,
-    validateEmptyObject('Expected empty request query params', query)
-  );
+  const emptyObjectRes = emptyObjectSchema.safeParse(query, {
+    errorMap: emptyObjectErrMap('Expected empty request query params')
+  });
+  const err = checkAndParseErrors(paramsRes, bodyRes, emptyObjectRes);
   if (err) {
     throw err;
   }
@@ -122,13 +120,15 @@ export function reactivateUser(req: Request) {
   const { body, params, query } = req;
 
   const paramsRes = userIdSchema.safeParse(params);
-  const err = checkAndParseErrors(
-    paramsRes,
-    validateEmptyObject('Expected empty request body and query params', {
-      ...body,
-      ...query
-    })
+  const emptyObjectRes = emptyObjectSchema.safeParse(
+    { ...body, ...query },
+    {
+      errorMap: emptyObjectErrMap(
+        'Expected empty request body and query params'
+      )
+    }
   );
+  const err = checkAndParseErrors(paramsRes, emptyObjectRes);
   if (err) {
     throw err;
   }
@@ -141,11 +141,10 @@ export function updateUserSettings(req: Request) {
 
   const paramsRes = userIdSchema.safeParse(params);
   const bodyRes = updateUserSettingsSchema.safeParse(body);
-  const err = checkAndParseErrors(
-    paramsRes,
-    bodyRes,
-    validateEmptyObject('Expected empty request query params', query)
-  );
+  const emptyObjectRes = emptyObjectSchema.safeParse(query, {
+    errorMap: emptyObjectErrMap('Expected empty request query params')
+  });
+  const err = checkAndParseErrors(paramsRes, bodyRes, emptyObjectRes);
   if (err) {
     throw err;
   }
@@ -160,13 +159,15 @@ export function deleteUser(req: Request) {
   const { body, params, query } = req;
 
   const paramsRes = deleteUserSchema.safeParse(params);
-  const err = checkAndParseErrors(
-    paramsRes,
-    validateEmptyObject('Expected empty request body and query params', {
-      ...body,
-      ...query
-    })
+  const emptyObjectRes = emptyObjectSchema.safeParse(
+    { ...body, ...query },
+    {
+      errorMap: emptyObjectErrMap(
+        'Expected empty request body and query params'
+      )
+    }
   );
+  const err = checkAndParseErrors(paramsRes, emptyObjectRes);
   if (err) {
     throw err;
   }
