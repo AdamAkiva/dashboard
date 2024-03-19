@@ -1,5 +1,4 @@
 // @ts-check
-
 import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 // @ts-ignore
