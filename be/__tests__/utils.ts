@@ -179,10 +179,11 @@ export function createHttpMocks(
 
 export async function stressTest(url: string, options: StressTestOptions) {
   return await new Promise<autocannon.Result>((resolve, reject) => {
-    // Pay attention when changing these value.
-    // The tcp sockets are reused by autocannon which may cause an infinite
-    // timeout, if not configured correctly. Match these values to the
-    // `maxRequestsPerSocket` config of the http server
+    // The tcp sockets are reused by `autocannon` which may cause an infinite
+    // timeout (if not configured correctly).
+    // Pay close attention when changing either the configurations here
+    // or the `maxRequestPerSocket` amount and know that if you have an timeout,
+    // this may be the cause
     autocannon(
       {
         url: url,
