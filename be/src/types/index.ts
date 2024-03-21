@@ -70,6 +70,10 @@ export const generalDebug = Debug('dashboard:general');
 export const userDebug = Debug('dashboard:user');
 
 export type Response = ExpressResponse<unknown, { ctx: RequestContext }>;
+export type RequestContext = {
+  db: DatabaseHandler;
+  logger: Logger['handler'];
+};
 
 /********************************** HTTP ******************************************/
 /**********************************************************************************/
@@ -85,10 +89,6 @@ export type EnvironmentVariables = {
     allowedOrigins: Set<string>;
   };
   db: string;
-};
-export type RequestContext = {
-  db: DatabaseHandler;
-  logger: Logger['handler'];
 };
 
 /**********************************************************************************/

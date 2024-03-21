@@ -1,5 +1,4 @@
 // @ts-check
-
 import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 // @ts-ignore
@@ -19,6 +18,7 @@ export default tslint.config({
   files: ['src/**/*.ts', '__tests__/**/*.ts'],
   languageOptions: {
     globals: {
+      ...globals.builtin,
       ...globals.node
     },
     ecmaVersion: 'latest',
