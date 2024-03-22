@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 
-import { Input, InputAdornment, styled } from '@mui/material';
+import { Input, InputAdornment, styled, css } from '@mui/material';
 
 import type { FormField } from '@/types';
 
@@ -25,7 +25,7 @@ const FieldStyle = styled('div')`
   padding: 0 0.5em;
 `;
 
-const StyledInput = styled(Input)`
+const fieldInnerCss = css`
   height: 2.5rem;
   width: 17rem;
   margin-bottom: 1rem;
@@ -36,6 +36,10 @@ const StyledInput = styled(Input)`
   color: black;
   font-size: 1rem;
   padding: 0 1rem;
+`;
+
+const StyledInput = styled(Input)`
+  ${fieldInnerCss}
 `;
 
 /******************************************************************************/
@@ -54,7 +58,7 @@ const renderField = (field: FormField) => {
       />
     );
   } else {
-    return <SelectField field={field} />;
+    return <SelectField field={field} style={fieldInnerCss} />;
   }
 };
 

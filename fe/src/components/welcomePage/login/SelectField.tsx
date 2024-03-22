@@ -6,32 +6,22 @@ import {
   InputAdornment,
   MenuItem,
   Select,
-  type SelectChangeEvent,
-  styled
+  styled,
+  type SelectChangeEvent
 } from '@mui/material';
+
+import type { SerializedStyles } from '@emotion/react';
 
 import type { DropdownField } from '@/types';
 
 /******************************************************************************/
 
-const StyledSelect = styled(Select)`
-  height: 2.5rem;
-  width: 17rem;
-  margin-bottom: 1rem;
-  background-color: rgba(114, 130, 214, 0.46);
-  border-radius: 10px;
-  border: transparent;
-  outline: none;
-  color: black;
-  font-size: 1rem;
-  padding: 0 1rem;
-`;
+type SelectFieldProps = { field: DropdownField; style: SerializedStyles };
 
-/******************************************************************************/
-
-type SelectFieldProps = { field: DropdownField };
-
-const SelectField = ({ field }: SelectFieldProps) => {
+const SelectField = ({ field, style }: SelectFieldProps) => {
+  const StyledSelect = styled(Select)`
+    ${style}
+  `;
   const [selectedValue, setSelectedValue] = useState(field.name);
 
   const handleChange = (event: SelectChangeEvent<unknown>) => {

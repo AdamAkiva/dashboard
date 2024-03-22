@@ -5,7 +5,7 @@ import { styled } from '@mui/material';
 /******************************************************************************/
 
 const TitleStyle = styled('div')`
-  margin-top: 11rem;
+  margin-top: 12rem;
   display: flex;
   justify-content: center;
 `;
