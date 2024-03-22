@@ -1,12 +1,12 @@
 /******************************************************************************/
 
-import styled from 'styled-components';
+import { styled } from '@mui/material';
 
 import type { OnToggleClickCb } from '@/types';
 
 /******************************************************************************/
 
-const ToggleStyle = styled.div`
+const ToggleStyle = styled('div')`
   margin-top: 2rem;
   font-size: 1.1rem;
   color: #9e60b6;

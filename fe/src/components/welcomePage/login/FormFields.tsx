@@ -1,13 +1,16 @@
 /******************************************************************************/
 
 import { useMemo } from 'react';
-import styled, { css } from 'styled-components';
+
+import { Input, InputAdornment, styled } from '@mui/material';
 
 import type { FormField } from '@/types';
 
+import SelectField from './SelectField';
+
 /******************************************************************************/
 
-const FieldsStyle = styled.div`
+const FieldsStyle = styled('div')`
   display: grid;
   margin-top: 3rem;
   margin-bottom: 1.5rem;
@@ -18,11 +21,11 @@ const FieldsStyle = styled.div`
   max-height: 6em;
 `;
 
-const FieldStyle = styled.div`
+const FieldStyle = styled('div')`
   padding: 0 0.5em;
 `;
 
-const FieldCss = css`
+const StyledInput = styled(Input)`
   height: 2.5rem;
   width: 17rem;
   margin-bottom: 1rem;
@@ -35,43 +38,23 @@ const FieldCss = css`
   padding: 0 1rem;
 `;
 
-const Input = styled.input`
-  ${FieldCss}
-`;
-
-const Select = styled.select`
-  ${FieldCss}
-  width: 19rem;
-  color: #827675;
-`;
-
 /******************************************************************************/
 
 const renderField = (field: FormField) => {
   if (field.type !== 'dropdown') {
     return (
-      <Input
+      <StyledInput
         required={field.required}
         name={field.name}
         placeholder={field.name}
         type={field.type}
+        startAdornment={
+          <InputAdornment position="start">{field.icon}</InputAdornment>
+        }
       />
     );
   } else {
-    return (
-      <Select defaultValue={field.name} name={field.name} key={field.name}>
-        <option value={field.name} disabled={true}>
-          {field.name}
-        </option>
-        {field.options.map((option) => {
-          return (
-            <option value={option} key={option}>
-              {option}
-            </option>
-          );
-        })}
-      </Select>
-    );
+    return <SelectField field={field} />;
   }
 };
 

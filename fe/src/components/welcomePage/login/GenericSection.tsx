@@ -1,7 +1,7 @@
 /******************************************************************************/
 
 import type { FormEvent } from 'react';
-import styled from 'styled-components';
+import { styled } from '@mui/material';
 
 import type { FormField, OnToggleClickCb } from '@/types';
 
@@ -12,7 +12,7 @@ import FormFields from './FormFields';
 
 /******************************************************************************/
 
-const GenericSectionStyle = styled.div`
+const GenericSectionStyle = styled('div')`
   background-color: white;
   color: rgba(55, 61, 122, 0.8);
   font-size: 2rem;
@@ -22,7 +22,7 @@ const GenericSectionStyle = styled.div`
   height: 18em;
 `;
 
-const Form = styled.form`
+const Form = styled('form')`
   padding: 0 1em;
 `;
 

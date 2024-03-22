@@ -1,15 +1,15 @@
 /******************************************************************************/
 
-import styled from 'styled-components';
+import { styled } from '@mui/material';
 
 /******************************************************************************/
 
-const ButtonStyleWrapper = styled.div`
+const ButtonStyleWrapper = styled('div')`
   display: flex;
   justify-content: center;
-}`;
+`;
 
-const ButtonStyle = styled.button`
+const ButtonStyle = styled('button')`
   background-image: linear-gradient(to right, #b15da3, #939dec 100%);
 `;
 

@@ -15,11 +15,13 @@ export type ResolvedValue<T> = T extends (...args: any) => any
   : PromiseFulfilledResult<Awaited<T>>;
 
 /******************************************************************************/
+import type { ReactElement, JSXElementConstructor } from 'react';
 
 type InputField = {
   name: string;
   required: boolean;
   type: 'password' | 'text';
+  icon: ReactElement<unknown, JSXElementConstructor<unknown> | string>;
 };
 
 type DropdownField = {
@@ -27,10 +29,11 @@ type DropdownField = {
   required: boolean;
   type: 'dropdown';
   options: string[];
+  icon: ReactElement<unknown, JSXElementConstructor<unknown> | string>;
 };
 
 type OnToggleClickCb = () => void;
 
 type FormField = DropdownField | InputField;
 
-export type { FormField, OnToggleClickCb };
+export type { FormField, DropdownField, OnToggleClickCb };

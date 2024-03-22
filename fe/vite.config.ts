@@ -13,6 +13,9 @@ export default defineConfig(({ command }): UserConfig => {
     envPrefix: 'DASHBOARD_',
     publicDir: './public',
     plugins: [react()],
+    optimizeDeps: {
+      include: ['@emotion/styled']
+    },
     resolve: {
       alias: [
         {
