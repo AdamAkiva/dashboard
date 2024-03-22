@@ -35,7 +35,7 @@ start() {
     printf "Do you want to rebuild the images? (y/n) ";
     read -r is_rebuild;
 
-    # Rebuild to images
+    # Rebuild the images
     if [ "$is_rebuild" = "y" ]; then
         if ! UID="$UID" GID="$GID" DB_INIT_SCRIPT="$DB_INIT_SCRIPT" docker compose build ; then
             printf "\nDocker build failed. Solve the errors and try again.\n";
