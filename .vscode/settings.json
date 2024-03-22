@@ -1,8 +1,6 @@
-// Project related override settings
-// Use this only to override settings set by developers which are a must for
-// standard work
-
 {
+  // Use the latest typescript version, not the VSCode version
+  "typescript.tsdk": "./be/node_modules/typescript/lib",
   "eslint.experimental.useFlatConfig": true,
   "eslint.workingDirectories": [
     {
