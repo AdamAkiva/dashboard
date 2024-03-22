@@ -27,7 +27,7 @@ const FieldStyle = styled('div')`
 
 const fieldInnerCss = css`
   height: 2.5rem;
-  width: 17rem;
+  width: 18rem;
   margin-bottom: 1rem;
   background-color: rgba(114, 130, 214, 0.46);
   border-radius: 10px;
