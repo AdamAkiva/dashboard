@@ -1,9 +1,5 @@
 /******************************************************************************/
 
-import type { FormField, OnToggleClickCb } from '@/types';
-
-import GenericSection from './GenericSection';
-
 import {
   AlternateEmail,
   Badge,
@@ -12,6 +8,10 @@ import {
   Lock,
   Wc
 } from '@mui/icons-material';
+
+import type { FormField, OnToggleClickCb } from '@/types';
+
+import GenericSection from './GenericSection';
 
 /******************************************************************************/
 
