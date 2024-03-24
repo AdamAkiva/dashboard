@@ -16,6 +16,9 @@ services:
       - ../db-dev-data:/var/lib/postgresql/data:rw
       # See: https://github.com/docker-library/docs/blob/master/postgres/README.md#arbitrary---user-notes
       - /etc/passwd:/etc/passwd:ro
+      # See: https://stackoverflow.com/a/44440563
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     stop_grace_period: 2s
     healthcheck:
       test: pg_isready -p 5432 -U admin -d dashboard-dev
@@ -37,6 +40,9 @@ services:
       - POSTGRES_DB=dashboard-test
     volumes:
       - ${DB_INIT_SCRIPT}:/docker-entrypoint-initdb.d/init.sql:ro
+      # See: https://stackoverflow.com/a/44440563
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     stop_grace_period: 2s
     healthcheck:
       test: pg_isready -p 5432 -U admin -d dashboard-test
@@ -75,6 +81,9 @@ services:
       # whenever node_modules are removed.
       # See: https://docs.npmjs.com/cli/v6/using-npm/config#cache for reference
       - ./cache/be:/home/node/.npm:rw
+      # See: https://stackoverflow.com/a/44440563
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     stop_grace_period: 2s
     # tty enables better log format for npm and debug. Using it in development
     # is not an issue, however, don't enable it production since there's no need
@@ -120,6 +129,9 @@ services:
       # whenever node_modules are removed.
       # See: https://docs.npmjs.com/cli/v6/using-npm/config#cache for reference
       - ./cache/fe:/home/node/.npm:rw
+      # See: https://stackoverflow.com/a/44440563
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     stop_grace_period: 2s
     # tty enables better log format for npm and debug. Using it in development
     # is not an issue, however, don't enable it production since there's no need

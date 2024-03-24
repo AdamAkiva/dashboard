@@ -15,8 +15,6 @@
 !*.tsx
 !*.html
 !*.css
-!.eslintrc.cjs
-!loader.js
 
 # Assets
 !*.ico
@@ -28,6 +26,10 @@
 !*.ttf
 
 # Etc
+!.eslintrc.cjs
+!eslint.config.js
+!loader.js
+!*.sql
 !*.json
 !*.sh
 !*.md
@@ -35,6 +37,4 @@
 !Dockerfile
 !.gitignore
 !.gitkeep
-
-# Block previously allowed files
-**/settings.json
+!LICENSE

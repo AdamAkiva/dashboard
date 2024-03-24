@@ -1,0 +1,326 @@
+openapi: 3.0.3
+info:
+  title: Dashboard
+  description: Describes the operations and schemas for Dashboard
+  contact:
+    email: adam.akiva14@gmail.co.il
+  version: 0.0.0
+servers:
+  - url: http://localhost:2828/v0/api
+tags:
+  - name: general
+  - name: user
+paths:
+  /health:
+    get:
+      servers:
+        - url: http://localhost:2828
+      tags:
+        - general
+      summary: Health check for the application
+      description: Health check for the application
+      responses:
+        '204':
+          description: The application is healthy
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '504':
+          $ref: '#/components/responses/GatewayTimeoutError'
+    head:
+      servers:
+        - url: http://localhost:2828
+      tags:
+        - general
+      summary: Health check for the application
+      description: Health check for the application
+      responses:
+        '204':
+          description: The application is healthy
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '504':
+          $ref: '#/components/responses/GatewayTimeoutError'
+  /users:
+    post:
+      tags:
+        - user
+      summary: Create new user(s)
+      description: Create new user(s)
+      requestBody:
+        $ref: '#/components/requestBodies/CreateUsers'
+      responses:
+        '200':
+          $ref: '#/components/responses/Users'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '413':
+          $ref: '#/components/responses/PayloadTooLargeError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /users/{userId}:
+    get:
+      tags:
+        - user
+      summary: Find a user
+      description: Find a user specified by the given id
+      parameters:
+        - name: userId
+          in: path
+          description: The id of a user you wish to fetch
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: adb3271f-94dc-4169-80e9-3d4c8a90201f
+      responses:
+        '200':
+          $ref: '#/components/responses/User'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '413':
+          $ref: '#/components/responses/PayloadTooLargeError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    patch:
+      tags:
+        - user
+      summary: Update a user
+      description: Update a user specified by the given id
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateUser'
+      parameters:
+        - name: userId
+          in: path
+          description: The id of a user you wish to update
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: adb3271f-94dc-4169-80e9-3d4c8a90201f
+      responses:
+        '200':
+          $ref: '#/components/responses/User'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '413':
+          $ref: '#/components/responses/PayloadTooLargeError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      tags:
+        - user
+      summary: Deactivate/Delete a user
+      description: >
+        Deactivate a user by default. If the user is already deactivate,
+        it will be deleted instead
+      parameters:
+        - name: userId
+          in: path
+          description: The id of a user you wish to deactivate/delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: adb3271f-94dc-4169-80e9-3d4c8a90201f
+      responses:
+        '200':
+          description: >
+            The deactivate/deleted user id on success. If the user does not exist,
+            an empty string will be returned instead
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '413':
+          $ref: '#/components/responses/PayloadTooLargeError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /users/reactivate/{userId}:
+    patch:
+      tags:
+        - user
+      summary: Reactivate a user
+      description: Reactivate a user specified by the given id
+      parameters:
+        - name: userId
+          in: path
+          description: The id of a user you wish to reactivate
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: adb3271f-94dc-4169-80e9-3d4c8a90201f
+      responses:
+        '200':
+          $ref: '#/components/responses/User'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '413':
+          $ref: '#/components/responses/PayloadTooLargeError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - id
+        - email
+        - firstName
+        - lastName
+        - phone
+        - gender
+        - address
+        - createdAt
+        - isActive
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phone:
+          type: string
+          format: phone
+        gender:
+          type: string
+          enum: [male, female, other]
+        address:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        isActive:
+          type: boolean
+    CreateUser:
+      type: object
+      required:
+        - email
+        - password
+        - firstName
+        - lastName
+        - phone
+        - gender
+        - address
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phone:
+          type: string
+          format: phone
+        gender:
+          type: string
+          enum: [male, female, other]
+        address:
+          type: string
+    UpdateUser:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phone:
+          type: string
+          format: phone
+        gender:
+          type: string
+          enum: [male, female, other]
+        address:
+          type: string
+  requestBodies:
+    CreateUsers:
+      description: An array describing Users creation data
+      required: true
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/CreateUser'
+    UpdateUser:
+      description: An object describing User update data
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateUser'
+  responses:
+    User:
+      description: An array describing users response
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/User'
+    Users:
+      description: An object describing user response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+    InvalidInputError:
+      description: Invalid input
+    UnauthorizedError:
+      description: Request without authentication
+    ForbiddenError:
+      description: >
+        Request with valid authentication, but the token has no permissions
+        for this type of request
+    NotFoundError:
+      description: The requested entity does not exist
+    PayloadTooLargeError:
+      description: The request size was too large
+    ServerError:
+      description: Server related error
+    GatewayTimeoutError:
+      description: >
+        The server, while acting as a proxy did not receive a response in time
