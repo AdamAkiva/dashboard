@@ -12,6 +12,7 @@ const ToggleStyle = styled('button')`
   display: flex;
   padding: 0 1em;
 }`;
+
 /******************************************************************************/
 
 type ToggleProps = { text: string; toggleCb: OnToggleClickCb };
