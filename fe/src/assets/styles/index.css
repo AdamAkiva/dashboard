@@ -5,9 +5,13 @@
     url('@/assets/fonts/Poppins-Medium.ttf') format('truetype');
 }
 
-:root {
+:root,
+button {
   font-family: 'Poppins';
-  line-height: 1.5;
+}
+
+:root {
+  --bg-color: rgba(114, 130, 214, 0.46);
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
@@ -56,12 +60,13 @@ button {
   }
 }
 
+/* Scrollbar for Chromium */
 *::-webkit-scrollbar {
   width: 8px;
   background-color: white;
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: rgba(114, 130, 214, 0.46);
+  background-color: var(--bg-color);
   border-radius: 5px;
 }

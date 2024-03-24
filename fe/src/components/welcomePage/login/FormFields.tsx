@@ -28,7 +28,7 @@ const fieldInnerCss = css`
   height: 2.5rem;
   width: 18rem;
   margin-bottom: 1rem;
-  background-color: rgba(114, 130, 214, 0.46);
+  background-color: var(--bg-color);
   border-radius: 10px;
   padding: 0 1rem;
 `;
