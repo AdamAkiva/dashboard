@@ -6,7 +6,7 @@ import {
   ContactPhone,
   Home,
   Lock,
-  Wc
+  Wc as Gender
 } from '@mui/icons-material';
 
 import type { FormField, OnToggleClickCb } from '@/types';
@@ -38,7 +38,7 @@ const inputFields: FormField[] = [
     required: false,
     type: 'dropdown',
     options: ['Male', 'Female', 'Other'],
-    icon: <Wc />
+    icon: <Gender />
   }
 ];
 
