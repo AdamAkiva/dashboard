@@ -44,7 +44,7 @@
     "vite": "~5.1.3"
   },
   "author": "Meital Kozhidov",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "private": true,
   "repository": {
     "type": "git",
