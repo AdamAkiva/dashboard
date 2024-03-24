@@ -19,10 +19,9 @@ import {
 } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import express, {
-  json,
   Router,
+  json,
   type Application,
-  type Response as ExpressResponse,
   type NextFunction,
   type Request
 } from 'express';
@@ -31,9 +30,6 @@ import { isValidPhoneNumber } from 'libphonenumber-js';
 import { pinoHttp, type HttpLogger } from 'pino-http';
 import pg from 'postgres';
 import { z as Zod } from 'zod';
-
-import type { DatabaseHandler } from '../db/index.js';
-import type { Logger } from '../utils/index.js';
 
 import type {
   CreatedUser,
@@ -44,61 +40,36 @@ import type {
   User,
   Users
 } from './api.js';
+import type {
+  AddOptional,
+  AddRequired,
+  ArrayWithAtLeastOneValue,
+  EnvironmentVariables,
+  MaybeArray,
+  Mode,
+  RequestContext,
+  ResolvedValue,
+  Response,
+  SwapKeysValue,
+  UnknownObject
+} from './types.js';
 
-/******************************** General *****************************************/
-/**********************************************************************************/
-
-export type UnknownObject = { [key: string]: unknown };
-export type MaybeArray<T = unknown> = T | T[];
-export type ArrayWithAtLeastOneValue<T = unknown> = [T, ...T[]];
-
-export type AddRequired<T, K extends keyof T> = Required<Pick<T, K>> & T;
-export type AddOptional<T, K extends keyof T> = Omit<T, K> &
-  Pick<Partial<T>, K>;
-export type SwapKeysValue<T, K extends keyof T, V> = Omit<T, K> & {
-  [P in K]: V;
-};
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ResolvedValue<T = any> = T extends (...args: any) => any
-  ? PromiseFulfilledResult<Awaited<ReturnType<T>>>
-  : PromiseFulfilledResult<Awaited<T>>;
-
-/**************************** Package related *************************************/
 /**********************************************************************************/
 
 export const generalDebug = Debug('dashboard:general');
 export const userDebug = Debug('dashboard:user');
 
-export type Response = ExpressResponse<unknown, { ctx: RequestContext }>;
-export type RequestContext = {
-  db: DatabaseHandler;
-  logger: Logger['handler'];
-};
-
-/********************************** HTTP ******************************************/
-/**********************************************************************************/
-
-export type Mode = 'development' | 'production' | 'test';
-export type EnvironmentVariables = {
-  mode: Mode;
-  server: {
-    port: string;
-    url: string;
-    apiRoute: string;
-    healthCheck: { route: string; allowedHosts: Set<string> };
-    allowedOrigins: Set<string>;
-  };
-  db: string;
-};
-
 /**********************************************************************************/
 
 export {
+  Debug,
+  Router,
+  URL,
+  Zod,
   and,
   compress,
   cors,
   createServer,
-  Debug,
   drizzle,
   eq,
   express,
@@ -114,21 +85,29 @@ export {
   randomUUID,
   relative,
   resolve,
-  Router,
   sql,
-  URL,
-  Zod,
+  type AddOptional,
+  type AddRequired,
   type Application,
+  type ArrayWithAtLeastOneValue,
   type CreatedUser,
   type DeletedUser,
   type DrizzleLogger,
+  type EnvironmentVariables,
   type HttpLogger,
   type IncomingHttpHeaders,
+  type MaybeArray,
+  type Mode,
   type NextFunction,
   type ReactivatedUser,
   type Request,
-  type Server,
+  type RequestContext,
+  type ResolvedValue,
+  type Response,
   type SQL,
+  type Server,
+  type SwapKeysValue,
+  type UnknownObject,
   type UpdatedUser,
   type UpdatedUserSettings,
   type User,
