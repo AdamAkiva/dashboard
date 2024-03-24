@@ -1,11 +1,15 @@
+import { cpus } from 'node:os';
+
 import type { UserConfig } from 'vitest';
 import { defineConfig } from 'vitest/config';
 
-import { isStressTest, withLogs } from './utils.js';
+import { isStressTest, withLogs } from './globalSetup.js';
 
 /**********************************************************************************/
 
-const defaultConfig: UserConfig = {
+const numOfCores = cpus().length;
+
+const defaultTestConfig: UserConfig = {
   root: './',
   testTimeout: 8_000,
   teardownTimeout: 4_000,
@@ -15,7 +19,7 @@ const defaultConfig: UserConfig = {
   restoreMocks: true,
   logHeapUsage: true,
   fileParallelism: true,
-  slowTestThreshold: 128,
+  slowTestThreshold: 256,
   pool: 'threads',
   poolOptions: {
     threads: {
@@ -23,24 +27,28 @@ const defaultConfig: UserConfig = {
       useAtomics: true
     }
   },
-  maxConcurrency: 16,
+  maxConcurrency: numOfCores > 1 ? numOfCores - 1 : 1,
   server: {
     sourcemap: 'inline' as const
   },
-  // default reporter causes formatting issues with stdout for some reason.
-  // This is how we chose to handle it
+  // default reporter causes formatting issues with stdout since it contains a
+  // progress bar and there are prints to stdout during the rendering. As a result
+  // we use the basic reporter when logs are requested
   reporters: withLogs()
     ? ['basic', 'hanging-process']
     : ['default', 'hanging-process']
 };
 
-const stressConfig: UserConfig = {
-  ...defaultConfig,
+const stressTestConfig: UserConfig = {
+  ...defaultTestConfig,
   fileParallelism: false,
   testTimeout: 600_000,
-  teardownTimeout: 16_000
+  teardownTimeout: 16_000,
+  maxConcurrency: 1
 };
 
-export default defineConfig(
-  isStressTest() ? { test: stressConfig } : { test: defaultConfig }
-);
+/**********************************************************************************/
+
+export default defineConfig({
+  test: isStressTest() ? stressTestConfig : defaultTestConfig
+});

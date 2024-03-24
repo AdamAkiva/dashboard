@@ -10,7 +10,7 @@ import {
 } from 'node-mocks-http';
 import { afterAll, beforeAll, describe, expect, inject, it, vi } from 'vitest';
 
-import type { DatabaseHandler } from '../src/db/index.js';
+import { DatabaseHandler } from '../src/db/index.js';
 import { VALIDATION } from '../src/entities/utils.js';
 import * as Middlewares from '../src/server/middleware.js';
 import {
@@ -33,12 +33,7 @@ import type {
   UpdateUserSettings,
   User
 } from './apiTypes.js';
-import {
-  databaseSetup,
-  databaseTeardown,
-  isStressTest,
-  mockLogger
-} from './config/utils.js';
+import { isStressTest, mockLogger } from './config/globalSetup.js';
 
 /**********************************************************************************/
 
@@ -46,6 +41,8 @@ type HttpOptions = Omit<KyOptions, 'method'> & {
   method: 'delete' | 'get' | 'head' | 'patch' | 'post' | 'put';
 };
 type StressTestOptions = AddRequired<Omit<autocannon.Options, 'url'>, 'method'>;
+
+const { baseURL, healthCheckURL } = inject('urls');
 
 /***************************** General utils **************************************/
 /**********************************************************************************/
@@ -111,8 +108,6 @@ function recursivelyCheckFields(obj: UnknownObject): unknown {
 /**********************************************************************************/
 
 export function getRoutes() {
-  const { baseURL, healthCheckURL } = inject('urls');
-
   return {
     health: healthCheckURL,
     user: `${baseURL}/users`
@@ -246,6 +241,25 @@ export async function createUsers(usersData: CreateUser[]) {
 /******************************** Database ****************************************/
 /**********************************************************************************/
 
+export function databaseInitConnection() {
+  const dbUrl = inject('db').url;
+  const mode = inject('mode');
+
+  return new DatabaseHandler({
+    mode: mode,
+    conn: {
+      name: `dashboard-pg-${mode}`,
+      url: dbUrl,
+      healthCheckQuery: DatabaseHandler.HEALTH_CHECK_QUERY
+    },
+    logger: mockLogger().handler
+  });
+}
+
+export async function databaseTeardownConnection(db: DatabaseHandler) {
+  await db.close();
+}
+
 export async function deactivateUsers(
   db: DatabaseHandler,
   ...userIds: ArrayWithAtLeastOneValue<string>
@@ -313,8 +327,6 @@ export {
   afterAll,
   beforeAll,
   DashboardError,
-  databaseSetup,
-  databaseTeardown,
   describe,
   expect,
   isStressTest,

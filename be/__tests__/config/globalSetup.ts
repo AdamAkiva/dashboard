@@ -15,13 +15,22 @@ EventEmitter.captureRejections = true;
 
 import { DatabaseHandler } from '../../src/db/index.js';
 import { HttpServer } from '../../src/server/index.js';
-import { sql } from '../../src/types/index.js';
-
-import { cleanupDatabase, getTestEnv, mockLogger } from './utils.js';
+import {
+  sql,
+  type NextFunction,
+  type Request,
+  type Response
+} from '../../src/types/index.js';
+import {
+  ERR_CODES,
+  Logger,
+  debugEnabled,
+  isTestMode
+} from '../../src/utils/index.js';
 
 /**********************************************************************************/
 
-// This is not exported by vite package, therefore we defined it
+// A type for provide is not exported by vite package, therefore we defined it
 type Provide = { provide: (key: string, value: unknown) => void };
 
 /**********************************************************************************/
@@ -62,19 +71,7 @@ export async function setup({ provide }: Provide) {
   await server.attachConfigurationMiddlewares();
   server.attachRoutesMiddlewares({
     allowedHosts: serverEnv.healthCheck.allowedHosts,
-    async readyCheck() {
-      let notReadyMsg = '';
-      try {
-        await db
-          .getHandler()
-          .execute(sql.raw(DatabaseHandler.HEALTH_CHECK_QUERY));
-      } catch (err) {
-        handler.error(err, 'Database error');
-        notReadyMsg += '\nDatabase is unavailable';
-      }
-
-      return notReadyMsg;
-    },
+    readyCheck: readyCheckCallback(db, handler),
     logMiddleware: logMiddleware,
     routes: {
       api: `/${serverEnv.apiRoute}`,
@@ -85,7 +82,130 @@ export async function setup({ provide }: Provide) {
   server.listen(serverEnv.port);
 
   return async function teardown() {
-    await cleanupDatabase(db);
+    await databaseTeardown(db);
     server.close();
   };
+}
+
+export function mockLogger() {
+  const logger = new Logger();
+  const { handler: loggerHandler, logMiddleware } = logger;
+
+  function disableLog() {
+    // Disable logs
+  }
+
+  return {
+    handler: debugEnabled()
+      ? loggerHandler
+      : {
+          ...loggerHandler,
+          debug: disableLog,
+          trace: disableLog,
+          info: disableLog,
+          warn: disableLog,
+          error: disableLog,
+          fatal: disableLog
+        },
+    logMiddleware: debugEnabled()
+      ? logMiddleware
+      : (_req: Request, _res: Response, next: NextFunction) => {
+          // Disable logging middleware
+          next();
+        }
+  };
+}
+
+export function withLogs() {
+  return process.env.DEBUG && process.env.DEBUG.includes('dashboard:*');
+}
+
+export function isStressTest() {
+  return !!process.env.STRESS;
+}
+
+/**********************************************************************************/
+
+function getTestEnv() {
+  const mode = process.env.NODE_ENV;
+  checkRuntimeEnv(mode);
+  checkEnvVariables();
+
+  return {
+    mode: process.env.NODE_ENV as 'test',
+    server: {
+      base: 'http://localhost',
+      port: process.env.TEST_SERVER_PORT!,
+      apiRoute: process.env.API_ROUTE!,
+      healthCheck: {
+        route: process.env.HEALTH_CHECK_ROUTE!,
+        allowedHosts: new Set(process.env.ALLOWED_HOSTS!.split(','))
+      }
+    },
+    db: process.env.DB_TEST_URI!
+  };
+}
+
+function checkRuntimeEnv(mode?: string): mode is 'test' {
+  if (isTestMode(mode)) {
+    return true;
+  }
+
+  console.error(
+    `Missing or invalid 'NODE_ENV' env value, should never happen.` +
+      ' Unresolvable, exiting...'
+  );
+
+  process.exit(ERR_CODES.EXIT_NO_RESTART);
+}
+
+function checkEnvVariables() {
+  let missingValues = '';
+  [
+    'TEST_SERVER_PORT',
+    'API_ROUTE',
+    'HEALTH_CHECK_ROUTE',
+    'ALLOWED_HOSTS',
+    'DB_TEST_URI'
+  ].forEach((val) => {
+    if (!process.env[val]) {
+      missingValues += `* Missing ${val} environment variable\n`;
+    }
+  });
+  if (missingValues) {
+    console.error(
+      `\nMissing the following environment vars:\n${missingValues}`
+    );
+
+    process.exit(ERR_CODES.EXIT_NO_RESTART);
+  }
+}
+
+function readyCheckCallback(db: DatabaseHandler, logger: Logger['handler']) {
+  return async function readyCheck() {
+    let notReadyMsg = '';
+    try {
+      await db
+        .getHandler()
+        .execute(sql.raw(DatabaseHandler.HEALTH_CHECK_QUERY));
+    } catch (err) {
+      logger.error(err, 'Database error');
+      notReadyMsg += '\nDatabase is unavailable';
+    }
+
+    return notReadyMsg;
+  };
+}
+
+async function databaseTeardown(db: DatabaseHandler) {
+  const handler = db.getHandler();
+  const {
+    user: { userInfoModel, userCredentialsModel, userSettingsModel }
+  } = db.getModels();
+
+  /* eslint-disable @drizzle/enforce-delete-with-where */
+  await handler.delete(userInfoModel);
+  await handler.delete(userCredentialsModel);
+  await handler.delete(userSettingsModel);
+  /* eslint-enable @drizzle/enforce-delete-with-where */
 }
