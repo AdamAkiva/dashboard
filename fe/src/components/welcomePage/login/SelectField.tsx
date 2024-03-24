@@ -16,12 +16,15 @@ import type { DropdownField } from '@/types';
 
 /******************************************************************************/
 
+const StyledSelect = styled(Select)<{ style: SerializedStyles }>`
+  ${(props) => props.style}
+`;
+
+/******************************************************************************/
+
 type SelectFieldProps = { field: DropdownField; style: SerializedStyles };
 
 const SelectField = ({ field, style }: SelectFieldProps) => {
-  const StyledSelect = styled(Select)`
-    ${style}
-  `;
   const [selectedValue, setSelectedValue] = useState(field.name);
 
   const handleChange = (event: SelectChangeEvent<unknown>) => {
@@ -30,6 +33,7 @@ const SelectField = ({ field, style }: SelectFieldProps) => {
 
   return (
     <StyledSelect
+      style={style}
       value={selectedValue}
       name={field.name}
       onChange={handleChange}
