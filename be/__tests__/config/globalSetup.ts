@@ -199,9 +199,8 @@ function readyCheckCallback(db: DatabaseHandler, logger: Logger['handler']) {
 
 async function databaseTeardown(db: DatabaseHandler) {
   const handler = db.getHandler();
-  const {
-    user: { userInfoModel, userCredentialsModel, userSettingsModel }
-  } = db.getModels();
+  const { userInfoModel, userCredentialsModel, userSettingsModel } =
+    db.getModels();
 
   /* eslint-disable @drizzle/enforce-delete-with-where */
   await handler.delete(userInfoModel);

@@ -23,9 +23,8 @@ export async function createUser(
 ): Promise<CreatedUser> {
   const { db } = ctx;
   const handler = db.getHandler();
-  const {
-    user: { userInfoModel, userCredentialsModel, userSettingsModel }
-  } = db.getModels();
+  const { userInfoModel, userCredentialsModel, userSettingsModel } =
+    db.getModels();
 
   const { password, ...userInfo } = userData;
   const creationDate = new Date().toISOString();
@@ -78,7 +77,7 @@ export async function createUser(
 
 async function createUserInfoEntry(params: {
   handler: DBHandler;
-  userInfoModel: DBModels['user']['userInfoModel'];
+  userInfoModel: DBModels['userInfoModel'];
   userInfo: Omit<CreateUserValidationData, 'password'>;
   creationDate: string;
 }) {
@@ -103,7 +102,7 @@ async function createUserInfoEntry(params: {
 
 async function createUserCredentialsEntry(params: {
   handler: DBHandler;
-  userCredentialsModel: DBModels['user']['userCredentialsModel'];
+  userCredentialsModel: DBModels['userCredentialsModel'];
   userCredentialsInfo: Pick<CreateUserValidationData, 'email' | 'password'>;
   userId: string;
   creationDate: string;
@@ -131,7 +130,7 @@ async function createUserCredentialsEntry(params: {
 
 async function createDefaultUserSettingsEntry(params: {
   handler: DBHandler;
-  userSettingsModel: DBModels['user']['userSettingsModel'];
+  userSettingsModel: DBModels['userSettingsModel'];
   userId: string;
   creationDate: string;
 }) {

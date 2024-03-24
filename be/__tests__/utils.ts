@@ -265,9 +265,7 @@ export async function deactivateUsers(
   ...userIds: ArrayWithAtLeastOneValue<string>
 ) {
   const handler = db.getHandler();
-  const {
-    user: { userCredentialsModel }
-  } = db.getModels();
+  const { userCredentialsModel } = db.getModels();
 
   await handler
     .update(userCredentialsModel)
@@ -281,9 +279,7 @@ export async function deactivateUsers(
 
 export async function checkUserExists(db: DatabaseHandler, userId: string) {
   const handler = db.getHandler();
-  const {
-    user: { userCredentialsModel }
-  } = db.getModels();
+  const { userCredentialsModel } = db.getModels();
 
   return !!(
     await handler
@@ -301,9 +297,7 @@ export async function checkUserPasswordMatch(params: {
 }) {
   const { db, userId, expectedPassword } = params;
   const handler = db.getHandler();
-  const {
-    user: { userCredentialsModel }
-  } = db.getModels();
+  const { userCredentialsModel } = db.getModels();
 
   return !!(
     await handler
