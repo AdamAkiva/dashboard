@@ -24,7 +24,7 @@ import * as Middlewares from './middleware.js';
 export default class HttpServer {
   private static readonly OPENAPI_FILE = resolve(
     new URL('', import.meta.url).pathname,
-    '../../../assets/openapi.html'
+    '../../api-docs/openapi.html'
   );
   private static readonly ALLOWED_METHODS = new Set<string>([
     'HEAD',
