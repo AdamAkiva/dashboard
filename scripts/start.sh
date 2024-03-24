@@ -13,12 +13,12 @@ NPM_FE_CACHE_FOLDER="cache/fe";
 NPM_BE_CACHE_FOLDER="cache/be";
 
 DB_DATA_FOLDER="$ROOT_DIR"/db-dev-data;
-DB_MIGRATIONS_FOLDER=db-migrations;
+DB_MIGRATIONS_FOLDER="$BE_DIR"/db/migrations;
 
 ################################################################################
 
 start() {
-    DB_INIT_SCRIPT=$(find "$BE_DIR"/"$DB_MIGRATIONS_FOLDER" -type f -name "*.sql");
+    DB_INIT_SCRIPT=$(find "$DB_MIGRATIONS_FOLDER" -type f -name "*.sql");
 
     if [ ! -f "$DB_INIT_SCRIPT" ]; then
         printf "\nMigrations file not found. Did you follow the instructions correctly?\n\n";

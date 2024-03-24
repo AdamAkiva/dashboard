@@ -1,0 +1,102 @@
+[
+  {
+    "userInfo": {
+      "email": "alan.turing@gmail.com",
+      "firstName": "Alan",
+      "lastName": "Turing",
+      "phone": "050-11111111",
+      "gender": "male",
+      "address": "PH1",
+      "createdAt": "PH",
+      "updatedAt": "PH"
+    },
+    "userCredentials": {
+      "userId": "PH",
+      "email": "alan.turing@gmail.com",
+      "password": "Bla123!@#",
+      "createdAt": "PH",
+      "updatedAt": "PH"
+    },
+    "userSettings": {
+      "userId": "PH",
+      "darkMode": false,
+      "createdAt": "PH",
+      "updatedAt": "PH"
+    }
+  },
+  {
+    "userInfo": {
+      "email": "ada.lovelace@gmail.com",
+      "firstName": "Ada",
+      "lastName": "Lovelace",
+      "phone": "050-2222222",
+      "gender": "female",
+      "address": "PH2",
+      "createdAt": "PH",
+      "updatedAt": "PH"
+    },
+    "userCredentials": {
+      "userId": "PH",
+      "email": "ada.lovelace@gmail.com",
+      "password": "Bla456!@#",
+      "createdAt": "PH",
+      "updatedAt": "PH"
+    },
+    "userSettings": {
+      "userId": "PH",
+      "darkMode": true,
+      "createdAt": "PH",
+      "updatedAt": "PH"
+    }
+  },
+  {
+    "userInfo": {
+      "email": "linus.trovalds@gmail.com",
+      "firstName": "Linus",
+      "lastName": "Trovalds",
+      "phone": "050-3333333",
+      "gender": "male",
+      "address": "PH3",
+      "createdAt": "PH",
+      "updatedAt": "PH"
+    },
+    "userCredentials": {
+      "userId": "PH",
+      "email": "linus.trovalds@gmail.com",
+      "password": "Bla789!@#",
+      "createdAt": "PH",
+      "updatedAt": "PH"
+    },
+    "userSettings": {
+      "userId": "PH",
+      "darkMode": true,
+      "createdAt": "PH",
+      "updatedAt": "PH"
+    }
+  },
+  {
+    "userInfo": {
+      "email": "donald.knuth@gmail.com",
+      "firstName": "Donald",
+      "lastName": "Knuth",
+      "phone": "050-4444444",
+      "gender": "male",
+      "address": "PH4",
+      "createdAt": "PH",
+      "updatedAt": "PH"
+    },
+    "userCredentials": {
+      "userId": "PH",
+      "email": "donald.knuth@gmail.com",
+      "password": "Tmp123!@#",
+      "createdAt": "PH",
+      "updatedAt": "PH"
+    },
+    "userSettings": {
+      "userId": "PH",
+      "darkMode": false,
+      "createdAt": "PH",
+      "updatedAt": "PH"
+    }
+  }
+]

@@ -15,7 +15,7 @@ export default tslint.config({
     '@drizzle': drizzle
   },
   extends: [prettier],
-  files: ['src/**/*.ts', '__tests__/**/*.ts'],
+  files: ['src/**/*.ts', '__tests__/**/*.ts', 'db/**/*.ts'],
   languageOptions: {
     globals: {
       ...globals.builtin,
