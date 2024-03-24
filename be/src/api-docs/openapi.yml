@@ -20,13 +20,13 @@ paths:
       summary: Health check for the application
       description: Health check for the application
       responses:
-        '204':
+        204:
           description: The application is healthy
-        '400':
+        400:
           $ref: '#/components/responses/InvalidInputError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '504':
+        504:
           $ref: '#/components/responses/GatewayTimeoutError'
     head:
       servers:
@@ -36,13 +36,13 @@ paths:
       summary: Health check for the application
       description: Health check for the application
       responses:
-        '204':
+        204:
           description: The application is healthy
-        '400':
+        400:
           $ref: '#/components/responses/InvalidInputError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '504':
+        504:
           $ref: '#/components/responses/GatewayTimeoutError'
   /users:
     get:
@@ -61,7 +61,7 @@ paths:
           schema:
             type: boolean
       responses:
-        '200':
+        200:
           description: An array describing the fetched users
           content:
             application/json:
@@ -69,15 +69,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Users'
-        '400':
+        400:
           $ref: '#/components/responses/InvalidInputError'
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '413':
+        413:
           $ref: '#/components/responses/PayloadTooLargeError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
     post:
       tags:
@@ -87,7 +87,7 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/CreateUser'
       responses:
-        '201':
+        201:
           description: An object describing the created user
           content:
             application/json:
@@ -95,15 +95,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CreatedUser'
-        '400':
+        400:
           $ref: '#/components/responses/InvalidInputError'
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '413':
+        413:
           $ref: '#/components/responses/PayloadTooLargeError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
   /users/{userId}:
     get:
@@ -121,23 +121,23 @@ paths:
             format: uuid
             example: adb3271f-94dc-4169-80e9-3d4c8a90201f
       responses:
-        '200':
+        200:
           description: An object describing the fetched user
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        '400':
+        400:
           $ref: '#/components/responses/InvalidInputError'
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '413':
+        413:
           $ref: '#/components/responses/PayloadTooLargeError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
     patch:
       tags:
@@ -156,23 +156,23 @@ paths:
             format: uuid
             example: adb3271f-94dc-4169-80e9-3d4c8a90201f
       responses:
-        '200':
+        200:
           description: An object describing the updated user
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdatedUser'
-        '400':
+        400:
           $ref: '#/components/responses/InvalidInputError'
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '413':
+        413:
           $ref: '#/components/responses/PayloadTooLargeError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
     delete:
       tags:
@@ -193,7 +193,7 @@ paths:
             format: uuid
             example: adb3271f-94dc-4169-80e9-3d4c8a90201f
       responses:
-        '200':
+        200:
           description: >
             The deactivate/deleted user id on success. If the user does not exist,
             an empty string will be returned instead
@@ -201,15 +201,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeletedUser'
-        '400':
+        400:
           $ref: '#/components/responses/InvalidInputError'
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '413':
+        413:
           $ref: '#/components/responses/PayloadTooLargeError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
   /users/reactivate/{userId}:
     patch:
@@ -229,7 +229,7 @@ paths:
             format: uuid
             example: adb3271f-94dc-4169-80e9-3d4c8a90201f
       responses:
-        '200':
+        200:
           description: >
             The deactivate/deleted user id on success. If the user does not exist,
             an empty string will be returned instead
@@ -237,17 +237,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ReactivatedUser'
-        '400':
+        400:
           $ref: '#/components/responses/InvalidInputError'
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '413':
+        413:
           $ref: '#/components/responses/PayloadTooLargeError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
   /users/settings/{userId}:
     patch:
@@ -269,23 +269,23 @@ paths:
             format: uuid
             example: adb3271f-94dc-4169-80e9-3d4c8a90201f
       responses:
-        '200':
+        200:
           description: An object describing the updated user settings
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdatedUserSettings'
-        '400':
+        400:
           $ref: '#/components/responses/InvalidInputError'
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '413':
+        413:
           $ref: '#/components/responses/PayloadTooLargeError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
 
 components:
