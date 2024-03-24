@@ -16,7 +16,7 @@ import type { DropdownField } from '@/types';
 
 /******************************************************************************/
 
-const StyledSelect = styled(Select)<{ styles: SerializedStyles }>`
+const StyledSelect = styled(Select<string>)<{ styles: SerializedStyles }>`
   ${(props) => props.styles}
 `;
 
@@ -27,8 +27,8 @@ type SelectFieldProps = { field: DropdownField; style: SerializedStyles };
 const SelectField = ({ field, style }: SelectFieldProps) => {
   const [selectedValue, setSelectedValue] = useState(field.name);
 
-  const handleChange = (event: SelectChangeEvent<unknown>) => {
-    setSelectedValue(event.target.value as string);
+  const handleChange = (event: SelectChangeEvent<string>) => {
+    setSelectedValue(event.target.value);
   };
 
   return (

@@ -52,9 +52,8 @@ const renderField = (field: FormField) => {
         }
       />
     );
-  } else {
-    return <SelectField field={field} style={fieldInnerCss} />;
   }
+  return <SelectField field={field} style={fieldInnerCss} />;
 };
 
 /******************************************************************************/

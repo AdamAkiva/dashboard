@@ -14,7 +14,7 @@ const handleSubmit = (formData: FormData) => {
 };
 
 const inputFields: FormField[] = [
-  { name: 'Email', required: true, type: 'text', icon: <AlternateEmail /> },
+  { name: 'Email', required: true, type: 'email', icon: <AlternateEmail /> },
   {
     name: 'Password',
     required: true,

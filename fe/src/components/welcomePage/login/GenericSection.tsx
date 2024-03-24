@@ -17,6 +17,8 @@ const GenericSectionStyle = styled('div')`
   color: rgba(55, 61, 122, 0.8);
   font-size: 2rem;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   padding-bottom: 3em;
   height: 18em;
@@ -64,19 +66,17 @@ const GenericSection = ({
 }: GenericSectionProps) => {
   return (
     <GenericSectionStyle>
-      <div>
-        <Title text={titleText} />
-        <Form
-          method="post"
-          onSubmit={(e) => {
-            handleSubmit(e, submitCb);
-          }}
-        >
-          <FormFields inputFields={inputFields} />
-          <Button text={buttonText} />
-        </Form>
-        <Toggle text={toggleText} toggleCb={toggleCb} />
-      </div>
+      <Title text={titleText} />
+      <Form
+        method="post"
+        onSubmit={(e) => {
+          handleSubmit(e, submitCb);
+        }}
+      >
+        <FormFields inputFields={inputFields} />
+        <Button text={buttonText} />
+      </Form>
+      <Toggle text={toggleText} toggleCb={toggleCb} />
     </GenericSectionStyle>
   );
 };

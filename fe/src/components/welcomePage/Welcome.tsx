@@ -14,9 +14,9 @@ const GreetingStyle = styled('div')`
 
 const WelcomeStyle = styled('div')`
   background-image: url(${bgImage});
-  background-repeat: no-repeat;
   background-size: cover;
   padding-left: 5rem;
+  padding-right: 5rem;
 `;
 
 /******************************************************************************/

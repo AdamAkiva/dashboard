@@ -23,7 +23,7 @@ const handleSubmit = (formData: FormData) => {
 const inputFields: FormField[] = [
   { name: 'First Name', required: true, type: 'text', icon: <Badge /> },
   { name: 'Last Name', required: true, type: 'text', icon: <Badge /> },
-  { name: 'Email', required: true, type: 'text', icon: <AlternateEmail /> },
+  { name: 'Email', required: true, type: 'email', icon: <AlternateEmail /> },
   { name: 'Password', required: true, type: 'password', icon: <Lock /> },
   {
     name: 'Confirm Password',
@@ -31,7 +31,7 @@ const inputFields: FormField[] = [
     type: 'password',
     icon: <Lock />
   },
-  { name: 'Phone', required: false, type: 'text', icon: <ContactPhone /> },
+  { name: 'Phone', required: false, type: 'tel', icon: <ContactPhone /> },
   { name: 'Address', required: false, type: 'text', icon: <Home /> },
   {
     name: 'Gender',

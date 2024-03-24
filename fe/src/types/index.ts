@@ -20,7 +20,7 @@ import type { ReactElement, JSXElementConstructor } from 'react';
 type InputField = {
   name: string;
   required: boolean;
-  type: 'password' | 'text';
+  type: 'password' | 'text' | 'tel' | 'email';
   icon: ReactElement<unknown, JSXElementConstructor<unknown> | string>;
 };
 
