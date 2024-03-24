@@ -82,7 +82,7 @@ export async function setup({ provide }: Provide) {
   server.listen(serverEnv.port);
 
   return async function teardown() {
-    await databaseTeardown(db);
+    await cleanupDatabase(db);
     server.close();
   };
 }
@@ -197,7 +197,7 @@ function readyCheckCallback(db: DatabaseHandler, logger: Logger['handler']) {
   };
 }
 
-async function databaseTeardown(db: DatabaseHandler) {
+async function cleanupDatabase(db: DatabaseHandler) {
   const handler = db.getHandler();
   const { userInfoModel, userCredentialsModel, userSettingsModel } =
     db.getModels();
