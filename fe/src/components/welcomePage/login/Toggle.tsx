@@ -6,16 +6,11 @@ import type { OnToggleClickCb } from '@/types';
 
 /******************************************************************************/
 
-const ToggleStyle = styled('div')`
+const ToggleStyle = styled('button')`
   margin-top: 2rem;
-  font-size: 1.1rem;
   color: #9e60b6;
   display: flex;
   padding: 0 1em;
-  
-  &:hover {
-    cursor: pointer;
-  }
 }`;
 /******************************************************************************/
 

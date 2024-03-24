@@ -11,6 +11,8 @@ const ButtonStyleWrapper = styled('div')`
 
 const ButtonStyle = styled('button')`
   background-image: linear-gradient(to right, #b15da3, #939dec 100%);
+  height: 2.5rem;
+  width: 9rem;
 `;
 
 /******************************************************************************/
