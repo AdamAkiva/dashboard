@@ -115,6 +115,8 @@ export function errorHandler(
   return handleUnexpectedError(err, res);
 }
 
+/**********************************************************************************/
+
 function handlePgError(err: pg.PostgresError, res: Response) {
   const { FOREIGN_KEY_VIOLATION, UNIQUE_VIOLATION, TOO_MANY_CONNECTIONS } =
     ERR_CODES.PG;
