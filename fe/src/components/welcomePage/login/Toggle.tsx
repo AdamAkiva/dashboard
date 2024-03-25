@@ -11,7 +11,6 @@ import type { OnToggleClickCb } from '@/types';
 const ToggleStyle = styled('button')`
   margin-top: 2rem;
   color: #9e60b6;
-  display: flex;
   padding: 0 1em;
 }`;
 

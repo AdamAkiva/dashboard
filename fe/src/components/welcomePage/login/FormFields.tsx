@@ -11,10 +11,8 @@ import SelectField from './SelectField';
 /******************************************************************************/
 
 const FieldsStyle = styled('div')`
-  display: grid;
   margin-top: 3rem;
   margin-bottom: 1.5rem;
-  justify-content: center;
   overflow-y: auto;
   overflow-x: hidden;
   max-height: 6em;
@@ -45,7 +43,7 @@ const renderField = (field: FormField) => {
       <StyledInput
         required={field.required}
         name={field.name}
-        placeholder={field.name}
+        placeholder={`${field.name} ${field.required ? '*' : ''}`}
         type={field.type}
         startAdornment={
           <InputAdornment position="start">{field.icon}</InputAdornment>

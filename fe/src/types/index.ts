@@ -1,5 +1,8 @@
 /******************************************************************************/
 
+import type { ReactElement, JSXElementConstructor } from 'react';
+/******************************************************************************/
+
 export type UnknownObject = { [key: string]: unknown };
 export type MaybeArray<T> = T | T[];
 
@@ -15,7 +18,6 @@ export type ResolvedValue<T> = T extends (...args: any) => any
   : PromiseFulfilledResult<Awaited<T>>;
 
 /******************************************************************************/
-import type { ReactElement, JSXElementConstructor } from 'react';
 
 type InputField = {
   name: string;
