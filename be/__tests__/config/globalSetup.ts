@@ -16,16 +16,14 @@ EventEmitter.captureRejections = true;
 import { DatabaseHandler } from '../../src/db/index.js';
 import { HttpServer } from '../../src/server/index.js';
 import {
+  ERR_CODES,
+  Logger,
+  debugEnabled,
+  isTestMode,
   sql,
   type NextFunction,
   type Request,
   type Response
-} from '../../src/types/index.js';
-import {
-  ERR_CODES,
-  Logger,
-  debugEnabled,
-  isTestMode
 } from '../../src/utils/index.js';
 
 /**********************************************************************************/

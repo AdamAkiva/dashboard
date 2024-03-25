@@ -14,7 +14,7 @@
     "seed:drop": "SEED=0 node --import ./loader.js ./db/seed/index.ts",
     "generate:migrations-dev": "npx drizzle-kit drop --config=./db/migrations/drizzle.config.ts && npx drizzle-kit generate:pg --config=./db/migrations/drizzle.config.ts",
     "generate:migrations-prod": "printf 'NYI\n'",
-    "generate:types": "npx swagger-typescript-api --modular --no-client -o ./src/types -p ./src/api-docs/openapi.yml && mv ./src/types/data-contracts.ts ./src/types/api.ts && cp ./src/types/api.ts ./__tests__/apiTypes.ts",
+    "generate:types": "npx swagger-typescript-api --modular --no-client -o ./src/utils/types -p ./src/api-docs/openapi.yml && mv ./src/utils/types/data-contracts.ts ./src/utils/types/api.ts && cp ./src/utils/types/api.ts ./__tests__/apiTypes.ts",
     "generate:openapi": "npx redocly build-docs ./src/api-docs/openapi.yml -o ./src/api-docs/openapi.html",
     "generate:all": "npm run generate:migrations-dev && npm run generate:types && npm run generate:openapi",
     "check-global-updates": "npx ncu -g",

@@ -1,4 +1,4 @@
-import type { UnknownObject } from '../types/index.js';
+import type { UnknownObject } from './types/index.js';
 
 /**********************************************************************************/
 

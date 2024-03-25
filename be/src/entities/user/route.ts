@@ -1,4 +1,4 @@
-import { Router, json } from '../../types/index.js';
+import { Router, json } from '../../utils/index.js';
 
 import {
   createUser,

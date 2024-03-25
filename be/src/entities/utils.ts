@@ -1,6 +1,11 @@
 import type { DatabaseHandler } from '../db/index.js';
-import { Zod, type Debug, type UnknownObject } from '../types/index.js';
-import { DashboardError, StatusCodes } from '../utils/index.js';
+import {
+  DashboardError,
+  StatusCodes,
+  Zod,
+  type Debug,
+  type UnknownObject
+} from '../utils/index.js';
 
 /****************************** Service related ***********************************/
 /**********************************************************************************/

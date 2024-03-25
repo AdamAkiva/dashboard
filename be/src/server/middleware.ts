@@ -1,16 +1,14 @@
 import type { DatabaseHandler } from '../db/index.js';
 import {
-  pg,
-  type NextFunction,
-  type Request,
-  type Response
-} from '../types/index.js';
-import {
   DashboardError,
   ERR_CODES,
   StatusCodes,
+  pg,
   strcasecmp,
-  type Logger
+  type Logger,
+  type NextFunction,
+  type Request,
+  type Response
 } from '../utils/index.js';
 
 /**********************************************************************************/

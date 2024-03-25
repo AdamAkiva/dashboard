@@ -1,14 +1,14 @@
 import type { DBHandler, DBModels } from '../../../db/index.js';
 import {
   eq,
+  objHasValues,
   userDebug,
   type ReactivatedUser,
   type RequestContext,
   type ResolvedValue,
   type UpdatedUser,
   type UpdatedUserSettings
-} from '../../../types/index.js';
-import { objHasValues } from '../../../utils/index.js';
+} from '../../../utils/index.js';
 
 import { asyncDebugWrapper, executePreparedQuery } from '../../utils.js';
 

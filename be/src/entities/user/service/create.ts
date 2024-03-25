@@ -3,7 +3,7 @@ import {
   userDebug,
   type CreatedUser,
   type RequestContext
-} from '../../../types/index.js';
+} from '../../../utils/index.js';
 
 import { asyncDebugWrapper } from '../../utils.js';
 

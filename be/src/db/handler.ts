@@ -6,18 +6,16 @@
  */
 import {
   and,
+  debugEnabled,
   drizzle,
   eq,
+  isDevelopmentMode,
   isNull,
   pg,
   sql,
   type DrizzleLogger,
+  type Logger,
   type Mode
-} from '../types/index.js';
-import {
-  debugEnabled,
-  isDevelopmentMode,
-  type Logger
 } from '../utils/index.js';
 
 /* The default import is on purpose. See: https://orm.drizzle.team/docs/sql-schema-declaration */

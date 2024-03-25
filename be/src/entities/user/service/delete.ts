@@ -3,7 +3,7 @@ import {
   userDebug,
   type DeletedUser,
   type RequestContext
-} from '../../../types/index.js';
+} from '../../../utils/index.js';
 
 import { asyncDebugWrapper, executePreparedQuery } from '../../utils.js';
 

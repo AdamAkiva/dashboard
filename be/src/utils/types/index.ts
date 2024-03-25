@@ -1,7 +1,17 @@
 import type { Response as ExpressResponse } from 'express';
 
-import type { DatabaseHandler } from '../db/index.js';
-import type { Logger } from '../utils/index.js';
+import type { DatabaseHandler } from '../../db/index.js';
+import type Logger from '../logger.js';
+
+import type {
+  CreatedUser,
+  DeletedUser,
+  ReactivatedUser,
+  UpdatedUser,
+  UpdatedUserSettings,
+  User,
+  Users
+} from './api.js';
 
 /******************************** General *****************************************/
 /**********************************************************************************/
@@ -44,4 +54,16 @@ export type EnvironmentVariables = {
     allowedOrigins: Set<string>;
   };
   db: string;
+};
+
+/**********************************************************************************/
+
+export {
+  type CreatedUser,
+  type DeletedUser,
+  type ReactivatedUser,
+  type UpdatedUser,
+  type UpdatedUserSettings,
+  type User,
+  type Users
 };

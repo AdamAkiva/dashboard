@@ -7,7 +7,7 @@ import {
   type SQL,
   type User,
   type Users
-} from '../../../types/index.js';
+} from '../../../utils/index.js';
 
 import { asyncDebugWrapper, executePreparedQuery } from '../../utils.js';
 

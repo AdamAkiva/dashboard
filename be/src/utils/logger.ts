@@ -1,4 +1,4 @@
-import { pinoHttp } from '../types/index.js';
+import { pinoHttp } from 'pino-http';
 
 import { StatusCodes } from './constants.js';
 import { isProductionMode, isTestMode } from './functions.js';

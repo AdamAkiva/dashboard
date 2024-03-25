@@ -15,16 +15,17 @@ import { VALIDATION } from '../src/entities/utils.js';
 import * as Middlewares from '../src/server/middleware.js';
 import {
   and,
+  DashboardError,
   eq,
   inArray,
+  StatusCodes,
   type AddRequired,
   type ArrayWithAtLeastOneValue,
   type Request,
   type ResolvedValue,
   type Response,
   type UnknownObject
-} from '../src/types/index.js';
-import { DashboardError, StatusCodes } from '../src/utils/index.js';
+} from '../src/utils/index.js';
 
 import type {
   CreateUser,

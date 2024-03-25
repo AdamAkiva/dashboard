@@ -1,10 +1,10 @@
 import {
+  StatusCodes,
   userDebug,
   type NextFunction,
   type Request,
   type Response
-} from '../../types/index.js';
-import { StatusCodes } from '../../utils/index.js';
+} from '../../utils/index.js';
 
 import { asyncDebugWrapper, debugWrapper } from '../utils.js';
 

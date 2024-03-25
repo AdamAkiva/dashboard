@@ -1,4 +1,4 @@
-import { Zod, isValidPhoneNumber, type Request } from '../../types/index.js';
+import { Zod, isValidPhoneNumber, type Request } from '../../utils/index.js';
 
 import {
   VALIDATION,

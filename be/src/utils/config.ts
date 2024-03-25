@@ -1,11 +1,10 @@
-import type { EnvironmentVariables, Mode } from '../types/index.js';
-
 import { ERR_CODES } from './constants.js';
 import {
   isDevelopmentMode,
   isProductionMode,
   isTestMode
 } from './functions.js';
+import type { EnvironmentVariables, Mode } from './types/index.js';
 
 /**********************************************************************************/
 

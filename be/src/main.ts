@@ -17,8 +17,7 @@ EventEmitter.captureRejections = true;
 
 import { DatabaseHandler } from './db/index.js';
 import { HttpServer } from './server/index.js';
-import { generalDebug, sql } from './types/index.js';
-import { Logger, getEnv } from './utils/index.js';
+import { Logger, generalDebug, getEnv, sql } from './utils/index.js';
 
 /**********************************************************************************/
 

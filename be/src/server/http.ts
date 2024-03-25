@@ -5,16 +5,14 @@ import {
   cors,
   createServer,
   express,
+  isDevelopmentMode,
+  isProductionMode,
   resolve,
+  type Logger,
   type Mode,
   type NextFunction,
   type Request,
   type Response
-} from '../types/index.js';
-import {
-  isDevelopmentMode,
-  isProductionMode,
-  type Logger
 } from '../utils/index.js';
 
 import * as Middlewares from './middleware.js';
