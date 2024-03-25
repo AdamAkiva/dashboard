@@ -2,6 +2,8 @@
 
 import { styled } from '@mui/material';
 
+import type { KeyboardEventHandler } from 'react';
+
 import type { OnToggleClickCb } from '@/types';
 
 /******************************************************************************/
@@ -15,10 +17,18 @@ const ToggleStyle = styled('button')`
 
 /******************************************************************************/
 
-type ToggleProps = { text: string; toggleCb: OnToggleClickCb };
+type ToggleProps = {
+  text: string;
+  toggleCb: OnToggleClickCb;
+  handleTabKeyDown: KeyboardEventHandler<HTMLButtonElement>;
+};
 
-const Toggle = ({ text, toggleCb }: ToggleProps) => {
-  return <ToggleStyle onClick={toggleCb}>{text}</ToggleStyle>;
+const Toggle = ({ text, toggleCb, handleTabKeyDown }: ToggleProps) => {
+  return (
+    <ToggleStyle onClick={toggleCb} onKeyDown={handleTabKeyDown}>
+      {text}
+    </ToggleStyle>
+  );
 };
 
 export default Toggle;

@@ -1,6 +1,6 @@
 /******************************************************************************/
 
-import type { FormEvent } from 'react';
+import { useRef, useEffect, type FormEvent, type KeyboardEvent } from 'react';
 import { styled } from '@mui/material';
 
 import type { FormField, OnToggleClickCb } from '@/types';
@@ -54,6 +54,17 @@ const handleSubmit = (
   submitCb(new FormData(form));
 };
 
+const handleTabKeyDown = (
+  e: KeyboardEvent<HTMLButtonElement>,
+  firstInput: HTMLInputElement | null
+) => {
+  if (e.key === 'Tab' && !e.shiftKey) {
+    e.preventDefault();
+
+    firstInput?.focus();
+  }
+};
+
 /******************************************************************************/
 
 const GenericSection = ({
@@ -64,6 +75,17 @@ const GenericSection = ({
   toggleCb,
   submitCb
 }: GenericSectionProps) => {
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const firstInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    // Focus on the first input field when the component mounts
+    if (formRef.current) {
+      firstInputRef.current = formRef.current.querySelector('input');
+      firstInputRef.current?.focus();
+    }
+  }, []);
+
   return (
     <GenericSectionStyle>
       <Title text={titleText} />
@@ -72,11 +94,18 @@ const GenericSection = ({
         onSubmit={(e) => {
           handleSubmit(e, submitCb);
         }}
+        ref={formRef}
       >
         <FormFields inputFields={inputFields} />
         <Button text={buttonText} />
       </Form>
-      <Toggle text={toggleText} toggleCb={toggleCb} />
+      <Toggle
+        text={toggleText}
+        toggleCb={toggleCb}
+        handleTabKeyDown={(e: KeyboardEvent<HTMLButtonElement>) =>
+          handleTabKeyDown(e, firstInputRef.current)
+        }
+      />
     </GenericSectionStyle>
   );
 };
