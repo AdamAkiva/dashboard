@@ -3,7 +3,7 @@ services:
     hostname: dashboard-pg-dev
     container_name: dashboard-pg-dev
     restart: unless-stopped
-    image: postgres:16.1-alpine
+    image: postgres:16.2-alpine
     user: ${UID}:${GID}
     environment:
       - POSTGRES_USER=admin
@@ -31,7 +31,7 @@ services:
     hostname: dashboard-pg-test
     container_name: dashboard-pg-test
     restart: unless-stopped
-    image: postgres:16.1-alpine
+    image: postgres:16.2-alpine
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
