@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "nodenext",
-    "target": "ES2022",
+    "target": "ESNext",
     "moduleResolution": "nodenext",
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
@@ -29,7 +29,12 @@
     "skipLibCheck": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["./src/**/*.ts", "./__tests__/**/*.ts", "./loader.js"],
+  "include": [
+    "./src/**/*.ts",
+    "./__tests__/**/*.ts",
+    "./db/**/*.ts",
+    "./loader.js"
+  ],
   "ts-node": {
     "swc": true
   }

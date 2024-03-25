@@ -38,3 +38,6 @@
 !.gitignore
 !.gitkeep
 !LICENSE
+
+# Block previously allowed file(s)
+openapi.html

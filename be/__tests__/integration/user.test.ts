@@ -6,8 +6,8 @@ import {
   checkUserExists,
   checkUserPasswordMatch,
   createUsers,
-  databaseSetup,
-  databaseTeardown,
+  databaseInitConnection,
+  databaseTeardownConnection,
   deactivateUsers,
   describe,
   expect,
@@ -28,9 +28,9 @@ import {
 
 /**********************************************************************************/
 
-const db = databaseSetup();
+const db = databaseInitConnection();
 afterAll(async () => {
-  await databaseTeardown(db);
+  await databaseTeardownConnection(db);
 });
 
 describe.skipIf(isStressTest()).concurrent('User tests', () => {

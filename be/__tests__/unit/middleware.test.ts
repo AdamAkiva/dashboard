@@ -4,8 +4,8 @@ import {
   StatusCodes,
   afterAll,
   createHttpMocks,
-  databaseSetup,
-  databaseTeardown,
+  databaseInitConnection,
+  databaseTeardownConnection,
   describe,
   expect,
   isStressTest,
@@ -15,9 +15,9 @@ import {
 
 /**********************************************************************************/
 
-const db = databaseSetup();
+const db = databaseInitConnection();
 afterAll(async () => {
-  await databaseTeardown(db);
+  await databaseTeardownConnection(db);
 });
 
 describe.skipIf(isStressTest()).concurrent('General tests', () => {

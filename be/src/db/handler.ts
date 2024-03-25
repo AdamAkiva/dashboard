@@ -4,7 +4,6 @@
  * separate it to another file since it is extremely coupled with the database
  * by definition, so we ignore the rule instead
  */
-
 import {
   and,
   drizzle,
@@ -30,7 +29,7 @@ import * as schema from './schemas.js';
  * In regards to using handler and transaction, see this:
  * https://www.answeroverflow.com/m/1164318289674125392
  * In short, it does not matter, handler and transaction are same except
- * for a rollback method, which occurs if an error is thrown
+ * for a rollback method, which is called automatically if a throw occurs
  */
 export type DBHandler =
   | DatabaseHandler['_handler']
@@ -117,11 +116,9 @@ export default class DatabaseHandler {
     });
 
     this._models = {
-      user: {
-        userInfoModel: schema.userInfoModel,
-        userCredentialsModel: schema.userCredentialsModel,
-        userSettingsModel: schema.userSettingsModel
-      }
+      userInfoModel: schema.userInfoModel,
+      userCredentialsModel: schema.userCredentialsModel,
+      userSettingsModel: schema.userSettingsModel
     };
 
     this._preparedQueries = this.generatePreparedQueries();
@@ -148,9 +145,7 @@ export default class DatabaseHandler {
   /********************************************************************************/
 
   private generatePreparedQueries() {
-    const {
-      user: { userInfoModel, userCredentialsModel }
-    } = this._models;
+    const { userInfoModel, userCredentialsModel } = this._models;
 
     // This is a LIE, drizzle does not do any form of prepared statements on the
     // database level. What drizzle refers to as prepared statements is an

@@ -31,9 +31,7 @@ export async function readUsers(
 ): Promise<Users> {
   const { db } = ctx;
   const handler = db.getHandler();
-  const {
-    user: { userInfoModel, userCredentialsModel }
-  } = db.getModels();
+  const { userInfoModel, userCredentialsModel } = db.getModels();
 
   let users: Users = [];
   if (queryParams) {

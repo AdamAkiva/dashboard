@@ -109,24 +109,15 @@ export function errorHandler(
       .json('Request is too large');
   }
   if (err instanceof pg.PostgresError) {
-    return pgErrorHandler(err, res);
-  }
-  if (err instanceof Error) {
-    res.locals.ctx.logger.fatal(err, 'Unhandled exception.\nThis may help:');
-  } else {
-    res.locals.ctx.logger.fatal(
-      err,
-      'Caught a non-error object.\nThis should never happen.\nThis may help ' +
-        'as well:'
-    );
+    return handlePgError(err, res);
   }
 
-  return res
-    .status(StatusCodes.SERVER_ERROR)
-    .json('Unexpected error, please try again');
+  return handleUnexpectedError(err, res);
 }
 
-function pgErrorHandler(err: pg.PostgresError, res: Response) {
+/**********************************************************************************/
+
+function handlePgError(err: pg.PostgresError, res: Response) {
   const { FOREIGN_KEY_VIOLATION, UNIQUE_VIOLATION, TOO_MANY_CONNECTIONS } =
     ERR_CODES.PG;
 
@@ -147,6 +138,22 @@ function pgErrorHandler(err: pg.PostgresError, res: Response) {
           'This may help as well:'
       );
       break;
+  }
+
+  return res
+    .status(StatusCodes.SERVER_ERROR)
+    .json('Unexpected error, please try again');
+}
+
+function handleUnexpectedError(err: unknown, res: Response) {
+  if (err instanceof Error) {
+    res.locals.ctx.logger.fatal(err, 'Unhandled exception.\nThis may help:');
+  } else {
+    res.locals.ctx.logger.fatal(
+      err,
+      'Caught a non-error object.\nThis should never happen.\nThis may help ' +
+        'as well:'
+    );
   }
 
   return res

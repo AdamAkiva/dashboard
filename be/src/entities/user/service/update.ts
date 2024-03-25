@@ -41,9 +41,7 @@ export async function updateUser(
 ): Promise<UpdatedUser> {
   const { db, logger } = ctx;
   const handler = db.getHandler();
-  const {
-    user: { userInfoModel, userCredentialsModel }
-  } = db.getModels();
+  const { userInfoModel, userCredentialsModel } = db.getModels();
 
   const { password, userId, ...userInfo } = updates;
   const updatedAt = new Date().toISOString();
@@ -135,9 +133,7 @@ export async function updateUserSettings(
 ): Promise<UpdatedUserSettings> {
   const { db } = ctx;
   const handler = db.getHandler();
-  const {
-    user: { userCredentialsModel, userSettingsModel }
-  } = db.getModels();
+  const { userCredentialsModel, userSettingsModel } = db.getModels();
 
   const results = await Promise.allSettled([
     isAllowedToUpdate({
@@ -166,7 +162,7 @@ export async function updateUserSettings(
 
 async function isAllowedToUpdate(params: {
   handler: DBHandler;
-  userCredentialsModel: DBModels['user']['userCredentialsModel'];
+  userCredentialsModel: DBModels['userCredentialsModel'];
   userId: string;
 }) {
   const { handler, userCredentialsModel, userId } = params;
@@ -190,7 +186,7 @@ async function isAllowedToUpdate(params: {
 
 async function updateUserInfo(params: {
   handler: DBHandler;
-  userInfoModel: DBModels['user']['userInfoModel'];
+  userInfoModel: DBModels['userInfoModel'];
   userInfo: Omit<UpdateUserValidationData, 'password' | 'userId'>;
   userId: string;
   updatedAt: string;
@@ -218,7 +214,7 @@ async function updateUserInfo(params: {
 
 async function updateUserCredentials(params: {
   handler: DBHandler;
-  userCredentialsModel: DBModels['user']['userCredentialsModel'];
+  userCredentialsModel: DBModels['userCredentialsModel'];
   credentials: Pick<UpdateUserValidationData, 'email' | 'password'>;
   userId: string;
   updatedAt: string;
@@ -250,7 +246,7 @@ async function updateUserCredentials(params: {
 
 async function updateUserSettingsEntry(params: {
   handler: DBHandler;
-  userSettingsModel: DBModels['user']['userSettingsModel'];
+  userSettingsModel: DBModels['userSettingsModel'];
   userSettingsUpdates: UpdateUserSettingsValidationData;
 }) {
   const {

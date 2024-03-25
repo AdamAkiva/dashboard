@@ -6,7 +6,6 @@
  */
 import {
   boolean,
-  pgEnum,
   pgTable,
   timestamp,
   uniqueIndex,
@@ -54,8 +53,6 @@ const timestamps = {
 
 /**********************************************************************************/
 
-export const genderEnum = pgEnum('gender', ['male', 'female', 'other']);
-
 export const userInfoModel = pgTable(
   'users',
   {
@@ -64,7 +61,9 @@ export const userInfoModel = pgTable(
     firstName: varchar('first_name', { length: 128 }).notNull(),
     lastName: varchar('last_name', { length: 256 }).notNull(),
     phone: varchar('phone', { length: 16 }).notNull(),
-    gender: genderEnum('gender').notNull().default('other'),
+    gender: varchar('gender', { enum: ['male', 'female', 'other'] })
+      .notNull()
+      .default('other'),
     address: varchar('address', { length: 256 }).notNull(),
     ...timestamps
   },
