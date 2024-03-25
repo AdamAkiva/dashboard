@@ -1,5 +1,11 @@
 # Dashboard backend
 
+## Run instructions
+
+The project should be ran via docker (will not work without the env variables
+supplied by it).  
+See [here](../README.md) for instructions on how to run it.
+
 ## Tech stack
 
 ### The code is written in nodeJS using typescript. The main libraries in use are:
