@@ -1,6 +1,10 @@
 /******************************************************************************/
 
-import type { ReactElement, JSXElementConstructor } from 'react';
+import type {
+  ReactElement,
+  JSXElementConstructor,
+  HTMLInputTypeAttribute
+} from 'react';
 /******************************************************************************/
 
 export type UnknownObject = { [key: string]: unknown };
@@ -22,7 +26,7 @@ export type ResolvedValue<T> = T extends (...args: any) => any
 type InputField = {
   name: string;
   required: boolean;
-  type: 'password' | 'text' | 'tel' | 'email';
+  type: Extract<HTMLInputTypeAttribute, 'password' | 'text' | 'tel' | 'email'>;
   icon: ReactElement<unknown, JSXElementConstructor<unknown> | string>;
 };
 
