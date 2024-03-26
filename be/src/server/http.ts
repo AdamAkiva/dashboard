@@ -20,9 +20,10 @@ import * as Middlewares from './middleware.js';
 /**********************************************************************************/
 
 export default class HttpServer {
+  // Allowed since v20.11.0: https://github.com/nodejs/node/pull/48740
   private static readonly OPENAPI_FILE = resolve(
-    new URL('', import.meta.url).pathname,
-    '../../api-docs/openapi.html'
+    import.meta.dirname,
+    '../api-docs/openapi.html'
   );
   private static readonly ALLOWED_METHODS = new Set<string>([
     'HEAD',
