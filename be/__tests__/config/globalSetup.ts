@@ -115,7 +115,7 @@ export function mockLogger() {
 }
 
 export function withLogs() {
-  return process.env.DEBUG && process.env.DEBUG.includes('dashboard:*');
+  return process.env.DEBUG?.includes('dashboard:*');
 }
 
 export function isStressTest() {
