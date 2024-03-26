@@ -17,7 +17,9 @@ import type { DropdownField } from '@/types';
 /******************************************************************************/
 
 const StyledSelect = styled(Select<string>)<{ styles: SerializedStyles }>`
-  ${(props) => props.styles}
+  ${(props) => {
+    return props.styles;
+  }}
 `;
 
 /******************************************************************************/

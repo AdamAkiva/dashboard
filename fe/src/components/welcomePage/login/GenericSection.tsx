@@ -56,12 +56,12 @@ const handleSubmit = (
 
 const handleTabKeyDown = (
   e: KeyboardEvent<HTMLButtonElement>,
-  firstInput: HTMLInputElement | null
+  firstInput: HTMLInputElement
 ) => {
   if (e.key === 'Tab' && !e.shiftKey) {
     e.preventDefault();
 
-    firstInput?.focus();
+    firstInput.focus();
   }
 };
 
@@ -75,15 +75,13 @@ const GenericSection = ({
   toggleCb,
   submitCb
 }: GenericSectionProps) => {
-  const formRef = useRef<HTMLFormElement | null>(null);
-  const firstInputRef = useRef<HTMLInputElement | null>(null);
+  const formRef = useRef<HTMLFormElement>(null!);
+  const firstInputRef = useRef<HTMLInputElement>(null!);
 
   useEffect(() => {
     // Focus on the first input field when the component mounts
-    if (formRef.current) {
-      firstInputRef.current = formRef.current.querySelector('input');
-      firstInputRef.current?.focus();
-    }
+    firstInputRef.current = formRef.current.querySelector('input')!;
+    firstInputRef.current.focus();
   }, []);
 
   return (
@@ -102,9 +100,9 @@ const GenericSection = ({
       <Toggle
         text={toggleText}
         toggleCb={toggleCb}
-        handleTabKeyDown={(e: KeyboardEvent<HTMLButtonElement>) =>
-          handleTabKeyDown(e, firstInputRef.current)
-        }
+        handleTabKeyDown={(e) => {
+          return handleTabKeyDown(e, firstInputRef.current);
+        }}
       />
     </GenericSectionStyle>
   );
