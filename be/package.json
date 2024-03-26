@@ -24,7 +24,7 @@
     "check-cir-deps": "npx dpdm --no-tree --transform --exit-code circular:1 \"src/**/*.ts\"",
     "_start": "npm i && npm run generate:openapi && npm run start:dev",
     "_test:ci": "npm run lint && npm run test",
-    "_build": "npx eslint '{src,__tests__}/**/*.ts' && npx tsc --build --verbose ./tsconfig.prod.json"
+    "_build": "npx eslint '{src}/**/*.ts' && npx tsc --build --verbose ./tsconfig.prod.json"
   },
   "dependencies": {
     "compression": "~1.7.4",
