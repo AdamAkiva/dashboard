@@ -1,9 +1,16 @@
-import { createOne } from './create.js';
-import { deleteOne } from './delete.js';
-import { reactivateOne } from './reactivate.js';
-import { readOne } from './read.js';
-import { updateOne } from './update.js';
+import { createUser } from './create.js';
+import { deleteUser } from './delete.js';
+import { readUser, readUsers } from './read.js';
+import { reactivateUser, updateUser, updateUserSettings } from './update.js';
 
 /**********************************************************************************/
 
-export { createOne, deleteOne, reactivateOne, readOne, updateOne };
+export {
+  createUser,
+  deleteUser,
+  reactivateUser,
+  readUser,
+  readUsers,
+  updateUser,
+  updateUserSettings
+};

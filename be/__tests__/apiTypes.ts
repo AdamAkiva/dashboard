@@ -9,6 +9,8 @@
  * ---------------------------------------------------------------
  */
 
+export type Users = User[];
+
 export interface User {
   /** @format uuid */
   id: string;
@@ -20,9 +22,26 @@ export interface User {
   phone: string;
   gender: 'male' | 'female' | 'other';
   address: string;
-  /** @format date-time */
-  createdAt: string;
-  isActive: boolean;
+}
+
+export type CreatedUser = User;
+
+export type UpdatedUser = User;
+
+/**
+ * @format uuid
+ * @example "adb3271f-94dc-4169-80e9-3d4c8a90201f"
+ */
+export type DeletedUser = string;
+
+/**
+ * @format uuid
+ * @example "adb3271f-94dc-4169-80e9-3d4c8a90201f"
+ */
+export type ReactivatedUser = string;
+
+export interface UpdatedUserSettings {
+  darkMode: boolean;
 }
 
 export interface CreateUser {
@@ -51,4 +70,6 @@ export interface UpdateUser {
   address?: string;
 }
 
-export type ReactivateUser = CreateUser;
+export interface UpdateUserSettings {
+  darkMode?: boolean;
+}

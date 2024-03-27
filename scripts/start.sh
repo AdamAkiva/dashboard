@@ -13,12 +13,12 @@ NPM_FE_CACHE_FOLDER="cache/fe";
 NPM_BE_CACHE_FOLDER="cache/be";
 
 DB_DATA_FOLDER="$ROOT_DIR"/db-dev-data;
-DB_MIGRATIONS_FOLDER=db-migrations;
+DB_MIGRATIONS_FOLDER="$BE_DIR"/db/migrations;
 
 ################################################################################
 
 start() {
-    DB_INIT_SCRIPT=$(find "$BE_DIR"/"$DB_MIGRATIONS_FOLDER" -type f -name "*.sql");
+    DB_INIT_SCRIPT=$(find "$DB_MIGRATIONS_FOLDER" -type f -name "*.sql");
 
     if [ ! -f "$DB_INIT_SCRIPT" ]; then
         printf "\nMigrations file not found. Did you follow the instructions correctly?\n\n";
@@ -35,7 +35,7 @@ start() {
     printf "Do you want to rebuild the images? (y/n) ";
     read -r is_rebuild;
 
-    # Rebuild to images
+    # Rebuild the images
     if [ "$is_rebuild" = "y" ]; then
         if ! UID="$UID" GID="$GID" DB_INIT_SCRIPT="$DB_INIT_SCRIPT" docker compose build ; then
             printf "\nDocker build failed. Solve the errors and try again.\n";

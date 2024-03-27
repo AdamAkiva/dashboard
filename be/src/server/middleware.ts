@@ -1,10 +1,14 @@
 import type { DatabaseHandler } from '../db/index.js';
-import type { NextFunction, Request, Response } from '../types/index.js';
 import {
   DashboardError,
+  ERR_CODES,
   StatusCodes,
+  pg,
   strcasecmp,
-  type Logger
+  type Logger,
+  type NextFunction,
+  type Request,
+  type Response
 } from '../utils/index.js';
 
 /**********************************************************************************/
@@ -68,7 +72,6 @@ export function attachContext(db: DatabaseHandler, logger: Logger['handler']) {
   ) {
     res.locals.ctx = {
       db: db,
-      preparedQueries: db.getPreparedQueries(),
       logger: logger
     };
 
@@ -92,14 +95,63 @@ export function errorHandler(
   }
   res.err = err; // Needed in order to display the correct stack trace in the logs
 
+  // The order is based on two things, type fallback and the chances of each error
+  // happening. For example, Dashboard error should be the most common error reason,
+  // and it should be the first from that perspective
+  if (err instanceof DashboardError) {
+    return res.status(err.getCode()).json(err.getMessage());
+  }
   if (!strcasecmp(err.name, 'PayloadTooLargeError')) {
     return res
       .status(StatusCodes.CONTENT_TOO_LARGE)
       .json('Request is too large');
   }
+  if (err instanceof pg.PostgresError) {
+    return handlePgError(err, res);
+  }
 
-  if (err instanceof DashboardError) {
-    return res.status(err.getCode()).json(err.getMessage());
+  return handleUnexpectedError(err, res);
+}
+
+/**********************************************************************************/
+
+function handlePgError(err: pg.PostgresError, res: Response) {
+  const { FOREIGN_KEY_VIOLATION, UNIQUE_VIOLATION, TOO_MANY_CONNECTIONS } =
+    ERR_CODES.PG;
+
+  switch (err.code) {
+    case FOREIGN_KEY_VIOLATION:
+    case UNIQUE_VIOLATION:
+      res.locals.ctx.logger.fatal(
+        err,
+        'Should have been handled by the code and never get here. Check the' +
+          'code implementation.\nThis may help as well:'
+      );
+      break;
+    case TOO_MANY_CONNECTIONS:
+      res.locals.ctx.logger.fatal(
+        err,
+        'Exceeded database maximum connections.\nThis Should never happen, ' +
+          'check the server and database logs to understand why it happened.\n' +
+          'This may help as well:'
+      );
+      break;
+  }
+
+  return res
+    .status(StatusCodes.SERVER_ERROR)
+    .json('Unexpected error, please try again');
+}
+
+function handleUnexpectedError(err: unknown, res: Response) {
+  if (err instanceof Error) {
+    res.locals.ctx.logger.fatal(err, 'Unhandled exception.\nThis may help:');
+  } else {
+    res.locals.ctx.logger.fatal(
+      err,
+      'Caught a non-error object.\nThis should never happen.\nThis may help ' +
+        'as well:'
+    );
   }
 
   return res

@@ -1,11 +1,9 @@
-version: "3.9"
-
 services:
   dashboard-pg-dev:
     hostname: dashboard-pg-dev
     container_name: dashboard-pg-dev
     restart: unless-stopped
-    image: postgres:16.1-alpine
+    image: postgres:16.2-alpine
     user: ${UID}:${GID}
     environment:
       - POSTGRES_USER=admin
@@ -25,7 +23,7 @@ services:
       interval: 3s
       timeout: 2s
       retries: 5
-    command: postgres -p 5432
+    command: postgres -p 5432 -c log_statement=all
 
 ################################################################################
 
@@ -33,7 +31,7 @@ services:
     hostname: dashboard-pg-test
     container_name: dashboard-pg-test
     restart: unless-stopped
-    image: postgres:16.1-alpine
+    image: postgres:16.2-alpine
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
@@ -49,7 +47,7 @@ services:
       interval: 3s
       timeout: 2s
       retries: 5
-    command: postgres -p 5432
+    command: postgres -p 5432 -c log_statement=all
 
 ################################################################################
 

@@ -1,16 +1,5 @@
-import DatabaseHandler, {
-  type DBHandler,
-  type DBModels,
-  type DBPreparedQueries,
-  type Transaction
-} from './handler.js';
+import DatabaseHandler, { type DBHandler, type DBModels } from './handler.js';
 
 /**********************************************************************************/
 
-export {
-  DatabaseHandler,
-  type DBHandler,
-  type DBModels,
-  type DBPreparedQueries,
-  type Transaction
-};
+export { DatabaseHandler, type DBHandler, type DBModels };

@@ -23,7 +23,8 @@ export const ERR_CODES = {
   // See: https://www.postgresql.org/docs/current/errcodes-appendix.html
   PG: {
     FOREIGN_KEY_VIOLATION: '23503',
-    UNIQUE_VIOLATION: '23505'
+    UNIQUE_VIOLATION: '23505',
+    TOO_MANY_CONNECTIONS: '53300'
   },
   // Indicator to the deployment orchestration service to not attempt to restart
   // the service, since the error is a result of a programmer error, and therefore

@@ -1,5 +1,4 @@
 // @ts-check
-
 import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 // @ts-ignore
@@ -16,9 +15,10 @@ export default tslint.config({
     '@drizzle': drizzle
   },
   extends: [prettier],
-  files: ['src/**/*.ts', '__tests__/**/*.ts'],
+  files: ['src/**/*.ts', '__tests__/**/*.ts', 'db/**/*.ts'],
   languageOptions: {
     globals: {
+      ...globals.builtin,
       ...globals.node
     },
     ecmaVersion: 'latest',

@@ -1,7 +1,7 @@
-FROM node:18.19.1-alpine as be-base
+FROM node:20.11.1-alpine as be-base
 
 # Install dependencies
-RUN apk update && apk add curl
+RUN apk update && apk add --no-cache curl=8.5.0-r0
 
 ################################ Development ###################################
 

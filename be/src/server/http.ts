@@ -5,16 +5,14 @@ import {
   cors,
   createServer,
   express,
+  isDevelopmentMode,
+  isProductionMode,
   resolve,
+  type Logger,
   type Mode,
   type NextFunction,
   type Request,
   type Response
-} from '../types/index.js';
-import {
-  isDevelopmentMode,
-  isProductionMode,
-  type Logger
 } from '../utils/index.js';
 
 import * as Middlewares from './middleware.js';
@@ -22,9 +20,10 @@ import * as Middlewares from './middleware.js';
 /**********************************************************************************/
 
 export default class HttpServer {
+  // Allowed since v20.11.0: https://github.com/nodejs/node/pull/48740
   private static readonly OPENAPI_FILE = resolve(
-    new URL('', import.meta.url).pathname,
-    '../../../assets/openapi.html'
+    import.meta.dirname,
+    '../api-docs/openapi.html'
   );
   private static readonly ALLOWED_METHODS = new Set<string>([
     'HEAD',
@@ -70,9 +69,7 @@ export default class HttpServer {
     this._server.close();
   }
 
-  public async attachConfigurationMiddlewares(
-    allowedOrigins: Set<string> = new Set<string>()
-  ) {
+  public async attachConfigurationMiddlewares(allowedOrigins: Set<string>) {
     this._app.use(
       Middlewares.checkMethod(HttpServer.ALLOWED_METHODS),
       cors({

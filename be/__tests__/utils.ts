@@ -10,26 +10,31 @@ import {
 } from 'node-mocks-http';
 import { afterAll, beforeAll, describe, expect, inject, it, vi } from 'vitest';
 
-import type { DatabaseHandler } from '../src/db/index.js';
-import { VALIDATION } from '../src/entities/utils/index.js';
+import { DatabaseHandler } from '../src/db/index.js';
+import { VALIDATION } from '../src/entities/utils.js';
 import * as Middlewares from '../src/server/middleware.js';
 import {
   and,
+  DashboardError,
   eq,
+  inArray,
+  StatusCodes,
   type AddRequired,
+  type ArrayWithAtLeastOneValue,
   type Request,
   type ResolvedValue,
   type Response,
   type UnknownObject
-} from '../src/types/index.js';
-import { DashboardError, StatusCodes } from '../src/utils/index.js';
+} from '../src/utils/index.js';
 
-import type { CreateUser, UpdateUser, User } from './apiTypes.js';
-import {
-  databaseSetup,
-  databaseTeardown,
-  isStressTest
-} from './config/utils.js';
+import type {
+  CreateUser,
+  UpdatedUserSettings,
+  UpdateUser,
+  UpdateUserSettings,
+  User
+} from './apiTypes.js';
+import { isStressTest, mockLogger } from './config/globalSetup.js';
 
 /**********************************************************************************/
 
@@ -37,6 +42,8 @@ type HttpOptions = Omit<KyOptions, 'method'> & {
   method: 'delete' | 'get' | 'head' | 'patch' | 'post' | 'put';
 };
 type StressTestOptions = AddRequired<Omit<autocannon.Options, 'url'>, 'method'>;
+
+const { baseURL, healthCheckURL } = inject('urls');
 
 /***************************** General utils **************************************/
 /**********************************************************************************/
@@ -102,8 +109,6 @@ function recursivelyCheckFields(obj: UnknownObject): unknown {
 /**********************************************************************************/
 
 export function getRoutes() {
-  const { baseURL, healthCheckURL } = inject('urls');
-
   return {
     health: healthCheckURL,
     user: `${baseURL}/users`
@@ -168,12 +173,18 @@ export async function sendHttpRequest<ReturnType = unknown>(
 }
 
 export function createHttpMocks(
+  db: DatabaseHandler,
   reqOptions?: RequestOptions,
   resOptions?: ResponseOptions
 ) {
   return {
     request: createRequest<Request>(reqOptions),
-    response: createResponse<Response>(resOptions)
+    response: createResponse<Response>({
+      ...resOptions,
+      locals: {
+        ctx: { db: db, logger: mockLogger().handler }
+      }
+    })
   };
 }
 
@@ -220,9 +231,7 @@ export async function createUsers(usersData: CreateUser[]) {
       json: userData
     });
     expect(statusCode).toBe(StatusCodes.CREATED);
-    expect(omit(data, 'id', 'createdAt', 'isActive')).toStrictEqual(
-      omit(userData, 'password')
-    );
+    expect(omit(data, 'id')).toStrictEqual(omit(userData, 'password'));
 
     users.push(data);
   }
@@ -233,23 +242,45 @@ export async function createUsers(usersData: CreateUser[]) {
 /******************************** Database ****************************************/
 /**********************************************************************************/
 
-export async function deactivateUser(db: DatabaseHandler, userId: string) {
+export function databaseInitConnection() {
+  const dbUrl = inject('db').url;
+  const mode = inject('mode');
+
+  return new DatabaseHandler({
+    mode: mode,
+    conn: {
+      name: `dashboard-pg-${mode}`,
+      url: dbUrl,
+      healthCheckQuery: DatabaseHandler.HEALTH_CHECK_QUERY
+    },
+    logger: mockLogger().handler
+  });
+}
+
+export async function databaseTeardownConnection(db: DatabaseHandler) {
+  await db.close();
+}
+
+export async function deactivateUsers(
+  db: DatabaseHandler,
+  ...userIds: ArrayWithAtLeastOneValue<string>
+) {
   const handler = db.getHandler();
-  const {
-    user: { userCredentialsModel }
-  } = db.getModels();
+  const { userCredentialsModel } = db.getModels();
 
   await handler
     .update(userCredentialsModel)
-    .set({ isActive: false })
-    .where(eq(userCredentialsModel.userId, userId));
+    .set({ archivedAt: new Date().toISOString() })
+    .where(
+      userIds.length > 1
+        ? inArray(userCredentialsModel.userId, userIds)
+        : eq(userCredentialsModel.userId, userIds[0])
+    );
 }
 
 export async function checkUserExists(db: DatabaseHandler, userId: string) {
   const handler = db.getHandler();
-  const {
-    user: { userCredentialsModel }
-  } = db.getModels();
+  const { userCredentialsModel } = db.getModels();
 
   return !!(
     await handler
@@ -267,9 +298,7 @@ export async function checkUserPasswordMatch(params: {
 }) {
   const { db, userId, expectedPassword } = params;
   const handler = db.getHandler();
-  const {
-    user: { userCredentialsModel }
-  } = db.getModels();
+  const { userCredentialsModel } = db.getModels();
 
   return !!(
     await handler
@@ -293,8 +322,6 @@ export {
   afterAll,
   beforeAll,
   DashboardError,
-  databaseSetup,
-  databaseTeardown,
   describe,
   expect,
   isStressTest,
@@ -306,6 +333,8 @@ export {
   vi,
   type CreateUser,
   type ResolvedValue,
+  type UpdatedUserSettings,
   type UpdateUser,
+  type UpdateUserSettings,
   type User
 };

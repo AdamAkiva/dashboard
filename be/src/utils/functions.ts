@@ -1,9 +1,9 @@
-import type { UnknownObject } from '../types/index.js';
+import type { UnknownObject } from './types/index.js';
 
 /**********************************************************************************/
 
 /**
- * Generics allows for VSCode type completion
+ * The reason for generic use is that it allows for type completion
  * The compare disregard case (more formally known as case-insensitive compare)
  * @returns 0 if s1 and s2 are lexicographic equal.
  * A negative value if s1 is lexicographic less than s2.
@@ -27,7 +27,11 @@ export function objHasValues(obj: UnknownObject) {
 }
 
 export function filterNullAndUndefined<T>(value?: T | null): value is T {
-  return value !== undefined && value !== null;
+  return value != null;
+}
+
+export function debugEnabled() {
+  return process.env.DEBUG !== undefined;
 }
 
 export function isDevelopmentMode(mode?: string) {

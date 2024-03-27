@@ -1,8 +1,8 @@
 import {
   StatusCodes,
   afterAll,
-  databaseSetup,
-  databaseTeardown,
+  databaseInitConnection,
+  databaseTeardownConnection,
   describe,
   expect,
   getRoutes,
@@ -13,9 +13,9 @@ import {
 
 /**********************************************************************************/
 
-const db = databaseSetup();
+const db = databaseInitConnection();
 afterAll(async () => {
-  await databaseTeardown(db);
+  await databaseTeardownConnection(db);
 });
 
 describe.skipIf(isStressTest()).concurrent('General tests', () => {
@@ -26,9 +26,7 @@ describe.skipIf(isStressTest()).concurrent('General tests', () => {
       it('Valid host', async () => {
         const { data, statusCode } = await sendHttpRequest<unknown>(
           healthCheckURL,
-          {
-            method: 'get'
-          }
+          { method: 'get' }
         );
         expect(statusCode).toBe(StatusCodes.NO_CONTENT);
         expect(typeof data === 'string').toBe(true);

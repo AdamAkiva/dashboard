@@ -1,38 +1,10 @@
-import type { DBPreparedQueries, DatabaseHandler } from '../../db/index.js';
 import {
+  DashboardError,
+  ERR_CODES,
+  StatusCodes,
   pg,
-  type Debug,
-  type RequestContext,
-  type UnknownObject
-} from '../../types/index.js';
-import { DashboardError, ERR_CODES, StatusCodes } from '../../utils/index.js';
-
-/**********************************************************************************/
-
-export async function executePreparedQuery<
-  T extends keyof DBPreparedQueries
->(params: {
-  db: DatabaseHandler;
-  queryName: T;
-  phValues?: UnknownObject;
-  debug: { instance: ReturnType<typeof Debug>; msg: string };
-}) {
-  const {
-    db,
-    queryName,
-    phValues,
-    debug: { instance: debugInstance, msg }
-  } = params;
-  const preparedQueries = db.getPreparedQueries();
-
-  debugInstance(msg);
-  const res = (await preparedQueries[queryName].execute(phValues)) as Awaited<
-    ReturnType<DBPreparedQueries[T]['execute']>
-  >;
-  debugInstance(`Done ${msg.charAt(0).toLowerCase() + msg.slice(1)}`);
-
-  return res;
-}
+  type RequestContext
+} from '../../../utils/index.js';
 
 /**********************************************************************************/
 
@@ -79,7 +51,7 @@ export function userNotAllowedToBeUpdated(userId: string) {
   );
 }
 
-export function userUpdatedButReadFailed(params: {
+export function userUpdatedReadFailed(params: {
   err: unknown;
   userId: string;
   logger: RequestContext['logger'];

@@ -2,7 +2,7 @@
   "restartable": "rs",
   "watch": ["./src"],
   "execMap": {
-    "ts": "NODE_ENV=development node --nolazy --enable-source-maps --trace-uncaught --trace-warnings --inspect=0.0.0.0:9229 --import ./loader.js"
+    "ts": "NODE_ENV=development node --nolazy --enable-source-maps --trace-uncaught --trace-warnings --inspect=0.0.0.0:$SERVER_DEBUG_PORT --import ./loader.js"
   },
   "ext": "ts,json",
   "signal": "SIGTERM",

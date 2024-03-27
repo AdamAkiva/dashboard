@@ -1,25 +1,63 @@
 import {
+  StatusCodes,
   userDebug,
   type NextFunction,
   type Request,
   type Response
-} from '../../types/index.js';
-import { StatusCodes } from '../../utils/index.js';
+} from '../../utils/index.js';
+
+import { asyncDebugWrapper, debugWrapper } from '../utils.js';
 
 import * as Service from './service/index.js';
 import * as Validator from './validator.js';
 
 /**********************************************************************************/
 
-export async function readOne(req: Request, res: Response, next: NextFunction) {
+export async function readUsers(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
-    userDebug('readOne validation');
-    const userId = Validator.readOne(req);
-    userDebug('readOne validation done');
+    const queryParams = debugWrapper(
+      () => {
+        return Validator.readUsers(req);
+      },
+      { instance: userDebug, msg: 'readUsers validation' }
+    );
 
-    userDebug('readOne service');
-    const user = await Service.readOne(res.locals.ctx, userId);
-    userDebug('readOne service done');
+    const users = await asyncDebugWrapper(
+      async () => {
+        return await Service.readUsers(res.locals.ctx, queryParams);
+      },
+      { instance: userDebug, msg: 'readUsers service' }
+    );
+
+    return res.status(StatusCodes.SUCCESS).json(users);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+export async function readUser(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const userId = debugWrapper(
+      () => {
+        return Validator.readUser(req);
+      },
+      { instance: userDebug, msg: 'readUser validation' }
+    );
+
+    const user = await asyncDebugWrapper(
+      async () => {
+        return await Service.readUser(res.locals.ctx, userId);
+      },
+      { instance: userDebug, msg: 'readUser service' }
+    );
 
     return res.status(StatusCodes.SUCCESS).json(user);
   } catch (err) {
@@ -27,83 +65,134 @@ export async function readOne(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export async function createOne(
+export async function createUser(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-    userDebug('createOne validation');
-    const userData = Validator.createOne(req);
-    userDebug('createOne validation done');
+    const userData = debugWrapper(
+      () => {
+        return Validator.createUser(req);
+      },
+      { instance: userDebug, msg: 'createUser validation' }
+    );
 
-    userDebug('createOne service');
-    const user = await Service.createOne(res.locals.ctx, userData);
-    userDebug('createOne service done');
+    const createdUser = await asyncDebugWrapper(
+      async () => {
+        return await Service.createUser(res.locals.ctx, userData);
+      },
+      { instance: userDebug, msg: 'createUser service' }
+    );
 
-    return res.status(StatusCodes.CREATED).json(user);
+    return res.status(StatusCodes.CREATED).json(createdUser);
   } catch (err) {
     return next(err);
   }
 }
 
-export async function updateOne(
+export async function updateUser(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-    userDebug('updateOne validation');
-    const updates = Validator.updateOne(req);
-    userDebug('updateOne validation done');
+    const userUpdates = debugWrapper(
+      () => {
+        return Validator.updateUser(req);
+      },
+      { instance: userDebug, msg: 'updateUser validation' }
+    );
 
-    userDebug('updateOne service');
-    const user = await Service.updateOne(res.locals.ctx, updates);
-    userDebug('updateOne service done');
+    const updatedUser = await asyncDebugWrapper(
+      async () => {
+        return await Service.updateUser(res.locals.ctx, userUpdates);
+      },
+      { instance: userDebug, msg: 'updateUser service' }
+    );
 
-    return res.status(StatusCodes.SUCCESS).json(user);
+    return res.status(StatusCodes.SUCCESS).json(updatedUser);
   } catch (err) {
     return next(err);
   }
 }
 
-export async function deleteOne(
+export async function reactivateUser(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-    userDebug('deleteOne validation');
-    const userId = Validator.deleteOne(req);
-    userDebug('deleteOne validation done');
+    const userId = debugWrapper(
+      () => {
+        return Validator.reactivateUser(req);
+      },
+      { instance: userDebug, msg: 'reactivateUser validation' }
+    );
 
-    userDebug('deleteOne service');
-    const user = await Service.deleteOne(res.locals.ctx, userId);
-    userDebug('deleteOne service done');
+    const reactivatedUser = await asyncDebugWrapper(
+      async () => {
+        return await Service.reactivateUser(res.locals.ctx, userId);
+      },
+      { instance: userDebug, msg: 'reactivateUser service' }
+    );
 
-    return res.status(StatusCodes.SUCCESS).json(user);
+    return res.status(StatusCodes.SUCCESS).json(reactivatedUser);
   } catch (err) {
     return next(err);
   }
 }
 
-/**********************************************************************************/
-
-export async function reactivateOne(
+export async function updateUserSettings(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-    userDebug('reactivateOne validation');
-    const userId = Validator.reactivateOne(req);
-    userDebug('reactivateOne validation done');
+    const userSettingsUpdates = debugWrapper(
+      () => {
+        return Validator.updateUserSettings(req);
+      },
+      { instance: userDebug, msg: 'updateUserSettings validation' }
+    );
 
-    userDebug('reactivateOne service');
-    const user = await Service.reactivateOne(res.locals.ctx, userId);
-    userDebug('reactivateOne service done');
+    const reactivatedUser = await asyncDebugWrapper(
+      async () => {
+        return await Service.updateUserSettings(
+          res.locals.ctx,
+          userSettingsUpdates
+        );
+      },
+      { instance: userDebug, msg: 'updateUserSettings service' }
+    );
 
-    return res.status(StatusCodes.SUCCESS).json(user);
+    return res.status(StatusCodes.SUCCESS).json(reactivatedUser);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+export async function deleteUser(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const userId = debugWrapper(
+      () => {
+        return Validator.deleteUser(req);
+      },
+      { instance: userDebug, msg: 'deleteUser validation' }
+    );
+
+    const deletedUserId = await asyncDebugWrapper(
+      async () => {
+        return await Service.deleteUser(res.locals.ctx, userId);
+      },
+      { instance: userDebug, msg: 'deleteUser service' }
+    );
+
+    return res.status(StatusCodes.SUCCESS).json(deletedUserId);
   } catch (err) {
     return next(err);
   }

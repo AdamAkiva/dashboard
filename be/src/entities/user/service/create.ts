@@ -1,57 +1,60 @@
-import type { DBModels, Transaction } from '../../../db/index.js';
+import type { DBHandler, DBModels } from '../../../db/index.js';
 import {
   userDebug,
-  type RequestContext,
-  type User
-} from '../../../types/index.js';
+  type CreatedUser,
+  type RequestContext
+} from '../../../utils/index.js';
 
-import { userCreationError } from '../../utils/service.js';
+import { asyncDebugWrapper } from '../../utils.js';
 
-import type { createOne as createOneValidation } from '../validator.js';
+import type { createUser as createUserValidation } from '../validator.js';
 
-/**********************************************************************************/
-
-type UserCreateOneValidationData = ReturnType<typeof createOneValidation>;
+import { userCreationError } from './utils.js';
 
 /**********************************************************************************/
 
-export async function createOne(
+type CreateUserValidationData = ReturnType<typeof createUserValidation>;
+
+/**********************************************************************************/
+
+export async function createUser(
   ctx: RequestContext,
-  userData: UserCreateOneValidationData
-): Promise<User> {
+  userData: CreateUserValidationData
+): Promise<CreatedUser> {
   const { db } = ctx;
   const handler = db.getHandler();
-  const {
-    user: { userInfoModel, userCredentialsModel, userSettingsModel }
-  } = db.getModels();
+  const { userInfoModel, userCredentialsModel, userSettingsModel } =
+    db.getModels();
 
   const { password, ...userInfo } = userData;
-  const createdAt = new Date().toISOString();
+  const creationDate = new Date().toISOString();
 
-  return await handler.transaction(async (transaction) => {
-    try {
-      const userId = await createUserInfo({
-        transaction: transaction,
-        models: { userInfoModel: userInfoModel },
+  let userId = '';
+  try {
+    await handler.transaction(async (transaction) => {
+      userId = await createUserInfoEntry({
+        handler: transaction,
+        userInfoModel: userInfoModel,
         userInfo: userInfo,
-        createdAt: createdAt
+        creationDate: creationDate
       });
+
       const results = await Promise.allSettled([
-        createUserCredentials({
-          transaction: transaction,
-          models: { userCredentialsModel: userCredentialsModel },
-          credentials: {
+        createUserCredentialsEntry({
+          handler: transaction,
+          userCredentialsModel: userCredentialsModel,
+          userCredentialsInfo: {
             email: userInfo.email,
             password: password
           },
           userId: userId,
-          createdAt: createdAt
+          creationDate: creationDate
         }),
-        createUserDefaultSettings({
-          transaction: transaction,
-          models: { userSettingsModel: userSettingsModel },
+        createDefaultUserSettingsEntry({
+          handler: transaction,
+          userSettingsModel: userSettingsModel,
           userId: userId,
-          createdAt: createdAt
+          creationDate: creationDate
         })
       ]);
       for (const result of results) {
@@ -59,89 +62,88 @@ export async function createOne(
           throw result.reason;
         }
       }
+    });
+  } catch (err) {
+    throw userCreationError(err, userInfo.email);
+  }
 
-      return {
-        ...userInfo,
-        id: userId,
-        createdAt: createdAt,
-        isActive: true
-      };
-    } catch (err) {
-      throw userCreationError(err, userInfo.email);
-    }
-  });
+  return {
+    ...userInfo,
+    id: userId
+  };
 }
 
 /**********************************************************************************/
 
-async function createUserInfo(params: {
-  transaction: Transaction;
-  models: { userInfoModel: DBModels['user']['userInfoModel'] };
-  userInfo: Omit<UserCreateOneValidationData, 'password'>;
-  createdAt: string;
+async function createUserInfoEntry(params: {
+  handler: DBHandler;
+  userInfoModel: DBModels['userInfoModel'];
+  userInfo: Omit<CreateUserValidationData, 'password'>;
+  creationDate: string;
 }) {
-  const {
-    transaction,
-    models: { userInfoModel },
-    userInfo,
-    createdAt
-  } = params;
+  const { handler, userInfoModel, userInfo, creationDate } = params;
 
-  userDebug('Creating user info entry');
-  const userId = (
-    await transaction
-      .insert(userInfoModel)
-      .values({
-        ...userInfo,
-        createdAt: createdAt
-      })
-      .returning({ userId: userInfoModel.id })
-  )[0].userId;
-  userDebug('Done creating user info entry');
-
-  return userId;
+  return await asyncDebugWrapper(
+    async () => {
+      return (
+        await handler
+          .insert(userInfoModel)
+          .values({
+            ...userInfo,
+            createdAt: creationDate,
+            updatedAt: creationDate
+          })
+          .returning({ userId: userInfoModel.id })
+      )[0].userId;
+    },
+    { instance: userDebug, msg: 'Creating user info entry' }
+  );
 }
 
-async function createUserCredentials(params: {
-  transaction: Transaction;
-  models: { userCredentialsModel: DBModels['user']['userCredentialsModel'] };
-  credentials: Pick<UserCreateOneValidationData, 'email' | 'password'>;
+async function createUserCredentialsEntry(params: {
+  handler: DBHandler;
+  userCredentialsModel: DBModels['userCredentialsModel'];
+  userCredentialsInfo: Pick<CreateUserValidationData, 'email' | 'password'>;
   userId: string;
-  createdAt: string;
+  creationDate: string;
 }) {
   const {
-    transaction,
-    models: { userCredentialsModel },
-    credentials,
+    handler,
+    userCredentialsModel,
+    userCredentialsInfo,
     userId,
-    createdAt
+    creationDate
   } = params;
 
-  userDebug('Creating user credentials entry');
-  await transaction.insert(userCredentialsModel).values({
-    ...credentials,
-    userId: userId,
-    createdAt: createdAt
-  });
-  userDebug('Done creating user credentials entry');
+  return await asyncDebugWrapper(
+    async () => {
+      return await handler.insert(userCredentialsModel).values({
+        userId: userId,
+        ...userCredentialsInfo,
+        createdAt: creationDate,
+        updatedAt: creationDate
+      });
+    },
+    { instance: userDebug, msg: 'Creating user credentials entry' }
+  );
 }
 
-async function createUserDefaultSettings(params: {
-  transaction: Transaction;
-  models: { userSettingsModel: DBModels['user']['userSettingsModel'] };
+async function createDefaultUserSettingsEntry(params: {
+  handler: DBHandler;
+  userSettingsModel: DBModels['userSettingsModel'];
   userId: string;
-  createdAt: string;
+  creationDate: string;
 }) {
-  const {
-    transaction,
-    models: { userSettingsModel },
-    userId,
-    createdAt
-  } = params;
+  const { handler, userSettingsModel, userId, creationDate } = params;
 
-  userDebug('Creating default user settings entry');
-  await transaction
-    .insert(userSettingsModel)
-    .values({ userId: userId, createdAt: createdAt });
-  userDebug('Done creating default user settings entry');
+  return await asyncDebugWrapper(
+    async () => {
+      return await handler.insert(userSettingsModel).values({
+        userId: userId,
+        createdAt: creationDate,
+        updatedAt: creationDate
+      });
+    },
+    { instance: userDebug, msg: 'Creating default user settings entry' }
+  );
 }

@@ -1,12 +1,22 @@
-import { Router, json } from '../../types/index.js';
+import { Router, json } from '../../utils/index.js';
 
-import { createOne, deleteOne, reactivateOne, readOne, updateOne } from './controller.js';
+import {
+  createUser,
+  deleteUser,
+  reactivateUser,
+  readUser,
+  readUsers,
+  updateUser,
+  updateUserSettings
+} from './controller.js';
 
 /**********************************************************************************/
 
 export default Router()
-  .post('/users', json({ limit: '16kb' }), createOne)
-  .get('/users/:userId', json({ limit: '2kb' }), readOne)
-  .patch('/users/:userId', json({ limit: '16kb' }), updateOne)
-  .delete('/users/:userId', json({ limit: '2kb' }), deleteOne)
-  .patch('/users/reactivate/:userId', json({ limit: '2kb' }), reactivateOne);
+  .get('/users', json({ limit: '4kb' }), readUsers)
+  .post('/users', json({ limit: '16kb' }), createUser)
+  .get('/users/:userId', json({ limit: '2kb' }), readUser)
+  .patch('/users/:userId', json({ limit: '16kb' }), updateUser)
+  .delete('/users/:userId', json({ limit: '2kb' }), deleteUser)
+  .patch('/users/reactivate/:userId', json({ limit: '2kb' }), reactivateUser)
+  .patch('/users/settings/:userId', json({ limit: '8kb' }), updateUserSettings);

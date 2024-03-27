@@ -1,11 +1,11 @@
-// The imports in this file MUST be external only (not local to the project)
-// The reason is that this file is used by the database migrations process,
-// which is not a part of the application. Any changes with the dependencies
-// must be included ONLY from external packages
-
+/**
+ * The imports in this file MUST be external only (not local to the project)
+ * The reason is that this file is used by the database migrations process,
+ * which is not a part of the application. Any changes with the dependencies
+ * must be included ONLY from external packages
+ */
 import {
   boolean,
-  pgEnum,
   pgTable,
   timestamp,
   uniqueIndex,
@@ -19,9 +19,11 @@ import {
  * Notes:
  * 1. All database related naming MUST be snake_case, this is the convention
  * for SQL based databases. Otherwise the database queries need to be in quotation
- * marks.
- * 2. Primary key is uuid and not serial for two reasons: The first being,
- * it will be must easier to replicate the database where every key is unique.
+ * marks. (although every ORM wrap in the double quotation marks anyhow to prevent
+ * this kind of error, it is better to do things right)
+ * 2. Primary key is a string uuid and not a numeric serial for two reasons:
+ * The first being, it will be must easier to replicate the database where every
+ * key is unique. (and not depend on a seq table)
  * The second being the overhead and data usage of 128 bits for uuid over the 32
  * of serial is ok for us.
  * 3. Indexes exist by default for primary keys and more are added on fields
@@ -51,17 +53,17 @@ const timestamps = {
 
 /**********************************************************************************/
 
-export const genderEnum = pgEnum('gender', ['male', 'female', 'other']);
-
 export const userInfoModel = pgTable(
   'users',
   {
     id: uuid('id').primaryKey().notNull().unique().defaultRandom(),
-    email: varchar('email', { length: 512 }).unique().notNull(),
-    firstName: varchar('first_name', { length: 256 }).notNull(),
+    email: varchar('email', { length: 256 }).unique().notNull(),
+    firstName: varchar('first_name', { length: 128 }).notNull(),
     lastName: varchar('last_name', { length: 256 }).notNull(),
-    phone: varchar('phone', { length: 64 }).notNull(),
-    gender: genderEnum('gender').notNull(),
+    phone: varchar('phone', { length: 16 }).notNull(),
+    gender: varchar('gender', { enum: ['male', 'female', 'other'] })
+      .notNull()
+      .default('other'),
     address: varchar('address', { length: 256 }).notNull(),
     ...timestamps
   },
@@ -83,14 +85,24 @@ export const userCredentialsModel = pgTable(
         },
         { onDelete: 'cascade', onUpdate: 'no action' }
       ),
-    email: varchar('email', { length: 512 }).unique().notNull(),
-    password: varchar('password', { length: 256 }).notNull(),
-    // First delete of a user will be a soft-delete. Second delete will be a hard
-    // delete of that user.
-    // A read of soft-deleted user will work.
-    // A creation of a soft-deleted user will reactivate it.
-    // An update of a soft-deleted user will be forbidden.
-    isActive: boolean('is_active').default(true).notNull(),
+    email: varchar('email', { length: 256 }).unique().notNull(),
+    password: varchar('password', { length: 64 }).notNull(),
+    // First delete of a user will be a soft-delete, meaning populating
+    // the archived_at field with the timestamp when the delete request was
+    // processed. Second delete will be a hard delete of that user.
+
+    // A read of users (by default) will return only active users. The client
+    // may send a query params to return ONLY archived users instead.
+    // A read of soft-deleted user by id will work.
+
+    // A creation of a soft-deleted user will fail with an existing email message.
+
+    // An update for the fields of a soft-deleted user will be forbidden.
+    archivedAt: timestamp('archived_at', {
+      mode: 'string',
+      precision: 6,
+      withTimezone: true
+    }),
     ...timestamps
   },
   (table) => {

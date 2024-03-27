@@ -1,18 +1,15 @@
-import type { EnvironmentVariables, Mode } from '../types/index.js';
-
 import { ERR_CODES } from './constants.js';
 import {
   isDevelopmentMode,
   isProductionMode,
   isTestMode
 } from './functions.js';
+import type { EnvironmentVariables, Mode } from './types/index.js';
 
 /**********************************************************************************/
 
 export const getEnv = (): EnvironmentVariables => {
-  const mode = process.env.NODE_ENV as Mode;
-
-  checkRuntimeEnv(mode);
+  const mode = checkRuntimeEnv(process.env.NODE_ENV);
   checkEnvVariables(mode);
 
   return {
@@ -31,9 +28,9 @@ export const getEnv = (): EnvironmentVariables => {
   };
 };
 
-const checkRuntimeEnv = (mode?: string): mode is Mode => {
+const checkRuntimeEnv = (mode?: string) => {
   if (isDevelopmentMode(mode) || isTestMode(mode) || isProductionMode(mode)) {
-    return true;
+    return mode as Mode;
   }
 
   console.error(
