@@ -1,5 +1,7 @@
 /******************************************************************************/
 
+import { AlternateEmail, LockOpen } from '@mui/icons-material';
+
 import type { FormField, OnToggleClickCb } from '@/types';
 
 import GenericSection from './GenericSection';
@@ -12,8 +14,13 @@ const handleSubmit = (formData: FormData) => {
 };
 
 const inputFields: FormField[] = [
-  { name: 'Email', required: true, type: 'text' },
-  { name: 'Password', required: true, type: 'password' }
+  { name: 'Email', required: true, type: 'email', icon: <AlternateEmail /> },
+  {
+    name: 'Password',
+    required: true,
+    type: 'password',
+    icon: <LockOpen />
+  }
 ];
 
 /******************************************************************************/

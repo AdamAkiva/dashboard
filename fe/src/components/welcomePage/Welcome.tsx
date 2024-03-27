@@ -1,22 +1,22 @@
 /******************************************************************************/
 
-import styled from 'styled-components';
+import { styled } from '@mui/material';
 
 import bgImage from '@/assets/img/left-bg.jpg';
 
 /******************************************************************************/
 
-const GreetingStyle = styled.div`
+const GreetingStyle = styled('div')`
   font-size: 3.5rem;
   margin-top: 7rem;
   margin-bottom: 1rem;
 `;
 
-const WelcomeStyle = styled.div`
+const WelcomeStyle = styled('div')`
   background-image: url(${bgImage});
-  background-repeat: no-repeat;
   background-size: cover;
   padding-left: 5rem;
+  padding-right: 5rem;
 `;
 
 /******************************************************************************/

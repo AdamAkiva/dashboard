@@ -1,48 +1,38 @@
 /******************************************************************************/
 
 import { useMemo } from 'react';
-import styled, { css } from 'styled-components';
+
+import { Input, InputAdornment, styled, css } from '@mui/material';
 
 import type { FormField } from '@/types';
 
+import SelectField from './SelectField';
+
 /******************************************************************************/
 
-const FieldsStyle = styled.div`
-  display: grid;
+const FieldsStyle = styled('div')`
   margin-top: 3rem;
   margin-bottom: 1.5rem;
-  color: black;
-  justify-content: center;
   overflow-y: auto;
   overflow-x: hidden;
   max-height: 6em;
 `;
 
-const FieldStyle = styled.div`
+const FieldStyle = styled('div')`
   padding: 0 0.5em;
 `;
 
-const FieldCss = css`
+const fieldInnerCss = css`
   height: 2.5rem;
-  width: 17rem;
+  width: 18rem;
   margin-bottom: 1rem;
-  background-color: rgba(114, 130, 214, 0.46);
+  background-color: var(--bg-color);
   border-radius: 10px;
-  border: transparent;
-  outline: none;
-  color: black;
-  font-size: 1rem;
   padding: 0 1rem;
 `;
 
-const Input = styled.input`
-  ${FieldCss}
-`;
-
-const Select = styled.select`
-  ${FieldCss}
-  width: 19rem;
-  color: #827675;
+const StyledInput = styled(Input)`
+  ${fieldInnerCss}
 `;
 
 /******************************************************************************/
@@ -50,29 +40,18 @@ const Select = styled.select`
 const renderField = (field: FormField) => {
   if (field.type !== 'dropdown') {
     return (
-      <Input
+      <StyledInput
         required={field.required}
         name={field.name}
-        placeholder={field.name}
+        placeholder={`${field.name} ${field.required ? '*' : ''}`}
         type={field.type}
+        startAdornment={
+          <InputAdornment position="start">{field.icon}</InputAdornment>
+        }
       />
     );
-  } else {
-    return (
-      <Select defaultValue={field.name} name={field.name} key={field.name}>
-        <option value={field.name} disabled={true}>
-          {field.name}
-        </option>
-        {field.options.map((option) => {
-          return (
-            <option value={option} key={option}>
-              {option}
-            </option>
-          );
-        })}
-      </Select>
-    );
   }
+  return <SelectField field={field} style={fieldInnerCss} />;
 };
 
 /******************************************************************************/
