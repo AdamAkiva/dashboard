@@ -1,28 +1,33 @@
 /******************************************************************************/
 
-import styled from 'styled-components';
+import { styled } from '@mui/material';
+
+import type { KeyboardEventHandler } from 'react';
 
 import type { OnToggleClickCb } from '@/types';
 
 /******************************************************************************/
 
-const ToggleStyle = styled.div`
+const ToggleStyle = styled('button')`
   margin-top: 2rem;
-  font-size: 1.1rem;
   color: #9e60b6;
-  display: flex;
   padding: 0 1em;
-  
-  &:hover {
-    cursor: pointer;
-  }
 }`;
+
 /******************************************************************************/
 
-type ToggleProps = { text: string; toggleCb: OnToggleClickCb };
+type ToggleProps = {
+  text: string;
+  toggleCb: OnToggleClickCb;
+  handleTabKeyDown: KeyboardEventHandler<HTMLButtonElement>;
+};
 
-const Toggle = ({ text, toggleCb }: ToggleProps) => {
-  return <ToggleStyle onClick={toggleCb}>{text}</ToggleStyle>;
+const Toggle = ({ text, toggleCb, handleTabKeyDown }: ToggleProps) => {
+  return (
+    <ToggleStyle onClick={toggleCb} onKeyDown={handleTabKeyDown}>
+      {text}
+    </ToggleStyle>
+  );
 };
 
 export default Toggle;

@@ -1,5 +1,8 @@
 /******************************************************************************/
 
+import type { ReactElement, HTMLInputTypeAttribute } from 'react';
+/******************************************************************************/
+
 export type UnknownObject = { [key: string]: unknown };
 export type MaybeArray<T> = T | T[];
 
@@ -19,7 +22,8 @@ export type ResolvedValue<T> = T extends (...args: any) => any
 type InputField = {
   name: string;
   required: boolean;
-  type: 'password' | 'text';
+  type: Extract<HTMLInputTypeAttribute, 'email' | 'password' | 'tel' | 'text'>;
+  icon: ReactElement;
 };
 
 type DropdownField = {
@@ -27,10 +31,11 @@ type DropdownField = {
   required: boolean;
   type: 'dropdown';
   options: string[];
+  icon: ReactElement;
 };
 
 type OnToggleClickCb = () => void;
 
 type FormField = DropdownField | InputField;
 
-export type { FormField, OnToggleClickCb };
+export type { FormField, DropdownField, OnToggleClickCb };

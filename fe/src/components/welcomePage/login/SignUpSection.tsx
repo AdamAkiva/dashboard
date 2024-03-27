@@ -1,5 +1,14 @@
 /******************************************************************************/
 
+import {
+  AlternateEmail,
+  Badge,
+  ContactPhone,
+  Home,
+  Lock,
+  Wc as Gender
+} from '@mui/icons-material';
+
 import type { FormField, OnToggleClickCb } from '@/types';
 
 import GenericSection from './GenericSection';
@@ -12,18 +21,24 @@ const handleSubmit = (formData: FormData) => {
 };
 
 const inputFields: FormField[] = [
-  { name: 'First Name', required: true, type: 'text' },
-  { name: 'Last Name', required: true, type: 'text' },
-  { name: 'Email', required: true, type: 'text' },
-  { name: 'Password', required: true, type: 'password' },
-  { name: 'Confirm Password', required: true, type: 'password' },
-  { name: 'Phone', required: false, type: 'text' },
-  { name: 'Address', required: false, type: 'text' },
+  { name: 'First Name', required: true, type: 'text', icon: <Badge /> },
+  { name: 'Last Name', required: true, type: 'text', icon: <Badge /> },
+  { name: 'Email', required: true, type: 'email', icon: <AlternateEmail /> },
+  { name: 'Password', required: true, type: 'password', icon: <Lock /> },
+  {
+    name: 'Confirm Password',
+    required: true,
+    type: 'password',
+    icon: <Lock />
+  },
+  { name: 'Phone', required: false, type: 'tel', icon: <ContactPhone /> },
+  { name: 'Address', required: false, type: 'text', icon: <Home /> },
   {
     name: 'Gender',
     required: false,
     type: 'dropdown',
-    options: ['Male', 'Female', 'Other']
+    options: ['Male', 'Female', 'Other'],
+    icon: <Gender />
   }
 ];
 

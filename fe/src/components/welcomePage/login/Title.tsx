@@ -1,10 +1,10 @@
 /******************************************************************************/
 
-import styled from 'styled-components';
+import { styled } from '@mui/material';
 
 /******************************************************************************/
 
-const TitleStyle = styled.div`
+const TitleStyle = styled('div')`
   margin-top: 11rem;
   display: flex;
   justify-content: center;
